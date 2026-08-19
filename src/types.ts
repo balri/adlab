@@ -3,25 +3,57 @@ export interface LatLng {
   longitude: number;
 }
 
+// interface AdventureCredit {
+//   isFeatured: boolean;
+//   isPartner: boolean;
+//   maxStages: number;
+//   feeAllowed: boolean;
+//   hyperlinksAllowed: boolean;
+//   lodestoneAllowed: boolean;
+// }
+
 export interface LabSummary {
-  guid: string;
+  adventureGuid: string;
   title: string;
+  keyImageUrl: string;
+  smartLink: string;
+  deepLink: string;
+  firebaseDynamicLink: string;
   description: string;
+  ownerPublicGuid: string;
+  // visibility: string;
+  createdUtc: string;
+  publishedUtc: string;
+  // isArchived: boolean;
+  ratingsAverage: number;
+  ratingsTotalCount: number;
+  isHighlyRecommended: boolean;
   location: LatLng;
-  ownerName: string;
-  rating: number | null;
-  numberOfStages: number | null;
+  stagesTotalCount: number;
+  // isTest: boolean;
+  adventureType: string;
+  completionStatus: "NotStarted" | "InProgress" | "Completed";
+  adventureThemes: Array<string>;
+  // adventureCredit: AdventureCredit;
 }
 
 export interface LabStage {
-  guid: string;
-  name: string;
-  hint: string | null;
-  location: LatLng | null;
+  id: string;
+  title: string;
+  keyImageUrl: string;
+  // findCodeHashBase16v2: Array<string>;
+  // answerCodeHashesBase16v2: Array<string>;
+  isComplete: boolean;
+  description: string;
+  location: LatLng;
+  geofencingRadius: number;
+  challengeType: string;
+  question: string;
+  isFinal: boolean;
 }
 
 export interface LabDetail extends LabSummary {
-  stages: LabStage[];
+  stageSummaries: LabStage[];
 }
 
 export interface SearchParams {

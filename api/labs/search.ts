@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { searchAdventures } from "../_lib/groundspeak";
-import { normalizeSummary } from "../_lib/normalize";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -19,20 +18,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const raw = await searchAdventures({
+    const list = await searchAdventures({
       Origin: { Latitude: lat, Longitude: lng },
       RadiusInMeters: radius,
       Take: take,
-      CompletionStatuses: [],
+      CompletionStatuses: ["NotStarted", "InProgress"],
       OnlyHighlyRecommended: false,
       AdventureTypes: [],
       MedianCompletionTimes: [],
       Themes: [],
-      ExcludeOwned: false,
+      ExcludeOwned: true,
     });
 
-    const list = Array.isArray(raw) ? raw : [];
-    res.status(200).json(list.map(normalizeSummary));
+    res.status(200).json(list.items);
   } catch (err) {
     res.status(502).json({ error: (err as Error).message });
   }

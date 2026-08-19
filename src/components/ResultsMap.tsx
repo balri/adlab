@@ -30,9 +30,9 @@ export default function ResultsMap({ center, labs, onSelect }: Props) {
       <RecenterOnChange center={center} />
       {labs.map((lab) => (
         <Marker
-          key={lab.guid}
+          key={lab.adventureGuid}
           position={[lab.location.latitude, lab.location.longitude]}
-          eventHandlers={{ click: () => onSelect(lab.guid) }}
+          eventHandlers={{ click: () => onSelect(lab.adventureGuid) }}
         >
           <Popup>{lab.title}</Popup>
         </Marker>

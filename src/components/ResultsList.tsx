@@ -13,12 +13,12 @@ export default function ResultsList({ labs }: Props) {
   return (
     <ul className="results-list">
       {labs.map((lab) => (
-        <li key={lab.guid} className="results-list-item">
-          <Link to={`/labs/${lab.guid}`}>{lab.title}</Link>
+        <li key={lab.adventureGuid} className="results-list-item">
+          <Link to={`/labs/${lab.adventureGuid}`}>{lab.title}</Link>
           <div className="results-list-meta">
-            <span>by {lab.ownerName}</span>
-            {lab.rating !== null && <span>★ {lab.rating.toFixed(1)}</span>}
-            {lab.numberOfStages !== null && <span>{lab.numberOfStages} stages</span>}
+            {/* <span>by {lab.ownerName}</span> */}
+            {lab.ratingsAverage !== null && <span>★ {lab.ratingsAverage.toFixed(1)}</span>}
+            {lab.stagesTotalCount !== null && <span>{lab.stagesTotalCount} stages</span>}
           </div>
         </li>
       ))}

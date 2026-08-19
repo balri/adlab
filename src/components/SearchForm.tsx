@@ -6,12 +6,14 @@ interface Props {
   loading: boolean;
 }
 
-const DEFAULT_RADIUS = 10000;
+const DEFAULT_LATITUDE = "-27.49273";
+const DEFAULT_LONGITUDE = "153.03560";
+const DEFAULT_RADIUS = 20000;
 const DEFAULT_TAKE = 25;
 
 export default function SearchForm({ onSearch, loading }: Props) {
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
+  const [latitude, setLatitude] = useState(DEFAULT_LATITUDE);
+  const [longitude, setLongitude] = useState(DEFAULT_LONGITUDE);
   const [radiusInMeters, setRadiusInMeters] = useState(DEFAULT_RADIUS);
   const [take, setTake] = useState(DEFAULT_TAKE);
   const [geoError, setGeoError] = useState<string | null>(null);

@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getAdventure } from "../_lib/groundspeak";
-import { normalizeDetail } from "../_lib/normalize";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -15,8 +14,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const raw = await getAdventure(guid);
-    res.status(200).json(normalizeDetail(raw));
+    const stage = await getAdventure(guid);
+    res.status(200).json(stage);
   } catch (err) {
     res.status(502).json({ error: (err as Error).message });
   }

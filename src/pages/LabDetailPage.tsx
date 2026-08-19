@@ -27,16 +27,15 @@ export default function LabDetailPage() {
       </p>
       <h1>{lab.title}</h1>
       <div className="results-list-meta">
-        <span>by {lab.ownerName}</span>
-        {lab.rating !== null && <span>★ {lab.rating.toFixed(1)}</span>}
+        {/* <span>by {lab.ownerName}</span> */}
+        {lab.ratingsAverage !== null && <span>★ {lab.ratingsAverage.toFixed(1)}</span>}
       </div>
       <p>{lab.description}</p>
-      <h2>Stages ({lab.stages.length})</h2>
+      <h2>Stages ({lab.stageSummaries.length})</h2>
       <ol className="stage-list">
-        {lab.stages.map((stage) => (
-          <li key={stage.guid}>
-            <strong>{stage.name}</strong>
-            {stage.hint && <p className="stage-hint">{stage.hint}</p>}
+        {lab.stageSummaries.map((stage) => (
+          <li key={stage.id}>
+            <strong>{stage.title}</strong>
             {stage.location && (
               <p className="stage-coords">
                 {stage.location.latitude.toFixed(5)}, {stage.location.longitude.toFixed(5)}
