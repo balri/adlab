@@ -100,7 +100,6 @@ export async function searchAdventures(body: SearchAdventuresRequest): Promise<S
   }) as unknown as SearchAdventuresResponse;
 }
 
-/** Raw response shape is not documented upstream — see normalize.ts. */
 export function getAdventure(guid: string): Promise<unknown> {
   return request(`/public/adventures/${encodeURIComponent(guid)}`);
 }

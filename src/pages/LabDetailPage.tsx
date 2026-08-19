@@ -27,7 +27,7 @@ export default function LabDetailPage() {
       </p>
       <h1>{lab.title}</h1>
       <div className="results-list-meta">
-        {/* <span>by {lab.ownerName}</span> */}
+        <span>by {lab.ownerUsername}</span>
         {lab.ratingsAverage !== null && <span>★ {lab.ratingsAverage.toFixed(1)}</span>}
       </div>
       <p>{lab.description}</p>

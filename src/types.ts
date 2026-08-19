@@ -54,6 +54,11 @@ export interface LabStage {
 
 export interface LabDetail extends LabSummary {
   stageSummaries: LabStage[];
+  journalsTotalCount: number;
+  ownerUsername: string;
+  reviewsTotalCount: number;
+  recommendedCount: number;
+  completionCount: number;
 }
 
 export interface SearchParams {

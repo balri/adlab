@@ -10,6 +10,7 @@ export default function SearchPage() {
   const navigate = useNavigate();
   const [labs, setLabs] = useState<LabSummary[]>([]);
   const [center, setCenter] = useState<LatLng | null>(null);
+  const [radiusMetres, setRadiusMetres] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,6 +21,7 @@ export default function SearchPage() {
       const results = await searchLabs(params);
       setLabs(results);
       setCenter({ latitude: params.latitude, longitude: params.longitude });
+      setRadiusMetres(params.radiusInMeters);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -35,6 +37,7 @@ export default function SearchPage() {
         <div className="search-results">
           <ResultsMap
             center={center}
+            radiusMetres={radiusMetres}
             labs={labs}
             onSelect={(guid) => navigate(`/labs/${guid}`)}
           />
