@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getLab } from "../api";
 import type { LabDetail } from "../types";
+import { LabStageDetail } from "../components/LabStageDetail";
 
 export default function LabDetailPage() {
   const { guid } = useParams<{ guid: string }>();
@@ -35,12 +36,7 @@ export default function LabDetailPage() {
       <ol className="stage-list">
         {lab.stageSummaries.map((stage) => (
           <li key={stage.id}>
-            <strong>{stage.title}</strong>
-            {stage.location && (
-              <p className="stage-coords">
-                {stage.location.latitude.toFixed(5)}, {stage.location.longitude.toFixed(5)}
-              </p>
-            )}
+            <LabStageDetail stage={stage} />
           </li>
         ))}
       </ol>
