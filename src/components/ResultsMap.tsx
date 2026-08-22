@@ -5,23 +5,23 @@ import type { LabSummary, LatLng } from "../types";
 const mapWidth = 360;
 
 interface Props {
-  center: LatLng;
-  radiusMetres: number;
+  centre: LatLng;
+  radius: number;
   labs: LabSummary[];
   onSelect: (guid: string) => void;
 }
 
-function RecenterOnChange({ center, radiusMetres }: { center: LatLng; radiusMetres: number; }) {
+function RecentreOnChange({ centre, radius }: { centre: LatLng; radius: number; }) {
   const map = useMap();
   useEffect(() => {
-    map.setView([center.latitude, center.longitude]);
-    map.setZoom(radiusToZoom(radiusMetres, center.latitude, mapWidth));
-  }, [center.latitude, center.longitude, map]);
+    map.setView([centre.latitude, centre.longitude]);
+    map.setZoom(radiusToZoom(radius, centre.latitude, mapWidth));
+  }, [centre.latitude, centre.longitude, radius, map]);
   return null;
 }
 
 function radiusToZoom(
-  radiusMetres: number,
+  radius: number,
   latitude: number,
   mapWidthPixels: number
 ): number {
@@ -34,16 +34,16 @@ function radiusToZoom(
   const desiredPixels = mapWidthPixels / 2;
 
   return Math.log2(
-    metresPerPixelAtZoom0 * desiredPixels / radiusMetres
+    metresPerPixelAtZoom0 * desiredPixels / radius
   );
 }
 
-export default function ResultsMap({ center, radiusMetres, labs, onSelect }: Props) {
-  const zoomLevel = radiusToZoom(radiusMetres, center.latitude, mapWidth);
+export default function ResultsMap({ centre, radius, labs, onSelect }: Props) {
+  const zoomLevel = radiusToZoom(radius, centre.latitude, mapWidth);
 
   return (
     <MapContainer
-      center={[center.latitude, center.longitude]}
+      center={[centre.latitude, centre.longitude]}
       zoom={zoomLevel}
       className="results-map"
     >
@@ -51,7 +51,7 @@ export default function ResultsMap({ center, radiusMetres, labs, onSelect }: Pro
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <RecenterOnChange center={center} radiusMetres={radiusMetres} />
+      <RecentreOnChange centre={centre} radius={radius} />
       {labs.map((lab) => (
         <Marker
           key={lab.adventureGuid}

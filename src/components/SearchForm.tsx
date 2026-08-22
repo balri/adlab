@@ -14,7 +14,7 @@ const DEFAULT_TAKE = 25;
 export default function SearchForm({ onSearch, loading }: Props) {
   const [latitude, setLatitude] = useState(DEFAULT_LATITUDE);
   const [longitude, setLongitude] = useState(DEFAULT_LONGITUDE);
-  const [radiusInMeters, setRadiusInMeters] = useState(DEFAULT_RADIUS);
+  const [radius, setRadius] = useState(DEFAULT_RADIUS);
   const [take, setTake] = useState(DEFAULT_TAKE);
   const [geoError, setGeoError] = useState<string | null>(null);
 
@@ -42,7 +42,7 @@ export default function SearchForm({ onSearch, loading }: Props) {
       return;
     }
     setGeoError(null);
-    onSearch({ latitude: lat, longitude: lng, radiusInMeters, take });
+    onSearch({ latitude: lat, longitude: lng, radiusInMeters: radius, take });
   }
 
   return (
@@ -80,8 +80,8 @@ export default function SearchForm({ onSearch, loading }: Props) {
             min={100}
             max={100000}
             step={100}
-            value={radiusInMeters}
-            onChange={(e) => setRadiusInMeters(Number(e.target.value))}
+            value={radius}
+            onChange={(e) => setRadius(Number(e.target.value))}
           />
         </label>
         <label>
