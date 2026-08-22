@@ -6,6 +6,20 @@ import ResultsMap from "../components/ResultsMap";
 import { searchLabs } from "../api";
 import type { LabSummary, LatLng, SearchParams } from "../types";
 
+function getCentre(labs: LabSummary[]) {
+  if (labs.length === 0) {
+    return null;
+  }
+
+  const lats = labs.map(l => l.location.latitude);
+  const lngs = labs.map(l => l.location.longitude);
+
+  return {
+    latitude: (Math.min(...lats) + Math.max(...lats)) / 2,
+    longitude: (Math.min(...lngs) + Math.max(...lngs)) / 2,
+  };
+}
+
 export default function SearchPage() {
   const navigate = useNavigate();
   const [labs, setLabs] = useState<LabSummary[]>([]);
@@ -20,7 +34,7 @@ export default function SearchPage() {
     try {
       const results = await searchLabs(params);
       setLabs(results);
-      setCenter({ latitude: params.latitude, longitude: params.longitude });
+      setCenter(getCentre(results));
       setRadiusMetres(params.radiusInMeters);
     } catch (err) {
       setError((err as Error).message);
