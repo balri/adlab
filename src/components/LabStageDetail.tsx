@@ -13,9 +13,14 @@ export function LabStageDetail({ stage }: { stage: LabStage }) {
 		</p>
 		{showModal && (
 			<StageModal open={showModal} onClose={() => setShowModal(false)}>
-				<strong>{stage.title}</strong>
-				<p style={{ whiteSpace: "pre-line" }}>{stage.description}</p>
-				<strong>Question</strong>
+				<h1>{stage.title}</h1>
+				<div className="lab-detail-content">
+					{stage.keyImageUrl && <img src={stage.keyImageUrl} width="500" />}
+					<div>
+						<p style={{ whiteSpace: "pre-line" }}>{stage.description}</p>
+					</div>
+				</div>
+				<h2>Question</h2>
 				<p>{stage.question}</p>
 			</StageModal>
 		)}

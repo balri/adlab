@@ -80,6 +80,7 @@ body {
   gap: 1rem;
   font-size: 0.85rem;
   opacity: 0.75;
+  margin-bottom: 20px;
 }
 
 .stage-list {
@@ -164,4 +165,24 @@ body {
 .modal-close:hover {
   background: rgba(128, 128, 128, 0.12);
   opacity: 1;
+}
+
+.lab-detail-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.lab-detail-content img {
+  width: 200px;
+  height: auto;
+}
+
+.lab-detail-content p {
+  margin-top: 0;
+}
+
+.lab-detail-content>div {
+  max-height: 300px;
+  overflow-y: auto;
 }

@@ -31,7 +31,14 @@ export default function LabDetailPage() {
         <span>by {lab.ownerUsername}</span>
         {lab.ratingsAverage !== null && <span>★ {lab.ratingsAverage.toFixed(1)}</span>}
       </div>
-      <p>{lab.description}</p>
+      <div className="lab-detail-content">
+        {lab.keyImageUrl && <img src={lab.keyImageUrl} width="300" />}
+        <div>
+          <p>
+            {lab.description}
+          </p>
+        </div>
+      </div>
       <h2>Stages ({lab.stageSummaries.length})</h2>
       <ol className="stage-list">
         {lab.stageSummaries.map((stage) => (
