@@ -6,7 +6,7 @@ Geocaching Adventure Labs, built against the unofficial API documented at
 
 **Scope:** browse only — search nearby labs and view their details/stages.
 Answer checking is intentionally out of scope: the upstream hash-check
-algorithm salts with the *logged-in user's* account GUID
+algorithm salts with the _logged-in user's_ account GUID
 (`md5(publicGuid + answer)`), so solving stages requires a real Geocaching
 login even if the app never submits progress. That's a bigger scope than
 "browse," so it's left for a future iteration.
@@ -21,14 +21,14 @@ Service before deploying this beyond local/personal use.
 - `api/` — Vercel serverless functions (Node runtime) that proxy to
   `https://api.groundspeak.com/adventuresmobile/v1`, attaching the
   `X-Consumer-Key` header server-side so it never reaches the browser bundle.
-  - `GET /api/labs/search?lat=&lng=&radius=&take=`
-  - `GET /api/labs/:guid`
+    - `GET /api/labs/search?lat=&lng=&radius=&take=`
+    - `GET /api/labs/:guid`
 
 ### ⚠️ Response schema is unverified
 
 The upstream doc shows request body shapes (PascalCase, e.g. `Origin`,
 `RadiusInMeters`) but does **not** show example JSON for the search/detail
-*responses*. `api/_lib/normalize.ts` defensively tries both PascalCase and
+_responses_. `api/_lib/normalize.ts` defensively tries both PascalCase and
 camelCase field names, but it hasn't been checked against a live response.
 Before relying on this:
 

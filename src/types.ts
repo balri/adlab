@@ -1,6 +1,6 @@
 export interface LatLng {
-  latitude: number;
-  longitude: number;
+	latitude: number;
+	longitude: number;
 }
 
 // interface AdventureCredit {
@@ -13,57 +13,57 @@ export interface LatLng {
 // }
 
 export interface LabSummary {
-  adventureGuid: string;
-  title: string;
-  keyImageUrl: string;
-  smartLink: string;
-  deepLink: string;
-  firebaseDynamicLink: string;
-  description: string;
-  ownerPublicGuid: string;
-  // visibility: string;
-  createdUtc: string;
-  publishedUtc: string;
-  // isArchived: boolean;
-  ratingsAverage: number;
-  ratingsTotalCount: number;
-  isHighlyRecommended: boolean;
-  location: LatLng;
-  stagesTotalCount: number;
-  // isTest: boolean;
-  adventureType: string;
-  completionStatus: "NotStarted" | "InProgress" | "Completed";
-  adventureThemes: Array<string>;
-  // adventureCredit: AdventureCredit;
+	adventureGuid: string;
+	title: string;
+	keyImageUrl: string;
+	smartLink: string;
+	deepLink: string;
+	firebaseDynamicLink: string;
+	description: string;
+	ownerPublicGuid: string;
+	// visibility: string;
+	createdUtc: string;
+	publishedUtc: string;
+	// isArchived: boolean;
+	ratingsAverage: number;
+	ratingsTotalCount: number;
+	isHighlyRecommended: boolean;
+	location: LatLng;
+	stagesTotalCount: number;
+	// isTest: boolean;
+	adventureType: string;
+	completionStatus: "NotStarted" | "InProgress" | "Completed";
+	adventureThemes: Array<string>;
+	// adventureCredit: AdventureCredit;
 }
 
 export interface LabStage {
-  id: string;
-  title: string;
-  keyImageUrl: string;
-  // findCodeHashBase16v2: Array<string>;
-  // answerCodeHashesBase16v2: Array<string>;
-  isComplete: boolean;
-  description: string;
-  location: LatLng;
-  geofencingRadius: number;
-  challengeType: string;
-  question: string;
-  isFinal: boolean;
+	id: string;
+	title: string;
+	keyImageUrl: string;
+	// findCodeHashBase16v2: Array<string>;
+	// answerCodeHashesBase16v2: Array<string>;
+	isComplete: boolean;
+	description: string;
+	location: LatLng;
+	geofencingRadius: number;
+	challengeType: string;
+	question: string;
+	isFinal: boolean;
 }
 
 export interface LabDetail extends LabSummary {
-  stageSummaries: LabStage[];
-  journalsTotalCount: number;
-  ownerUsername: string;
-  reviewsTotalCount: number;
-  recommendedCount: number;
-  completionCount: number;
+	stageSummaries: LabStage[];
+	journalsTotalCount: number;
+	ownerUsername: string;
+	reviewsTotalCount: number;
+	recommendedCount: number;
+	completionCount: number;
 }
 
 export interface SearchParams {
-  latitude: number;
-  longitude: number;
-  radiusInMeters: number;
-  take: number;
+	latitude: number;
+	longitude: number;
+	radiusInMeters: number;
+	take: number;
 }

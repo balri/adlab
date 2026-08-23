@@ -11,11 +11,12 @@ export function StageModal({
 
 	return (
 		<div className="modal-overlay" onClick={onClose}>
-			<div
-				className="modal"
-				onClick={(e) => e.stopPropagation()}
-			>
-				<button className="modal-close" onClick={onClose} aria-label="Close">
+			<div className="modal" onClick={(e) => e.stopPropagation()}>
+				<button
+					className="modal-close"
+					onClick={onClose}
+					aria-label="Close"
+				>
 					&times;
 				</button>
 				{children}

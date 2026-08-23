@@ -1,1 +1,1 @@
-{"root":["./api/_lib/groundspeak.ts","./api/_lib/normalize.ts","./api/labs/[guid].ts","./api/labs/search.ts"],"version":"5.9.3"}
+{"root":["./api/_lib/groundspeak.ts","./api/labs/[guid].ts","./api/labs/search.ts"],"version":"5.9.3"}
