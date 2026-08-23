@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
 import ResultsMap from "../components/ResultsMap";
@@ -49,11 +49,26 @@ function setCentreAndRadius(
 
 export default function SearchPage() {
 	const navigate = useNavigate();
-	const [labs, setLabs] = useState<LabSummary[]>([]);
-	const [centre, setCentre] = useState<LatLng | null>(null);
-	const [radius, setRadius] = useState<number>(0);
+	const [labs, setLabs] = useState<LabSummary[]>(() => {
+		const saved = sessionStorage.getItem("searchResults");
+		return saved ? JSON.parse(saved) : [];
+	});
+	const [centre, setCentre] = useState<LatLng | null>(() => {
+		const saved = sessionStorage.getItem("searchCentre");
+		return saved ? JSON.parse(saved) : null;
+	});
+	const [radius, setRadius] = useState<number>(() => {
+		const saved = sessionStorage.getItem("searchRadius");
+		return saved ? JSON.parse(saved) : 0;
+	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		sessionStorage.setItem("searchResults", JSON.stringify(labs));
+		sessionStorage.setItem("searchCentre", JSON.stringify(centre));
+		sessionStorage.setItem("searchRadius", JSON.stringify(radius));
+	}, [labs, centre, radius]);
 
 	async function handleSearch(params: SearchParams) {
 		setLoading(true);

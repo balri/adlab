@@ -41,6 +41,11 @@ function renderPage() {
 }
 
 describe("SearchPage", () => {
+	beforeEach(() => {
+		sessionStorage.clear();
+		vi.clearAllMocks();
+	});
+
 	it("does not show results before a search is performed", () => {
 		renderPage();
 		expect(screen.queryByRole("list")).not.toBeInTheDocument();
@@ -90,5 +95,38 @@ describe("SearchPage", () => {
 				screen.getByRole("button", { name: "Search" }),
 			).not.toBeDisabled(),
 		);
+	});
+
+	it("persists search results to sessionStorage once a search resolves", async () => {
+		vi.mocked(searchLabs).mockResolvedValue([lab()]);
+		renderPage();
+
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+		await waitFor(() =>
+			expect(
+				screen.getByRole("link", { name: "Test Lab" }),
+			).toBeInTheDocument(),
+		);
+		expect(JSON.parse(sessionStorage.getItem("searchResults")!)).toEqual([
+			lab(),
+		]);
+		expect(sessionStorage.getItem("searchCentre")).not.toBeNull();
+	});
+
+	it("restores results from sessionStorage on mount without searching", () => {
+		sessionStorage.setItem("searchResults", JSON.stringify([lab()]));
+		sessionStorage.setItem(
+			"searchCentre",
+			JSON.stringify({ latitude: -27.4, longitude: 153.0 }),
+		);
+		sessionStorage.setItem("searchRadius", JSON.stringify(0));
+
+		renderPage();
+
+		expect(
+			screen.getByRole("link", { name: "Test Lab" }),
+		).toBeInTheDocument();
+		expect(searchLabs).not.toHaveBeenCalled();
 	});
 });

@@ -59,6 +59,11 @@ function renderPage(guid = "guid-1") {
 }
 
 describe("LabDetailPage", () => {
+	beforeEach(() => {
+		sessionStorage.clear();
+		vi.clearAllMocks();
+	});
+
 	it("shows a loading state while the lab is being fetched", () => {
 		vi.mocked(getLab).mockReturnValue(new Promise(() => {}));
 		renderPage();
@@ -94,5 +99,23 @@ describe("LabDetailPage", () => {
 		renderPage("guid-42");
 
 		expect(getLab).toHaveBeenCalledWith("guid-42");
+	});
+
+	it("caches the fetched lab in sessionStorage", async () => {
+		vi.mocked(getLab).mockResolvedValue(lab);
+		renderPage();
+
+		await waitFor(() =>
+			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+		);
+		expect(sessionStorage.getItem("lab_guid-1")).toBe(JSON.stringify(lab));
+	});
+
+	it("renders from sessionStorage without fetching when a cached lab exists", () => {
+		sessionStorage.setItem("lab_guid-1", JSON.stringify(lab));
+		renderPage();
+
+		expect(screen.getByText("Riverside Ramble")).toBeInTheDocument();
+		expect(getLab).not.toHaveBeenCalled();
 	});
 });

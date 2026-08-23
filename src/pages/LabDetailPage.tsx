@@ -6,17 +6,22 @@ import { LabStageDetail } from "../components/LabStageDetail";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
-	const [lab, setLab] = useState<LabDetail | null>(null);
+	const [lab, setLab] = useState<LabDetail | null>(() => {
+		const saved = guid ? sessionStorage.getItem(`lab_${guid}`) : null;
+		return saved ? JSON.parse(saved) : null;
+	});
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (!guid) return;
+		if (!guid || lab) return;
 		let ignore = false;
+
 		getLab(guid)
 			.then((result) => {
 				if (ignore) return;
 				setLab(result);
 				setError(null);
+				sessionStorage.setItem(`lab_${guid}`, JSON.stringify(result));
 			})
 			.catch((err) => {
 				if (ignore) return;
@@ -26,7 +31,7 @@ export default function LabDetailPage() {
 		return () => {
 			ignore = true;
 		};
-	}, [guid]);
+	}, [guid, lab]);
 
 	if (error) return <p className="error-text">{error}</p>;
 	if (!lab) return <p>Loading…</p>;
