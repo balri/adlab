@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SearchParams } from "../types";
 
 interface Props {
@@ -6,17 +6,49 @@ interface Props {
 	loading: boolean;
 }
 
-const DEFAULT_LATITUDE = "-27.49273";
-const DEFAULT_LONGITUDE = "153.03560";
-const DEFAULT_RADIUS = 20000;
-const DEFAULT_TAKE = 25;
+export const DEFAULT_LATITUDE = -27.4698;
+export const DEFAULT_LONGITUDE = 153.0251;
+export const DEFAULT_RADIUS = 20000;
+export const DEFAULT_TAKE = 25;
+const STORAGE_KEY = "searchForm";
 
 export default function SearchForm({ onSearch, loading }: Props) {
-	const [latitude, setLatitude] = useState(DEFAULT_LATITUDE);
-	const [longitude, setLongitude] = useState(DEFAULT_LONGITUDE);
-	const [radius, setRadius] = useState(DEFAULT_RADIUS);
-	const [take, setTake] = useState(DEFAULT_TAKE);
+	const getSavedForm = () => {
+		try {
+			const saved = localStorage.getItem(STORAGE_KEY);
+
+			if (saved) {
+				return JSON.parse(saved);
+			}
+		} catch {
+			// Ignore invalid saved data
+		}
+
+		return {};
+	};
+
+	const savedForm = getSavedForm();
+	const [latitude, setLatitude] = useState(
+		savedForm.latitude ?? DEFAULT_LATITUDE,
+	);
+	const [longitude, setLongitude] = useState(
+		savedForm.longitude ?? DEFAULT_LONGITUDE,
+	);
+	const [radius, setRadius] = useState(savedForm.radius ?? DEFAULT_RADIUS);
+	const [take, setTake] = useState(savedForm.take ?? DEFAULT_TAKE);
 	const [geoError, setGeoError] = useState<string | null>(null);
+
+	useEffect(() => {
+		localStorage.setItem(
+			STORAGE_KEY,
+			JSON.stringify({
+				latitude,
+				longitude,
+				radius,
+				take,
+			}),
+		);
+	}, [latitude, longitude, radius, take]);
 
 	function useMyLocation() {
 		setGeoError(null);
