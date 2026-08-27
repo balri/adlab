@@ -1,8 +1,13 @@
 import { getLab, searchLabs } from "./api";
 
 describe("api", () => {
+	beforeEach(() => {
+		sessionStorage.setItem("accessToken", "test-token");
+	});
+
 	afterEach(() => {
 		vi.unstubAllGlobals();
+		sessionStorage.clear();
 	});
 
 	describe("searchLabs", () => {
@@ -22,6 +27,7 @@ describe("api", () => {
 
 			expect(fetchMock).toHaveBeenCalledWith(
 				"/api/labs/search?lat=-27.5&lng=153&radius=20000&take=25",
+				{ headers: { Authorization: "Bearer test-token" } },
 			);
 		});
 
@@ -75,7 +81,9 @@ describe("api", () => {
 
 			await getLab("abc/def");
 
-			expect(fetchMock).toHaveBeenCalledWith("/api/labs/abc%2Fdef");
+			expect(fetchMock).toHaveBeenCalledWith("/api/labs/abc%2Fdef", {
+				headers: { Authorization: "Bearer test-token" },
+			});
 		});
 	});
 });

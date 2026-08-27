@@ -11,6 +11,14 @@ function renderApp(initialEntries: string[] = ["/"]) {
 }
 
 describe("App", () => {
+	beforeEach(() => {
+		sessionStorage.setItem("accessToken", "test-token");
+	});
+
+	afterEach(() => {
+		sessionStorage.clear();
+	});
+
 	it("renders the app title as a link to the home page", () => {
 		renderApp();
 		expect(
@@ -22,6 +30,14 @@ describe("App", () => {
 		renderApp(["/"]);
 		expect(
 			screen.getByRole("button", { name: "Search" }),
+		).toBeInTheDocument();
+	});
+
+	it("redirects to the login page when not authenticated", () => {
+		sessionStorage.clear();
+		renderApp(["/"]);
+		expect(
+			screen.getByRole("heading", { name: "Login" }),
 		).toBeInTheDocument();
 	});
 });

@@ -61,6 +61,11 @@ export interface LabDetail extends LabSummary {
 	completionCount: number;
 }
 
+export interface LoginParams {
+	username: string;
+	password: string;
+}
+
 export interface SearchParams {
 	latitude: number;
 	longitude: number;

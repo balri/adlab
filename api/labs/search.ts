@@ -7,6 +7,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		return;
 	}
 
+	const authHeader = req.headers.authorization;
+	if (!authHeader?.startsWith("Bearer ")) {
+		return res.status(401).json({ error: "Unauthorized" });
+	}
+
+	const accessToken = authHeader.substring(7);
+
 	const lat = Number(req.query.lat);
 	const lng = Number(req.query.lng);
 	const radius = Number(req.query.radius ?? 10000);
@@ -20,17 +27,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
-		const list = await searchAdventures({
-			Origin: { Latitude: lat, Longitude: lng },
-			RadiusInMeters: radius,
-			Take: take,
-			CompletionStatuses: ["NotStarted", "InProgress"],
-			OnlyHighlyRecommended: false,
-			AdventureTypes: [],
-			MedianCompletionTimes: [],
-			Themes: [],
-			ExcludeOwned: true,
-		});
+		const list = await searchAdventures(
+			{
+				Origin: { Latitude: lat, Longitude: lng },
+				RadiusInMeters: radius,
+				Take: take,
+				CompletionStatuses: ["NotStarted", "InProgress"],
+				OnlyHighlyRecommended: false,
+				AdventureTypes: [],
+				MedianCompletionTimes: [],
+				Themes: [],
+				ExcludeOwned: true,
+			},
+			accessToken,
+		);
 
 		res.status(200).json(list.items);
 	} catch (err) {
