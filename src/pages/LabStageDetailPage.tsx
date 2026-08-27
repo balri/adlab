@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getLab } from "../api";
-import type { LabDetail } from "../types";
+import { type LabDetail } from "../types";
 
-export default function LabDetailPage() {
-	const { guid } = useParams<{ guid: string }>();
+export default function LabStageDetailPage() {
+	const { guid, stageId } = useParams<{ guid: string; stageId: string }>();
 	const [lab, setLab] = useState<LabDetail | null>(() => {
 		const saved = guid ? sessionStorage.getItem(`lab_${guid}`) : null;
 		return saved ? JSON.parse(saved) : null;
@@ -35,34 +35,33 @@ export default function LabDetailPage() {
 	if (error) return <p className="error-text">{error}</p>;
 	if (!lab) return <p>Loading…</p>;
 
+	const labUrl = `/labs/${guid}`;
+
+	// The lab is now guaranteed to be loaded
+	const stage = lab.stageSummaries.find((stage) => stage.id === stageId);
+
+	if (!stage) {
+		return <div>Stage not found</div>;
+	}
+
 	return (
-		<div className="lab-detail">
+		<div className="lab-stage-detail">
 			<p>
-				<Link to="/">&larr; Back to search</Link>
+				<Link to={labUrl}>&larr; Back to {lab.title}</Link>
 			</p>
-			<h1>{lab.title}</h1>
-			<div className="results-list-meta">
-				<span>by {lab.ownerUsername}</span>
-				{lab.ratingsAverage !== null && (
-					<span>★ {lab.ratingsAverage.toFixed(1)}</span>
-				)}
-			</div>
+			<h1>{stage.title}</h1>
 			<div className="lab-detail-content">
-				{lab.keyImageUrl && <img src={lab.keyImageUrl} width="300" />}
+				{stage.keyImageUrl && (
+					<img src={stage.keyImageUrl} width="500" />
+				)}
 				<div>
-					<p>{lab.description}</p>
+					<p style={{ whiteSpace: "pre-line" }}>
+						{stage.description}
+					</p>
 				</div>
 			</div>
-			<h2>Stages ({lab.stageSummaries.length})</h2>
-			<ol className="stage-list">
-				{lab.stageSummaries.map((stage) => (
-					<li key={stage.id}>
-						<Link to={`/labs/${guid}/stage/${stage.id}`}>
-							{stage.title}
-						</Link>
-					</li>
-				))}
-			</ol>
+			<h2>Question</h2>
+			<p>{stage.question}</p>
 		</div>
 	);
 }

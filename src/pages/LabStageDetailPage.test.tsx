@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import LabDetailPage from "./LabDetailPage";
+import LabStageDetailPage from "./LabStageDetailPage";
 import { getLab } from "../api";
 import type { LabDetail } from "../types";
 
@@ -30,15 +30,15 @@ const lab: LabDetail = {
 	stageSummaries: [
 		{
 			id: "stage-1",
-			title: "Stage One",
+			title: "Find the fountain",
 			keyImageUrl: "",
 			isComplete: false,
-			description: "",
+			description: "Look near the fountain.",
 			location: { latitude: 0, longitude: 0 },
-			geofencingRadius: 10,
+			geofencingRadius: 50,
 			challengeType: "text",
-			question: "",
-			isFinal: true,
+			question: "What year was it built?",
+			isFinal: false,
 		},
 	],
 	journalsTotalCount: 0,
@@ -48,17 +48,20 @@ const lab: LabDetail = {
 	completionCount: 0,
 };
 
-function renderPage(guid = "guid-1") {
+function renderPage(guid = "guid-1", stageId = "stage-1") {
 	return render(
-		<MemoryRouter initialEntries={[`/labs/${guid}`]}>
+		<MemoryRouter initialEntries={[`/labs/${guid}/stage/${stageId}`]}>
 			<Routes>
-				<Route path="/labs/:guid" element={<LabDetailPage />} />
+				<Route
+					path="/labs/:guid/stage/:stageId"
+					element={<LabStageDetailPage />}
+				/>
 			</Routes>
 		</MemoryRouter>,
 	);
 }
 
-describe("LabDetailPage", () => {
+describe("LabStageDetailPage", () => {
 	beforeEach(() => {
 		sessionStorage.clear();
 		vi.clearAllMocks();
@@ -70,20 +73,18 @@ describe("LabDetailPage", () => {
 		expect(screen.getByText("Loading…")).toBeInTheDocument();
 	});
 
-	it("renders the lab title, owner, rating, and stages once loaded", async () => {
+	it("renders the stage title, description, and question once loaded", async () => {
 		vi.mocked(getLab).mockResolvedValue(lab);
 		renderPage();
 
 		await waitFor(() =>
-			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+			expect(screen.getByText("Find the fountain")).toBeInTheDocument(),
 		);
-		expect(screen.getByText("by adventurer")).toBeInTheDocument();
-		expect(screen.getByText("★ 4.2")).toBeInTheDocument();
-		expect(screen.getByText("Stages (1)")).toBeInTheDocument();
-		expect(screen.getByRole("link", { name: "Stage One" })).toHaveAttribute(
-			"href",
-			"/labs/guid-1/stage/stage-1",
-		);
+		expect(screen.getByText("Look near the fountain.")).toBeInTheDocument();
+		expect(screen.getByText("What year was it built?")).toBeInTheDocument();
+		expect(
+			screen.getByRole("link", { name: /Back to Riverside Ramble/ }),
+		).toHaveAttribute("href", "/labs/guid-1");
 	});
 
 	it("shows an error message when the fetch fails", async () => {
@@ -95,28 +96,20 @@ describe("LabDetailPage", () => {
 		);
 	});
 
-	it("requests the lab for the guid in the route", () => {
-		vi.mocked(getLab).mockReturnValue(new Promise(() => {}));
-		renderPage("guid-42");
-
-		expect(getLab).toHaveBeenCalledWith("guid-42");
-	});
-
-	it("caches the fetched lab in sessionStorage", async () => {
+	it("shows a not found message when the stage id doesn't match", async () => {
 		vi.mocked(getLab).mockResolvedValue(lab);
-		renderPage();
+		renderPage("guid-1", "missing-stage");
 
 		await waitFor(() =>
-			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+			expect(screen.getByText("Stage not found")).toBeInTheDocument(),
 		);
-		expect(sessionStorage.getItem("lab_guid-1")).toBe(JSON.stringify(lab));
 	});
 
 	it("renders from sessionStorage without fetching when a cached lab exists", () => {
 		sessionStorage.setItem("lab_guid-1", JSON.stringify(lab));
 		renderPage();
 
-		expect(screen.getByText("Riverside Ramble")).toBeInTheDocument();
+		expect(screen.getByText("Find the fountain")).toBeInTheDocument();
 		expect(getLab).not.toHaveBeenCalled();
 	});
 });
