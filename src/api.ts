@@ -2,7 +2,9 @@ import type { LabDetail, LabSummary, LoginParams, SearchParams } from "./types";
 
 async function getJson<T>(url: string): Promise<T> {
 	const accessToken = sessionStorage.getItem("accessToken");
-	if (!accessToken) {
+	const expiresAt = sessionStorage.getItem("accessTokenExpiresAt");
+	if (!accessToken || !expiresAt || Date.now() >= Number(expiresAt)) {
+		logout();
 		throw new Error("Not logged in");
 	}
 
@@ -11,6 +13,11 @@ async function getJson<T>(url: string): Promise<T> {
 			Authorization: `Bearer ${accessToken}`,
 		},
 	});
+
+	if (res.status === 401) {
+		logout();
+		throw new Error("Your session has expired. Please log in again.");
+	}
 
 	if (!res.ok) {
 		const body = await res.text().catch(() => "");
@@ -48,15 +55,20 @@ export async function login(params: LoginParams) {
 		}),
 	});
 
+	const body = await res.json().catch(() => null);
+
 	if (!res.ok) {
-		const body = await res.text().catch(() => "");
-		throw new Error(`Request to login failed (${res.status}): ${body}`);
+		throw new Error(body?.error || `Login failed`);
 	}
 
-	const { accessToken } = await res.json();
+	const { accessToken, expiresIn } = body;
+	const expiresAt = Date.now() + expiresIn * 1000;
 	sessionStorage.setItem("accessToken", accessToken);
+	sessionStorage.setItem("accessTokenExpiresAt", expiresAt.toString());
 }
 
 export function logout() {
 	sessionStorage.removeItem("accessToken");
+	sessionStorage.removeItem("accessTokenExpiresAt");
+	window.location.href = "/login";
 }

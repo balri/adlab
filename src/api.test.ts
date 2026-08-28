@@ -3,6 +3,10 @@ import { getLab, logout, searchLabs } from "./api";
 describe("api", () => {
 	beforeEach(() => {
 		sessionStorage.setItem("accessToken", "test-token");
+		sessionStorage.setItem(
+			"accessTokenExpiresAt",
+			(Date.now() + 60 * 60 * 1000).toString(),
+		);
 	});
 
 	afterEach(() => {
@@ -69,6 +73,55 @@ describe("api", () => {
 				}),
 			).rejects.toThrow("failed (500): boom");
 		});
+
+		it("throws when the access token is missing", async () => {
+			sessionStorage.removeItem("accessToken");
+
+			await expect(
+				searchLabs({
+					latitude: 0,
+					longitude: 0,
+					radiusInMeters: 1000,
+					take: 10,
+				}),
+			).rejects.toThrow("Not logged in");
+		});
+
+		it("throws when the access token has expired", async () => {
+			sessionStorage.setItem(
+				"accessTokenExpiresAt",
+				(Date.now() - 60 * 60 * 1000).toString(),
+			);
+
+			await expect(
+				searchLabs({
+					latitude: 0,
+					longitude: 0,
+					radiusInMeters: 1000,
+					take: 10,
+				}),
+			).rejects.toThrow("Not logged in");
+		});
+
+		it("throws when the response status is unauthorized", async () => {
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: false,
+					status: 401,
+					json: async () => ({ error: "Unauthorized" }),
+				}),
+			);
+
+			await expect(
+				searchLabs({
+					latitude: 0,
+					longitude: 0,
+					radiusInMeters: 1000,
+					take: 10,
+				}),
+			).rejects.toThrow("Your session has expired. Please log in again.");
+		});
 	});
 
 	describe("getLab", () => {
@@ -92,6 +145,7 @@ describe("api", () => {
 			logout();
 
 			expect(sessionStorage.getItem("accessToken")).toBeNull();
+			expect(sessionStorage.getItem("accessTokenExpiresAt")).toBeNull();
 		});
 	});
 });

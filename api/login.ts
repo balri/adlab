@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	});
 
 	if (!response.ok) {
-		return res.status(401).json({ error: "Invalid login" });
+		return res.status(401).json({ error: "Invalid username or password" });
 	}
 
 	const data = await response.json();
