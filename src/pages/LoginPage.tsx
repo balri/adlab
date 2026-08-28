@@ -31,11 +31,11 @@ export default function LoginPage() {
 
 	return (
 		<div className="login-page">
-			<h1>Login</h1>
+			<form className="login-form" onSubmit={handleSubmit}>
+				<h1>Login</h1>
 
-			<form onSubmit={handleSubmit}>
-				<div>
-					<label htmlFor="username">Username</label>
+				<label htmlFor="username">
+					Username
 					<input
 						id="username"
 						type="text"
@@ -44,10 +44,10 @@ export default function LoginPage() {
 						autoComplete="username"
 						required
 					/>
-				</div>
+				</label>
 
-				<div>
-					<label htmlFor="password">Password</label>
+				<label htmlFor="password">
+					Password
 					<input
 						id="password"
 						type="password"
@@ -56,11 +56,11 @@ export default function LoginPage() {
 						autoComplete="current-password"
 						required
 					/>
-				</div>
+				</label>
 
-				{error && <p>{error}</p>}
+				{error && <p className="error-text">{error}</p>}
 
-				<button type="submit" disabled={loading}>
+				<button type="submit" className="btn" disabled={loading}>
 					{loading ? "Logging in..." : "Log in"}
 				</button>
 			</form>

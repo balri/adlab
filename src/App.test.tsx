@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
 
@@ -36,6 +36,31 @@ describe("App", () => {
 	it("redirects to the login page when not authenticated", () => {
 		sessionStorage.clear();
 		renderApp(["/"]);
+		expect(
+			screen.getByRole("heading", { name: "Login" }),
+		).toBeInTheDocument();
+	});
+
+	it("shows a log out link when authenticated", () => {
+		renderApp();
+		expect(
+			screen.getByRole("button", { name: "Log out" }),
+		).toBeInTheDocument();
+	});
+
+	it("does not show a log out link when not authenticated", () => {
+		sessionStorage.clear();
+		renderApp(["/"]);
+		expect(
+			screen.queryByRole("button", { name: "Log out" }),
+		).not.toBeInTheDocument();
+	});
+
+	it("clears the session and redirects to login when logging out", () => {
+		renderApp();
+		fireEvent.click(screen.getByRole("button", { name: "Log out" }));
+
+		expect(sessionStorage.getItem("accessToken")).toBeNull();
 		expect(
 			screen.getByRole("heading", { name: "Login" }),
 		).toBeInTheDocument();

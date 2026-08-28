@@ -56,3 +56,7 @@ export async function login(params: LoginParams) {
 	const { accessToken } = await res.json();
 	sessionStorage.setItem("accessToken", accessToken);
 }
+
+export function logout() {
+	sessionStorage.removeItem("accessToken");
+}

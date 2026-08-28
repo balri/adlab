@@ -1,4 +1,4 @@
-import { getLab, searchLabs } from "./api";
+import { getLab, logout, searchLabs } from "./api";
 
 describe("api", () => {
 	beforeEach(() => {
@@ -84,6 +84,14 @@ describe("api", () => {
 			expect(fetchMock).toHaveBeenCalledWith("/api/labs/abc%2Fdef", {
 				headers: { Authorization: "Bearer test-token" },
 			});
+		});
+	});
+
+	describe("logout", () => {
+		it("clears the stored access token", () => {
+			logout();
+
+			expect(sessionStorage.getItem("accessToken")).toBeNull();
 		});
 	});
 });
