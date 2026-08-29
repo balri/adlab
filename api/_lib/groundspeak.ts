@@ -1,6 +1,8 @@
-import { LabSummary } from "../../src/types";
+import { LabDetail, LabSummary } from "../../src/types";
 
-export const BASE_URL = "https://api.groundspeak.com/adventuresmobile/v1";
+export const API_BASE_URL =
+	"https://api.groundspeak.com/adventuresmobile/v1/public";
+const LABS_API_BASE_URL = "https://labs-api.geocaching.com/Api";
 
 export function consumerKey(): string {
 	const key = process.env.GEOCACHING_CONSUMER_KEY;
@@ -15,7 +17,33 @@ async function request(
 	accessToken: string,
 	init?: RequestInit,
 ): Promise<unknown> {
-	const res = await fetch(`${BASE_URL}${path}`, {
+	const res = await fetch(`${API_BASE_URL}${path}`, {
+		...init,
+		headers: {
+			"Content-Type": "application/json",
+			"User-Agent": "Adventures/1.56.0 (4936) (android/32)",
+			"X-Consumer-Key": consumerKey(),
+			Authorization: `Bearer ${accessToken}`,
+			...init?.headers,
+		},
+	});
+
+	if (!res.ok) {
+		const body = await res.text().catch(() => "");
+		throw new Error(
+			`Groundspeak API ${path} failed(${res.status}): ${body}`,
+		);
+	}
+
+	return res.json();
+}
+
+async function requestLabsApi(
+	path: string,
+	accessToken: string,
+	init?: RequestInit,
+): Promise<unknown> {
+	const res = await fetch(`${LABS_API_BASE_URL}${path}`, {
 		...init,
 		headers: {
 			"Content-Type": "application/json",
@@ -57,18 +85,22 @@ export async function searchAdventures(
 	body: SearchAdventuresRequest,
 	accessToken: string,
 ): Promise<SearchAdventuresResponse> {
-	return (await request("/public/adventures/search", accessToken, {
+	return (await request("/adventures/search", accessToken, {
 		method: "POST",
 		body: JSON.stringify(body),
 	})) as unknown as SearchAdventuresResponse;
 }
 
-export function getAdventure(
+export async function getAdventure(
 	guid: string,
 	accessToken: string,
-): Promise<unknown> {
-	return request(
-		`/public/adventures/${encodeURIComponent(guid)}`,
+): Promise<LabDetail> {
+	return (await request(
+		`/adventures/${encodeURIComponent(guid)}`,
 		accessToken,
-	);
+	)) as unknown as LabDetail;
+}
+
+export async function getUser(accessToken: string): Promise<unknown> {
+	return await requestLabsApi(`/Accounts/GetAccount`, accessToken);
 }

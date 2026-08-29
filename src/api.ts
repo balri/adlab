@@ -1,4 +1,10 @@
-import type { LabDetail, LabSummary, LoginParams, SearchParams } from "./types";
+import type {
+	LabDetail,
+	LabSummary,
+	LoginParams,
+	SearchParams,
+	User,
+} from "./types";
 
 async function getJson<T>(url: string): Promise<T> {
 	const accessToken = sessionStorage.getItem("accessToken");
@@ -27,7 +33,7 @@ async function getJson<T>(url: string): Promise<T> {
 	return res.json() as Promise<T>;
 }
 
-export function searchLabs(params: SearchParams): Promise<LabSummary[]> {
+export async function searchLabs(params: SearchParams): Promise<LabSummary[]> {
 	const query = new URLSearchParams({
 		lat: String(params.latitude),
 		lng: String(params.longitude),
@@ -37,8 +43,12 @@ export function searchLabs(params: SearchParams): Promise<LabSummary[]> {
 	return getJson<LabSummary[]>(`/api/labs/search?${query}`);
 }
 
-export function getLab(guid: string): Promise<LabDetail> {
+export async function getLab(guid: string): Promise<LabDetail> {
 	return getJson<LabDetail>(`/api/labs/${encodeURIComponent(guid)}`);
+}
+
+async function getUser(): Promise<User> {
+	return getJson(`/api/user`);
 }
 
 export async function login(params: LoginParams) {
@@ -65,10 +75,13 @@ export async function login(params: LoginParams) {
 	const expiresAt = Date.now() + expiresIn * 1000;
 	sessionStorage.setItem("accessToken", accessToken);
 	sessionStorage.setItem("accessTokenExpiresAt", expiresAt.toString());
+
+	const user = await getUser();
+	sessionStorage.setItem("userGuid", user.PublicGuid);
+	sessionStorage.setItem("user", JSON.stringify(user));
 }
 
 export function logout() {
-	sessionStorage.removeItem("accessToken");
-	sessionStorage.removeItem("accessTokenExpiresAt");
+	sessionStorage.clear();
 	window.location.href = "/login";
 }

@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { BASE_URL, consumerKey } from "./_lib/groundspeak";
+import { API_BASE_URL, consumerKey } from "./_lib/groundspeak";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "POST") {
@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 	const { username, password } = req.body;
 
-	const response = await fetch(`${BASE_URL}/public/accounts/login`, {
+	const response = await fetch(`${API_BASE_URL}/accounts/login`, {
 		method: "POST",
 		headers: {
 			"User-Agent": "Adventures/1.56.0 (4936) (android/32)",

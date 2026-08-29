@@ -11,14 +11,39 @@ import LabStageDetailPage from "./pages/LabStageDetailPage";
 import RequireAuth from "./components/RequireAuth";
 import LoginPage from "./pages/LoginPage";
 import { logout } from "./api";
+import { useState } from "react";
+import { User } from "./types";
 
 export default function App() {
 	const navigate = useNavigate();
 	useLocation();
-	const isLoggedIn = Boolean(sessionStorage.getItem("accessToken"));
+	const [isLoggedIn, setIsLoggedIn] = useState(() => {
+		const accessToken = sessionStorage.getItem("accessToken");
+		const expiresAt = Number(
+			sessionStorage.getItem("accessTokenExpiresAt"),
+		);
+
+		return Boolean(accessToken) && expiresAt > Date.now();
+	});
+	const [user, setUser] = useState<User | null>(() => {
+		const savedUser = sessionStorage.getItem("user");
+
+		if (!savedUser) {
+			return null;
+		}
+
+		try {
+			return JSON.parse(savedUser);
+		} catch {
+			sessionStorage.removeItem("user");
+			return null;
+		}
+	});
 
 	function handleLogout() {
 		logout();
+		setUser(null);
+		setIsLoggedIn(false);
 		navigate("/login");
 	}
 
@@ -29,13 +54,25 @@ export default function App() {
 					Adventure Lab Finder
 				</Link>
 				{isLoggedIn && (
-					<button
-						type="button"
-						className="logout-link"
-						onClick={handleLogout}
-					>
-						Log out
-					</button>
+					<div className="user-menu">
+						{user && (
+							<>
+								<img
+									src={user.Avatar.AvatarUrl}
+									alt=""
+									className="user-avatar"
+								/>
+								<span>{user.UserName}</span>
+							</>
+						)}
+						<button
+							type="button"
+							className="logout-link"
+							onClick={handleLogout}
+						>
+							Log out
+						</button>
+					</div>
 				)}
 			</header>
 			<main>

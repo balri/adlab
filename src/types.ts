@@ -72,3 +72,41 @@ export interface SearchParams {
 	radiusInMeters: number;
 	take: number;
 }
+
+// interface UserAccountSettings {
+// 	Admin: {
+// 		SuspendHidingPrivileges: boolean;
+// 	};
+// 	Adventures: {
+// 		Locale: string;
+// 		LocationPreview: boolean;
+// 		PlayNearbyCaches: boolean;
+// 	};
+// }
+
+interface UserAvatar {
+	AvatarUrl: string;
+}
+
+export interface User {
+	Id: string;
+	UserName: string;
+	PublicGuid: string;
+	Avatar: UserAvatar;
+	GeocacheFindCount: number;
+	CompletedAdventures: number;
+	// MembershipLevel: number;
+	// HasLodestoneAccess: boolean;
+	// SignupDate: number;
+	// MembershipExpiryDate: number;
+	// AdventureCredits: number;
+	StagesCompletedCount: number;
+	StagesHideCount: number;
+	HideCount: number;
+	// SecurityGroup: string;
+	// AdventuresHideCount: number;
+	AdventuresPublicHideCount: number;
+	// SignupSource: string;
+	// InProgressAdventuresCount: number;
+	// AccountSettings: UserAccountSettings;
+}

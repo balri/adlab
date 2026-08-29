@@ -13,6 +13,10 @@ function renderApp(initialEntries: string[] = ["/"]) {
 describe("App", () => {
 	beforeEach(() => {
 		sessionStorage.setItem("accessToken", "test-token");
+		sessionStorage.setItem(
+			"accessTokenExpiresAt",
+			(Date.now() + 60 * 60 * 1000).toString(),
+		);
 	});
 
 	afterEach(() => {
