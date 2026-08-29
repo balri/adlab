@@ -1,11 +1,31 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
+import { AuthProvider } from "./AuthProvider";
+import type { User } from "./types";
+
+function testUser(overrides: Partial<User> = {}): User {
+	return {
+		Id: "1",
+		UserName: "alice",
+		PublicGuid: "guid-1",
+		Avatar: { AvatarUrl: "" },
+		GeocacheFindCount: 0,
+		CompletedAdventures: 0,
+		StagesCompletedCount: 0,
+		StagesHideCount: 0,
+		HideCount: 0,
+		AdventuresPublicHideCount: 0,
+		...overrides,
+	};
+}
 
 function renderApp(initialEntries: string[] = ["/"]) {
 	return render(
 		<MemoryRouter initialEntries={initialEntries}>
-			<App />
+			<AuthProvider>
+				<App />
+			</AuthProvider>
 		</MemoryRouter>,
 	);
 }
@@ -17,9 +37,16 @@ describe("App", () => {
 			"accessTokenExpiresAt",
 			(Date.now() + 60 * 60 * 1000).toString(),
 		);
+		vi.stubGlobal(
+			"fetch",
+			vi
+				.fn()
+				.mockResolvedValue({ ok: true, json: async () => testUser() }),
+		);
 	});
 
 	afterEach(() => {
+		vi.unstubAllGlobals();
 		sessionStorage.clear();
 	});
 
@@ -30,11 +57,13 @@ describe("App", () => {
 		).toHaveAttribute("href", "/");
 	});
 
-	it("renders the search page on the home route", () => {
+	it("renders the search page on the home route", async () => {
 		renderApp(["/"]);
-		expect(
-			screen.getByRole("button", { name: "Search" }),
-		).toBeInTheDocument();
+		await waitFor(() =>
+			expect(
+				screen.getByRole("button", { name: "Search" }),
+			).toBeInTheDocument(),
+		);
 	});
 
 	it("redirects to the login page when not authenticated", () => {
@@ -45,11 +74,13 @@ describe("App", () => {
 		).toBeInTheDocument();
 	});
 
-	it("shows a log out link when authenticated", () => {
+	it("shows a log out link when authenticated", async () => {
 		renderApp();
-		expect(
-			screen.getByRole("button", { name: "Log out" }),
-		).toBeInTheDocument();
+		await waitFor(() =>
+			expect(
+				screen.getByRole("button", { name: "Log out" }),
+			).toBeInTheDocument(),
+		);
 	});
 
 	it("does not show a log out link when not authenticated", () => {
@@ -60,8 +91,9 @@ describe("App", () => {
 		).not.toBeInTheDocument();
 	});
 
-	it("clears the session and redirects to login when logging out", () => {
+	it("clears the session and redirects to login when logging out", async () => {
 		renderApp();
+		await waitFor(() => screen.getByRole("button", { name: "Log out" }));
 		fireEvent.click(screen.getByRole("button", { name: "Log out" }));
 
 		expect(sessionStorage.getItem("accessToken")).toBeNull();

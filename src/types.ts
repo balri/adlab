@@ -66,6 +66,12 @@ export interface LoginParams {
 	password: string;
 }
 
+export interface LoginResponse {
+	accessToken: string;
+	// refreshToken: string;
+	expiresIn: number;
+}
+
 export interface SearchParams {
 	latitude: number;
 	longitude: number;

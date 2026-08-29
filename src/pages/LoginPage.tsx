@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { login } from "../api";
+import { useAuth } from "../useAuth";
 
 export default function LoginPage() {
+	const { login } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
 

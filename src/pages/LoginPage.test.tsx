@@ -2,10 +2,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import type { InitialEntry } from "react-router-dom";
 import LoginPage from "./LoginPage";
-import { login } from "../api";
+import { useAuth } from "../useAuth";
 
-vi.mock("../api", () => ({
-	login: vi.fn(),
+const login = vi.fn();
+
+vi.mock("../useAuth", () => ({
+	useAuth: vi.fn(),
 }));
 
 function renderPage(initialEntries: InitialEntry[] = ["/login"]) {
@@ -32,10 +34,17 @@ function fillForm(username = "alice", password = "secret") {
 describe("LoginPage", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.mocked(useAuth).mockReturnValue({
+			user: null,
+			isAuthenticated: false,
+			isLoading: false,
+			login,
+			logout: vi.fn(),
+		});
 	});
 
 	it("logs in and navigates to the home page on success", async () => {
-		vi.mocked(login).mockResolvedValue(undefined);
+		login.mockResolvedValue(undefined);
 		renderPage();
 
 		fillForm("alice", "secret");
@@ -51,7 +60,7 @@ describe("LoginPage", () => {
 	});
 
 	it("navigates back to the page the user was redirected from", async () => {
-		vi.mocked(login).mockResolvedValue(undefined);
+		login.mockResolvedValue(undefined);
 		renderPage([
 			{
 				pathname: "/login",
@@ -68,7 +77,7 @@ describe("LoginPage", () => {
 	});
 
 	it("shows an error message when login fails", async () => {
-		vi.mocked(login).mockRejectedValue(new Error("Invalid login"));
+		login.mockRejectedValue(new Error("Invalid login"));
 		renderPage();
 
 		fillForm();
@@ -81,8 +90,8 @@ describe("LoginPage", () => {
 
 	it("disables the submit button while logging in", async () => {
 		let resolveLogin: () => void = () => {};
-		vi.mocked(login).mockReturnValue(
-			new Promise((resolve) => {
+		login.mockReturnValue(
+			new Promise<void>((resolve) => {
 				resolveLogin = resolve;
 			}),
 		);

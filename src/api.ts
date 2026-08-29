@@ -1,16 +1,9 @@
-import type {
-	LabDetail,
-	LabSummary,
-	LoginParams,
-	SearchParams,
-	User,
-} from "./types";
+import type { LabDetail, LabSummary, SearchParams } from "./types";
 
 async function getJson<T>(url: string): Promise<T> {
 	const accessToken = sessionStorage.getItem("accessToken");
 	const expiresAt = sessionStorage.getItem("accessTokenExpiresAt");
 	if (!accessToken || !expiresAt || Date.now() >= Number(expiresAt)) {
-		logout();
 		throw new Error("Not logged in");
 	}
 
@@ -21,7 +14,6 @@ async function getJson<T>(url: string): Promise<T> {
 	});
 
 	if (res.status === 401) {
-		logout();
 		throw new Error("Your session has expired. Please log in again.");
 	}
 
@@ -45,43 +37,4 @@ export async function searchLabs(params: SearchParams): Promise<LabSummary[]> {
 
 export async function getLab(guid: string): Promise<LabDetail> {
 	return getJson<LabDetail>(`/api/labs/${encodeURIComponent(guid)}`);
-}
-
-async function getUser(): Promise<User> {
-	return getJson(`/api/user`);
-}
-
-export async function login(params: LoginParams) {
-	const { username, password } = params;
-
-	const res = await fetch("/api/login", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			username,
-			password,
-		}),
-	});
-
-	const body = await res.json().catch(() => null);
-
-	if (!res.ok) {
-		throw new Error(body?.error || `Login failed`);
-	}
-
-	const { accessToken, expiresIn } = body;
-	const expiresAt = Date.now() + expiresIn * 1000;
-	sessionStorage.setItem("accessToken", accessToken);
-	sessionStorage.setItem("accessTokenExpiresAt", expiresAt.toString());
-
-	const user = await getUser();
-	sessionStorage.setItem("userGuid", user.PublicGuid);
-	sessionStorage.setItem("user", JSON.stringify(user));
-}
-
-export function logout() {
-	sessionStorage.clear();
-	window.location.href = "/login";
 }
