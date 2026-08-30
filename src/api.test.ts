@@ -84,7 +84,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 				}),
-			).rejects.toThrow("Not logged in");
+			).rejects.toThrow("Session expired");
 		});
 
 		it("throws when the access token has expired", async () => {
@@ -100,7 +100,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 				}),
-			).rejects.toThrow("Not logged in");
+			).rejects.toThrow("Session expired");
 		});
 
 		it("throws when the response status is unauthorized", async () => {
@@ -120,7 +120,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 				}),
-			).rejects.toThrow("Your session has expired. Please log in again.");
+			).rejects.toThrow("Session expired");
 		});
 	});
 

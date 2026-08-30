@@ -1,10 +1,17 @@
 import type { LabDetail, LabSummary, SearchParams } from "./types";
 
+function redirectToLogin() {
+	sessionStorage.clear();
+	window.location.replace("/login");
+}
+
 async function getJson<T>(url: string): Promise<T> {
 	const accessToken = sessionStorage.getItem("accessToken");
 	const expiresAt = sessionStorage.getItem("accessTokenExpiresAt");
+
 	if (!accessToken || !expiresAt || Date.now() >= Number(expiresAt)) {
-		throw new Error("Not logged in");
+		redirectToLogin();
+		throw new Error("Session expired");
 	}
 
 	const res = await fetch(url, {
@@ -14,7 +21,8 @@ async function getJson<T>(url: string): Promise<T> {
 	});
 
 	if (res.status === 401) {
-		throw new Error("Your session has expired. Please log in again.");
+		redirectToLogin();
+		throw new Error("Session expired");
 	}
 
 	if (!res.ok) {
@@ -32,6 +40,7 @@ export async function searchLabs(params: SearchParams): Promise<LabSummary[]> {
 		radius: String(params.radiusInMeters),
 		take: String(params.take),
 	});
+
 	return getJson<LabSummary[]>(`/api/labs/search?${query}`);
 }
 
