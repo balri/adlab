@@ -58,7 +58,14 @@ export default function LoginPage() {
 						required
 					/>
 				</label>
-
+				<p className="login-info">
+					Please use your Geocaching username and password to sign in.
+					<br />
+					<br />
+					🔒 Your username and password are sent securely to
+					geocaching.com to authenticate your account. We do not store
+					or retain your password.
+				</p>
 				{error && <p className="error-text">{error}</p>}
 
 				<button type="submit" className="btn" disabled={loading}>
