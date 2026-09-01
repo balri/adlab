@@ -15,17 +15,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			return;
 		}
 
-		getCurrentUser(accessToken)
+		const controller = new AbortController();
+
+		getCurrentUser(accessToken, controller.signal)
 			.then((currentUser) => {
 				setUser(currentUser);
 				sessionStorage.setItem("userGuid", currentUser.PublicGuid);
+				setIsLoading(false);
 			})
 			.catch(() => {
+				if (controller.signal.aborted) return;
 				logout();
-			})
-			.finally(() => {
-				setIsLoading(false);
 			});
+
+		return () => {
+			controller.abort();
+		};
 	}, []);
 
 	async function login(params: LoginParams) {
@@ -74,11 +79,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	);
 }
 
-async function getCurrentUser(accessToken: string): Promise<User> {
+async function getCurrentUser(
+	accessToken: string,
+	signal?: AbortSignal,
+): Promise<User> {
 	const response = await fetch("/api/user", {
 		headers: {
 			Authorization: `Bearer ${accessToken}`,
 		},
+		signal,
 	});
 
 	if (!response.ok) {

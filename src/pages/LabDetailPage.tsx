@@ -13,22 +13,21 @@ export default function LabDetailPage() {
 
 	useEffect(() => {
 		if (!guid || lab) return;
-		let ignore = false;
+		const controller = new AbortController();
 
-		getLab(guid)
+		getLab(guid, controller.signal)
 			.then((result) => {
-				if (ignore) return;
 				setLab(result);
 				setError(null);
 				sessionStorage.setItem(`lab_${guid}`, JSON.stringify(result));
 			})
 			.catch((err) => {
-				if (ignore) return;
+				if (controller.signal.aborted) return;
 				setLab(null);
 				setError((err as Error).message);
 			});
 		return () => {
-			ignore = true;
+			controller.abort();
 		};
 	}, [guid, lab]);
 

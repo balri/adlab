@@ -99,7 +99,7 @@ describe("LabDetailPage", () => {
 		vi.mocked(getLab).mockReturnValue(new Promise(() => {}));
 		renderPage("guid-42");
 
-		expect(getLab).toHaveBeenCalledWith("guid-42");
+		expect(getLab).toHaveBeenCalledWith("guid-42", expect.any(AbortSignal));
 	});
 
 	it("caches the fetched lab in sessionStorage", async () => {

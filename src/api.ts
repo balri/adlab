@@ -5,7 +5,7 @@ function redirectToLogin() {
 	window.location.replace("/login");
 }
 
-async function getJson<T>(url: string): Promise<T> {
+async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
 	const accessToken = sessionStorage.getItem("accessToken");
 	const expiresAt = sessionStorage.getItem("accessTokenExpiresAt");
 
@@ -18,6 +18,7 @@ async function getJson<T>(url: string): Promise<T> {
 		headers: {
 			Authorization: `Bearer ${accessToken}`,
 		},
+		signal,
 	});
 
 	if (res.status === 401) {
@@ -47,6 +48,9 @@ export async function searchLabs(params: SearchParams): Promise<LabSummary[]> {
 	return getJson<LabSummary[]>(`/api/labs/search?${query}`);
 }
 
-export async function getLab(guid: string): Promise<LabDetail> {
-	return getJson<LabDetail>(`/api/labs/${encodeURIComponent(guid)}`);
+export async function getLab(
+	guid: string,
+	signal?: AbortSignal,
+): Promise<LabDetail> {
+	return getJson<LabDetail>(`/api/labs/${encodeURIComponent(guid)}`, signal);
 }
