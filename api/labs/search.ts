@@ -24,6 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			? req.query.statuses
 			: [req.query.statuses]
 		: [];
+	const excludeOwned = req.query.excludeOwned === "true";
 
 	if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
 		res.status(400).json({
@@ -43,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				AdventureTypes: [],
 				MedianCompletionTimes: [],
 				Themes: [],
-				ExcludeOwned: true,
+				ExcludeOwned: excludeOwned,
 			},
 			accessToken,
 		);

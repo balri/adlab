@@ -28,10 +28,11 @@ describe("api", () => {
 				radiusInMeters: 20000,
 				take: 25,
 				statuses: ["NotStarted", "InProgress"],
+				excludeOwned: true,
 			});
 
 			expect(fetchMock).toHaveBeenCalledWith(
-				"/api/labs/search?lat=-27.5&lng=153&radius=20000&take=25&statuses=NotStarted&statuses=InProgress",
+				"/api/labs/search?lat=-27.5&lng=153&radius=20000&take=25&excludeOwned=true&statuses=NotStarted&statuses=InProgress",
 				{ headers: { Authorization: "Bearer test-token" } },
 			);
 		});
@@ -52,6 +53,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 					statuses: ["NotStarted", "InProgress"],
+					excludeOwned: true,
 				}),
 			).resolves.toEqual(results);
 		});
@@ -73,6 +75,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 					statuses: ["NotStarted", "InProgress"],
+					excludeOwned: true,
 				}),
 			).rejects.toThrow("failed (500): boom");
 		});
@@ -87,6 +90,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 					statuses: ["NotStarted", "InProgress"],
+					excludeOwned: true,
 				}),
 			).rejects.toThrow("Session expired");
 		});
@@ -104,6 +108,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 					statuses: ["NotStarted", "InProgress"],
+					excludeOwned: true,
 				}),
 			).rejects.toThrow("Session expired");
 		});
@@ -125,6 +130,7 @@ describe("api", () => {
 					radiusInMeters: 1000,
 					take: 10,
 					statuses: ["NotStarted", "InProgress"],
+					excludeOwned: true,
 				}),
 			).rejects.toThrow("Session expired");
 		});

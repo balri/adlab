@@ -34,6 +34,7 @@ describe("SearchForm", () => {
 			target: { value: "10" },
 		});
 		fireEvent.click(screen.getByLabelText("Completed"));
+		fireEvent.click(screen.getByLabelText("Owned"));
 		fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
 		expect(onSearch).toHaveBeenCalledWith({
@@ -42,6 +43,7 @@ describe("SearchForm", () => {
 			radiusInMeters: 5000,
 			take: 10,
 			statuses: ["NotStarted", "InProgress", "Completed"],
+			excludeOwned: false,
 		});
 	});
 

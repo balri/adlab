@@ -19,6 +19,7 @@ interface FormState {
 	radius: number;
 	take: number;
 	statuses: CompletionStatus[];
+	excludeOwned: boolean;
 }
 
 const DEFAULT_FORM: FormState = {
@@ -27,6 +28,7 @@ const DEFAULT_FORM: FormState = {
 	radius: DEFAULT_RADIUS,
 	take: DEFAULT_TAKE,
 	statuses: ["NotStarted", "InProgress"],
+	excludeOwned: true,
 };
 
 function loadForm(): FormState {
@@ -113,6 +115,7 @@ export default function SearchForm({ onSearch, loading }: Props) {
 			radiusInMeters: form.radius,
 			take: form.take,
 			statuses: form.statuses,
+			excludeOwned: form.excludeOwned,
 		});
 	}
 
@@ -203,6 +206,16 @@ export default function SearchForm({ onSearch, loading }: Props) {
 						onChange={() => toggleStatus("Completed")}
 					/>
 					Completed
+				</label>
+				<label className="checkbox-label">
+					<input
+						type="checkbox"
+						checked={!form.excludeOwned}
+						onChange={(e) =>
+							updateForm("excludeOwned", !e.target.checked)
+						}
+					/>
+					Owned
 				</label>
 			</div>
 

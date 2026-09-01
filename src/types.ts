@@ -80,6 +80,7 @@ export interface SearchParams {
 	radiusInMeters: number;
 	take: number;
 	statuses: CompletionStatus[];
+	excludeOwned: boolean;
 }
 
 // interface UserAccountSettings {

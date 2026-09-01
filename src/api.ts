@@ -40,6 +40,7 @@ export async function searchLabs(params: SearchParams): Promise<LabSummary[]> {
 		lng: String(params.longitude),
 		radius: String(params.radiusInMeters),
 		take: String(params.take),
+		excludeOwned: String(params.excludeOwned),
 	});
 	params.statuses.forEach((status) => {
 		query.append("statuses", status);
