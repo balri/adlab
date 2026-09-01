@@ -3,15 +3,33 @@ import type { LoginParams, LoginResponse, User } from "./types";
 import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState<User | null>(() => {
+		const saved = sessionStorage.getItem("user");
+
+		if (!saved) {
+			return null;
+		}
+
+		try {
+			return JSON.parse(saved);
+		} catch {
+			sessionStorage.removeItem("user");
+			return null;
+		}
+	});
+
 	const [isLoading, setIsLoading] = useState(
-		() => sessionStorage.getItem("accessToken") !== null,
+		() =>
+			sessionStorage.getItem("accessToken") !== null &&
+			sessionStorage.getItem("user") === null,
 	);
 
 	useEffect(() => {
 		const accessToken = sessionStorage.getItem("accessToken");
+		const savedUser = sessionStorage.getItem("user");
 
-		if (!accessToken) {
+		// No token, or user already loaded from sessionStorage.
+		if (!accessToken || savedUser) {
 			return;
 		}
 
@@ -20,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		getCurrentUser(accessToken, controller.signal)
 			.then((currentUser) => {
 				setUser(currentUser);
+				sessionStorage.setItem("user", JSON.stringify(currentUser));
 				sessionStorage.setItem("userGuid", currentUser.PublicGuid);
 				setIsLoading(false);
 			})
@@ -48,12 +67,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		const data: LoginResponse = await response.json();
 		const expiresAt = Date.now() + data.expiresIn * 1000;
+
 		sessionStorage.setItem("accessToken", data.accessToken);
 		sessionStorage.setItem("accessTokenExpiresAt", expiresAt.toString());
 
 		const currentUser = await getCurrentUser(data.accessToken);
 
+		sessionStorage.setItem("user", JSON.stringify(currentUser));
 		sessionStorage.setItem("userGuid", currentUser.PublicGuid);
+
 		setUser(currentUser);
 		setIsLoading(false);
 	}
