@@ -40,6 +40,9 @@ export async function searchLabs(params: SearchParams): Promise<LabSummary[]> {
 		radius: String(params.radiusInMeters),
 		take: String(params.take),
 	});
+	params.statuses.forEach((status) => {
+		query.append("statuses", status);
+	});
 
 	return getJson<LabSummary[]>(`/api/labs/search?${query}`);
 }

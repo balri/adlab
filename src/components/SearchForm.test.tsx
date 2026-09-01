@@ -33,6 +33,7 @@ describe("SearchForm", () => {
 		fireEvent.change(screen.getByLabelText("Max results"), {
 			target: { value: "10" },
 		});
+		fireEvent.click(screen.getByLabelText("Completed"));
 		fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
 		expect(onSearch).toHaveBeenCalledWith({
@@ -40,6 +41,7 @@ describe("SearchForm", () => {
 			longitude: 20,
 			radiusInMeters: 5000,
 			take: 10,
+			statuses: ["NotStarted", "InProgress", "Completed"],
 		});
 	});
 

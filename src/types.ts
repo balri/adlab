@@ -12,6 +12,8 @@ export interface LatLng {
 //   lodestoneAllowed: boolean;
 // }
 
+export type CompletionStatus = "NotStarted" | "InProgress" | "Completed";
+
 export interface LabSummary {
 	adventureGuid: string;
 	title: string;
@@ -32,7 +34,7 @@ export interface LabSummary {
 	stagesTotalCount: number;
 	// isTest: boolean;
 	adventureType: string;
-	completionStatus: "NotStarted" | "InProgress" | "Completed";
+	completionStatus: CompletionStatus;
 	adventureThemes: Array<string>;
 	// adventureCredit: AdventureCredit;
 }
@@ -77,6 +79,7 @@ export interface SearchParams {
 	longitude: number;
 	radiusInMeters: number;
 	take: number;
+	statuses: CompletionStatus[];
 }
 
 // interface UserAccountSettings {

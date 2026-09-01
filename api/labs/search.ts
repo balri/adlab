@@ -19,6 +19,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	const lng = Number(req.query.lng);
 	const radius = Number(req.query.radius ?? 10000);
 	const take = Number(req.query.take ?? 25);
+	const statuses = req.query.statuses
+		? Array.isArray(req.query.statuses)
+			? req.query.statuses
+			: [req.query.statuses]
+		: [];
 
 	if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
 		res.status(400).json({
@@ -33,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				Origin: { Latitude: lat, Longitude: lng },
 				RadiusInMeters: radius,
 				Take: take,
-				CompletionStatuses: ["NotStarted", "InProgress"],
+				CompletionStatuses: statuses,
 				OnlyHighlyRecommended: false,
 				AdventureTypes: [],
 				MedianCompletionTimes: [],

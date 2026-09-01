@@ -66,6 +66,11 @@ body {
 	gap: 0.25rem;
 }
 
+.search-form-row label.checkbox-label {
+	flex-direction: row;
+	align-items: center;
+}
+
 .error-text {
 	color: #c0392b;
 }
