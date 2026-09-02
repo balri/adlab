@@ -39,18 +39,26 @@ export interface LabSummary {
 	// adventureCredit: AdventureCredit;
 }
 
+interface MultiChoiceOption {
+	text: string;
+	order: number;
+}
+
 export interface LabStage {
 	id: string;
 	title: string;
 	keyImageUrl: string;
-	// findCodeHashBase16v2: Array<string>;
-	// answerCodeHashesBase16v2: Array<string>;
+	findCodeHashBase16v2: string;
+	answerCodeHashesBase16v2: Array<string>;
 	isComplete: boolean;
+	journalImageUrl: string | undefined;
+	journalMessage: string | undefined;
 	description: string;
 	location: LatLng;
 	geofencingRadius: number;
 	challengeType: string;
 	question: string;
+	multiChoiceOptions: Array<MultiChoiceOption> | undefined;
 	isFinal: boolean;
 }
 

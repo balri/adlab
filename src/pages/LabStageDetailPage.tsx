@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getLab } from "../api";
 import { type LabDetail } from "../types";
+import LabStageJournal from "../components/LabStageJournal";
+import LabStageQuestion from "../components/LabStageQuestion";
 
 export default function LabStageDetailPage() {
 	const { guid, stageId } = useParams<{ guid: string; stageId: string }>();
@@ -51,17 +53,15 @@ export default function LabStageDetailPage() {
 			</p>
 			<h1>{stage.title}</h1>
 			<div className="lab-detail-content">
-				{stage.keyImageUrl && (
-					<img src={stage.keyImageUrl} width="500" />
-				)}
+				{stage.keyImageUrl && <img src={stage.keyImageUrl} />}
 				<div>
 					<p style={{ whiteSpace: "pre-line" }}>
 						{stage.description}
 					</p>
 				</div>
 			</div>
-			<h2>Question</h2>
-			<p>{stage.question}</p>
+			{stage.isComplete && <LabStageJournal stage={stage} />}
+			{!stage.isComplete && <LabStageQuestion stage={stage} />}
 		</div>
 	);
 }
