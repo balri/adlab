@@ -12,19 +12,24 @@ export default function Header() {
 			<div className="user-menu">
 				{user && (
 					<>
-						<img
-							src={user.Avatar.AvatarUrl}
-							alt=""
-							className="user-avatar"
-						/>
-						<span>{user.UserName}</span>
-						<button
-							type="button"
-							className="logout-link"
-							onClick={logout}
-						>
-							Log out
-						</button>
+						<div className="user-info">
+							<div className="user-header">
+								<img
+									src={user.Avatar.AvatarUrl}
+									alt=""
+									className="user-avatar"
+								/>
+								<span>{user.UserName}</span>
+							</div>
+
+							<button
+								type="button"
+								className="logout-link"
+								onClick={logout}
+							>
+								Log out
+							</button>
+						</div>
 					</>
 				)}
 			</div>
