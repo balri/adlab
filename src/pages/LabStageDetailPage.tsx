@@ -4,6 +4,7 @@ import { getLab } from "../api";
 import { type LabDetail } from "../types";
 import LabStageJournal from "../components/LabStageJournal";
 import LabStageQuestion from "../components/LabStageQuestion";
+import StatusChips from "../components/StatusChips";
 
 export default function LabStageDetailPage() {
 	const { guid, stageId } = useParams<{ guid: string; stageId: string }>();
@@ -51,7 +52,10 @@ export default function LabStageDetailPage() {
 			<p>
 				<Link to={labUrl}>&larr; Back to {lab.title}</Link>
 			</p>
-			<h1>{stage.title}</h1>
+			<h1>
+				{stage.title}
+				<StatusChips lab={lab} stage={stage} />
+			</h1>
 			<div className="lab-detail-content">
 				{stage.keyImageUrl && <img src={stage.keyImageUrl} />}
 				<div>

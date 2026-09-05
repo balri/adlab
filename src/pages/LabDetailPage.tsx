@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getLab } from "../api";
 import type { LabDetail } from "../types";
+import StatusChips from "../components/StatusChips";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -39,7 +40,10 @@ export default function LabDetailPage() {
 			<p>
 				<Link to="/">&larr; Back to search</Link>
 			</p>
-			<h1>{lab.title}</h1>
+			<h1>
+				{lab.title}
+				<StatusChips lab={lab} />
+			</h1>
 			<div className="results-list-meta">
 				<span>by {lab.ownerUsername}</span>
 				{lab.ratingsAverage !== null && (
@@ -59,6 +63,7 @@ export default function LabDetailPage() {
 						<Link to={`/labs/${guid}/stage/${stage.id}`}>
 							{stage.title}
 						</Link>
+						<StatusChips lab={lab} stage={stage} />
 					</li>
 				))}
 			</ol>

@@ -83,43 +83,53 @@ export default function LabStageQuestion(params: { stage: LabStage }) {
 			<p>{stage.question}</p>
 
 			{correctAnswer && (
-				<div className="answer-message correct">
+				<p className="success-text">
 					{correctAnswer} is the correct answer
-				</div>
+				</p>
 			)}
 
 			{incorrectAnswer && (
-				<div className="answer-message incorrect">
+				<p className="error-text">
 					{incorrectAnswer} is not the correct answer
-				</div>
+				</p>
 			)}
-			<form onSubmit={handleSubmit}>
-				{stage.challengeType === "SingleChoice" && (
+			<form className="search-form" onSubmit={handleSubmit}>
+				<div className="search-form-row">
+					{stage.challengeType === "SingleChoice" && (
+						<input
+							type="text"
+							value={form.answer || correctAnswer}
+							onChange={(e) =>
+								updateForm("answer", e.target.value)
+							}
+							disabled={!!correctAnswer}
+						/>
+					)}
+
+					{stage.challengeType === "MultiChoice" && (
+						<select
+							value={form.answer || correctAnswer}
+							onChange={(e) =>
+								updateForm("answer", e.target.value)
+							}
+							disabled={!!correctAnswer}
+						>
+							<option value=""></option>
+
+							{stage.multiChoiceOptions?.map((option) => (
+								<option key={option.text} value={option.text}>
+									{option.text}
+								</option>
+							))}
+						</select>
+					)}
+
 					<input
-						type="text"
-						value={form.answer || correctAnswer}
-						onChange={(e) => updateForm("answer", e.target.value)}
+						type="submit"
+						value="Check"
 						disabled={!!correctAnswer}
 					/>
-				)}
-
-				{stage.challengeType === "MultiChoice" && (
-					<select
-						value={form.answer || correctAnswer}
-						onChange={(e) => updateForm("answer", e.target.value)}
-						disabled={!!correctAnswer}
-					>
-						<option value=""></option>
-
-						{stage.multiChoiceOptions?.map((option) => (
-							<option key={option.text} value={option.text}>
-								{option.text}
-							</option>
-						))}
-					</select>
-				)}
-
-				<input type="submit" value="Check" disabled={!!correctAnswer} />
+				</div>
 			</form>
 		</>
 	);

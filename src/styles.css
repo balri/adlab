@@ -77,6 +77,10 @@ body {
 	color: #c0392b;
 }
 
+.success-text {
+	color: #27ae60;
+}
+
 .search-results {
 	display: flex;
 	flex-direction: column;
@@ -234,4 +238,50 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+}
+
+.status-chips {
+	display: inline-flex;
+	gap: 0.4rem;
+	margin-left: 0.6rem;
+	vertical-align: middle;
+}
+
+.status-chip {
+	display: inline-block;
+	padding: 0.15rem 0.55rem;
+	border: 1px solid;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: 500;
+	line-height: 1.3;
+	white-space: nowrap;
+}
+
+/* Grey */
+.status-chip.not-started {
+	color: #666;
+	background: #f0f0f0;
+	border-color: #ccc;
+}
+
+/* Amber */
+.status-chip.in-progress {
+	color: #8a5a00;
+	background: #fff3cd;
+	border-color: #f0c36d;
+}
+
+/* Green */
+.status-chip.completed {
+	color: #216e39;
+	background: #dff3e4;
+	border-color: #9ed2aa;
+}
+
+/* Blue */
+.status-chip.owned {
+	color: #245a8d;
+	background: #e1effa;
+	border-color: #9bc4e5;
 }
