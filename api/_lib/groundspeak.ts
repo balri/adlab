@@ -2,7 +2,7 @@ import { LabDetail, LabSummary } from "../../src/types";
 
 export const API_BASE_URL =
 	"https://api.groundspeak.com/adventuresmobile/v1/public";
-const LABS_API_BASE_URL = "https://labs-api.geocaching.com/Api";
+export const LABS_API_BASE_URL = "https://labs-api.geocaching.com/Api";
 
 export function consumerKey(): string {
 	const key = process.env.GEOCACHING_CONSUMER_KEY;

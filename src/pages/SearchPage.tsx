@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
 import ResultsMap from "../components/ResultsMap";
-import { searchLabs } from "../api";
 import type { LabSummary, LatLng, SearchParams } from "../types";
+import { useApi } from "../useApi";
 
 function distanceBetween(a: LatLng, b: LatLng): number {
 	const R = 6371000; // Earth radius in metres
@@ -49,6 +49,7 @@ function setCentreAndRadius(
 
 export default function SearchPage() {
 	const navigate = useNavigate();
+	const { searchLabs } = useApi();
 	const [labs, setLabs] = useState<LabSummary[]>(() => {
 		const saved = sessionStorage.getItem("searchResults");
 		return saved ? JSON.parse(saved) : [];

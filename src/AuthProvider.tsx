@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { LoginParams, LoginResponse, User } from "./types";
 import { AuthContext } from "./AuthContext";
 
@@ -23,6 +23,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			sessionStorage.getItem("accessToken") !== null &&
 			sessionStorage.getItem("user") === null,
 	);
+
+	const logout = useCallback(() => {
+		sessionStorage.clear();
+		setUser(null);
+		setIsLoading(false);
+	}, []);
 
 	useEffect(() => {
 		const accessToken = sessionStorage.getItem("accessToken");
@@ -50,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		return () => {
 			controller.abort();
 		};
-	}, []);
+	}, [logout]);
 
 	async function login(params: LoginParams) {
 		const response = await fetch("/api/login", {
@@ -70,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		sessionStorage.setItem("accessToken", data.accessToken);
 		sessionStorage.setItem("accessTokenExpiresAt", expiresAt.toString());
+		sessionStorage.setItem("refreshToken", data.refreshToken);
 
 		const currentUser = await getCurrentUser(data.accessToken);
 
@@ -80,11 +87,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setIsLoading(false);
 	}
 
-	function logout() {
-		sessionStorage.clear();
-		setUser(null);
-		setIsLoading(false);
-	}
+	const refreshAccessToken = useCallback(async (): Promise<string | null> => {
+		const refreshToken = sessionStorage.getItem("refreshToken");
+
+		if (!refreshToken) {
+			return null;
+		}
+
+		const response = await fetch("/api/refresh", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				refreshToken,
+			}),
+		});
+
+		if (!response.ok) {
+			return null;
+		}
+
+		const data = await response.json();
+
+		sessionStorage.setItem("accessToken", data.accessToken);
+		sessionStorage.setItem(
+			"accessTokenExpiresAt",
+			String(Date.now() + data.expiresIn * 1000),
+		);
+
+		if (data.refreshToken) {
+			sessionStorage.setItem("refreshToken", data.refreshToken);
+		}
+
+		return data.accessToken;
+	}, []);
+
+	const authenticatedFetch = useCallback(
+		async <T,>(url: string, signal?: AbortSignal): Promise<T> => {
+			let accessToken = sessionStorage.getItem("accessToken");
+			const expiresAt = sessionStorage.getItem("accessTokenExpiresAt");
+
+			if (!accessToken || !expiresAt) {
+				logout();
+				throw new Error("Session expired");
+			}
+
+			// Refresh if the token expires within 30 seconds
+			if (Date.now() >= Number(expiresAt) - 30_000) {
+				accessToken = await refreshAccessToken();
+
+				if (!accessToken) {
+					logout();
+					throw new Error("Session expired");
+				}
+			}
+
+			const response = await fetch(url, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+				signal,
+			});
+
+			if (response.status === 401) {
+				logout();
+				throw new Error("Session expired");
+			}
+
+			if (!response.ok) {
+				const body = await response.text().catch(() => "");
+				throw new Error(
+					`Request to ${url} failed (${response.status}): ${body}`,
+				);
+			}
+
+			return response.json() as Promise<T>;
+		},
+		[logout, refreshAccessToken],
+	);
 
 	return (
 		<AuthContext.Provider
@@ -94,6 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				isLoading,
 				login,
 				logout,
+				authenticatedFetch,
 			}}
 		>
 			{children}

@@ -1,12 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LabDetailPage from "./LabDetailPage";
-import { getLab } from "../api";
 import type { LabDetail } from "../types";
+import { useApi } from "../useApi";
 
-vi.mock("../api", () => ({
-	getLab: vi.fn(),
+vi.mock("../useApi", () => ({
+	useApi: vi.fn(),
+	searchLabs: vi.fn(),
 }));
+
+const mockGetLab = vi.fn();
 
 const lab: LabDetail = {
 	adventureGuid: "guid-1",
@@ -39,6 +42,11 @@ const lab: LabDetail = {
 			challengeType: "text",
 			question: "",
 			isFinal: true,
+			findCodeHashBase16v2: "",
+			answerCodeHashesBase16v2: [],
+			journalImageUrl: undefined,
+			journalMessage: undefined,
+			multiChoiceOptions: undefined,
 		},
 	],
 	journalsTotalCount: 0,
@@ -62,16 +70,19 @@ describe("LabDetailPage", () => {
 	beforeEach(() => {
 		sessionStorage.clear();
 		vi.clearAllMocks();
+		vi.mocked(useApi).mockReturnValue({
+			getLab: mockGetLab,
+			searchLabs: vi.fn(),
+		});
 	});
 
 	it("shows a loading state while the lab is being fetched", () => {
-		vi.mocked(getLab).mockReturnValue(new Promise(() => {}));
 		renderPage();
 		expect(screen.getByText("Loading…")).toBeInTheDocument();
 	});
 
 	it("renders the lab title, owner, rating, and stages once loaded", async () => {
-		vi.mocked(getLab).mockResolvedValue(lab);
+		mockGetLab.mockResolvedValue(lab);
 		renderPage();
 
 		await waitFor(() =>
@@ -87,7 +98,7 @@ describe("LabDetailPage", () => {
 	});
 
 	it("shows an error message when the fetch fails", async () => {
-		vi.mocked(getLab).mockRejectedValue(new Error("Lab not found"));
+		mockGetLab.mockRejectedValue(new Error("Lab not found"));
 		renderPage();
 
 		await waitFor(() =>
@@ -96,14 +107,17 @@ describe("LabDetailPage", () => {
 	});
 
 	it("requests the lab for the guid in the route", () => {
-		vi.mocked(getLab).mockReturnValue(new Promise(() => {}));
+		mockGetLab.mockReturnValue(new Promise(() => {}));
 		renderPage("guid-42");
 
-		expect(getLab).toHaveBeenCalledWith("guid-42", expect.any(AbortSignal));
+		expect(mockGetLab).toHaveBeenCalledWith(
+			"guid-42",
+			expect.any(AbortSignal),
+		);
 	});
 
 	it("caches the fetched lab in sessionStorage", async () => {
-		vi.mocked(getLab).mockResolvedValue(lab);
+		mockGetLab.mockResolvedValue(lab);
 		renderPage();
 
 		await waitFor(() =>
@@ -117,6 +131,6 @@ describe("LabDetailPage", () => {
 		renderPage();
 
 		expect(screen.getByText("Riverside Ramble")).toBeInTheDocument();
-		expect(getLab).not.toHaveBeenCalled();
+		expect(mockGetLab).not.toHaveBeenCalled();
 	});
 });

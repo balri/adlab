@@ -1,12 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import SearchPage from "./SearchPage";
-import { searchLabs } from "../api";
 import type { LabSummary } from "../types";
+import { useApi } from "../useApi";
 
-vi.mock("../api", () => ({
+vi.mock("../useApi", () => ({
+	useApi: vi.fn(),
 	searchLabs: vi.fn(),
 }));
+
+const mockSearchLabs = vi.fn();
 
 function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 	return {
@@ -44,6 +47,10 @@ describe("SearchPage", () => {
 	beforeEach(() => {
 		sessionStorage.clear();
 		vi.clearAllMocks();
+		vi.mocked(useApi).mockReturnValue({
+			getLab: vi.fn(),
+			searchLabs: mockSearchLabs,
+		});
 	});
 
 	it("does not show results before a search is performed", () => {
@@ -52,7 +59,7 @@ describe("SearchPage", () => {
 	});
 
 	it("shows results and the map once a search resolves", async () => {
-		vi.mocked(searchLabs).mockResolvedValue([lab()]);
+		mockSearchLabs.mockResolvedValue([lab()]);
 		renderPage();
 
 		fireEvent.click(screen.getByRole("button", { name: "Search" }));
@@ -65,7 +72,7 @@ describe("SearchPage", () => {
 	});
 
 	it("shows an error message when the search fails", async () => {
-		vi.mocked(searchLabs).mockRejectedValue(new Error("Search failed"));
+		mockSearchLabs.mockRejectedValue(new Error("Search failed"));
 		renderPage();
 
 		fireEvent.click(screen.getByRole("button", { name: "Search" }));
@@ -77,7 +84,7 @@ describe("SearchPage", () => {
 
 	it("disables the search button while a search is in flight", async () => {
 		let resolveSearch: (labs: LabSummary[]) => void = () => {};
-		vi.mocked(searchLabs).mockReturnValue(
+		mockSearchLabs.mockReturnValue(
 			new Promise((resolve) => {
 				resolveSearch = resolve;
 			}),
@@ -98,7 +105,7 @@ describe("SearchPage", () => {
 	});
 
 	it("persists search results to sessionStorage once a search resolves", async () => {
-		vi.mocked(searchLabs).mockResolvedValue([lab()]);
+		mockSearchLabs.mockResolvedValue([lab()]);
 		renderPage();
 
 		fireEvent.click(screen.getByRole("button", { name: "Search" }));
@@ -127,6 +134,6 @@ describe("SearchPage", () => {
 		expect(
 			screen.getByRole("link", { name: "Test Lab" }),
 		).toBeInTheDocument();
-		expect(searchLabs).not.toHaveBeenCalled();
+		expect(mockSearchLabs).not.toHaveBeenCalled();
 	});
 });

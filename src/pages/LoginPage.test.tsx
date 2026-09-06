@@ -40,6 +40,7 @@ describe("LoginPage", () => {
 			isLoading: false,
 			login,
 			logout: vi.fn(),
+			authenticatedFetch: vi.fn(),
 		});
 	});
 

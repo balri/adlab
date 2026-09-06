@@ -1,12 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LabStageDetailPage from "./LabStageDetailPage";
-import { getLab } from "../api";
 import type { LabDetail } from "../types";
+import { useApi } from "../useApi";
 
-vi.mock("../api", () => ({
-	getLab: vi.fn(),
+vi.mock("../useApi", () => ({
+	useApi: vi.fn(),
+	searchLabs: vi.fn(),
 }));
+
+const mockGetLab = vi.fn();
 
 const lab: LabDetail = {
 	adventureGuid: "guid-1",
@@ -39,6 +42,11 @@ const lab: LabDetail = {
 			challengeType: "text",
 			question: "What year was it built?",
 			isFinal: false,
+			findCodeHashBase16v2: "",
+			answerCodeHashesBase16v2: [],
+			journalImageUrl: undefined,
+			journalMessage: undefined,
+			multiChoiceOptions: undefined,
 		},
 	],
 	journalsTotalCount: 0,
@@ -65,16 +73,20 @@ describe("LabStageDetailPage", () => {
 	beforeEach(() => {
 		sessionStorage.clear();
 		vi.clearAllMocks();
+		vi.mocked(useApi).mockReturnValue({
+			getLab: mockGetLab,
+			searchLabs: vi.fn(),
+		});
 	});
 
 	it("shows a loading state while the lab is being fetched", () => {
-		vi.mocked(getLab).mockReturnValue(new Promise(() => {}));
+		mockGetLab.mockReturnValue(new Promise(() => {}));
 		renderPage();
 		expect(screen.getByText("Loading…")).toBeInTheDocument();
 	});
 
 	it("renders the stage title, description, and question once loaded", async () => {
-		vi.mocked(getLab).mockResolvedValue(lab);
+		mockGetLab.mockResolvedValue(lab);
 		renderPage();
 
 		await waitFor(() =>
@@ -88,7 +100,7 @@ describe("LabStageDetailPage", () => {
 	});
 
 	it("shows an error message when the fetch fails", async () => {
-		vi.mocked(getLab).mockRejectedValue(new Error("Lab not found"));
+		mockGetLab.mockRejectedValue(new Error("Lab not found"));
 		renderPage();
 
 		await waitFor(() =>
@@ -96,8 +108,18 @@ describe("LabStageDetailPage", () => {
 		);
 	});
 
+	it("requests the lab for the guid in the route", () => {
+		mockGetLab.mockReturnValue(new Promise(() => {}));
+		renderPage("guid-1", "stage-1");
+
+		expect(mockGetLab).toHaveBeenCalledWith(
+			"guid-1",
+			expect.any(AbortSignal),
+		);
+	});
+
 	it("shows a not found message when the stage id doesn't match", async () => {
-		vi.mocked(getLab).mockResolvedValue(lab);
+		mockGetLab.mockResolvedValue(lab);
 		renderPage("guid-1", "missing-stage");
 
 		await waitFor(() =>
@@ -110,6 +132,6 @@ describe("LabStageDetailPage", () => {
 		renderPage();
 
 		expect(screen.getByText("Find the fountain")).toBeInTheDocument();
-		expect(getLab).not.toHaveBeenCalled();
+		expect(mockGetLab).not.toHaveBeenCalled();
 	});
 });
