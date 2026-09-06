@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { consumerKey, LABS_API_BASE_URL } from "./_lib/groundspeak";
+import { consumerKey, LABS_API_BASE_URL } from "./_lib/groundspeak.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "POST") {

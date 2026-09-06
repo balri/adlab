@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { getUser } from "./_lib/groundspeak";
+import { getUser } from "./_lib/groundspeak.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "GET") {

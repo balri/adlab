@@ -66,5 +66,13 @@ export const calculateAnswer = (stage: LabStage): string | null => {
 		}
 	}
 
+	if (question.includes("what letter") || question.includes("which letter")) {
+		for (const letter of "abcdefghijklmnopqrstuvwxyz") {
+			if (checkAnswer(stage, letter)) {
+				return letter;
+			}
+		}
+	}
+
 	return null;
 };

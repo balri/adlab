@@ -1,4 +1,4 @@
-import { LabDetail, LabSummary } from "../../src/types";
+import { LabDetail, LabSummary } from "../../src/types.js";
 
 export const API_BASE_URL =
 	"https://api.groundspeak.com/adventuresmobile/v1/public";
