@@ -33,8 +33,15 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 
 		if (checkAnswer(stage, form.answer)) {
 			onUpdateStage(form.answer);
+			setIncorrectAnswer("");
 		} else {
 			setIncorrectAnswer(form.answer);
+		}
+	}
+
+	function handleSendAnswer() {
+		if (confirm("Are you sure you want to submit this answer?")) {
+			// TODO: send answer
 		}
 	}
 
@@ -90,6 +97,13 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 						value="Check"
 						disabled={!!stage.correctAnswer}
 					/>
+					{stage.correctAnswer && !stage.isComplete && (
+						<input
+							type="button"
+							value="Send Answer"
+							onClick={handleSendAnswer}
+						/>
+					)}
 				</div>
 			</form>
 		</>

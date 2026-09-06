@@ -15,6 +15,18 @@ const POSSIBLE_NUMBER_QUESTIONS = [
 	"numeral",
 ];
 
+const POSSIBLE_COLOURS = [
+	"red",
+	"green",
+	"blue",
+	"yellow",
+	"black",
+	"white",
+	"pink",
+	"purple",
+	"orange",
+];
+
 export const checkAnswer = (stage: LabStage, answer: string): boolean => {
 	const userGuid = sessionStorage.getItem("userGuid") || "";
 	const answerNoSpace = answer.replaceAll(" ", "");
@@ -42,6 +54,14 @@ export const calculateAnswer = (stage: LabStage): string | null => {
 		for (let i = 0; i < 3000; i++) {
 			if (checkAnswer(stage, String(i))) {
 				return String(i);
+			}
+		}
+	}
+
+	if (question.includes("colour")) {
+		for (const colour of POSSIBLE_COLOURS) {
+			if (checkAnswer(stage, colour)) {
+				return colour;
 			}
 		}
 	}
