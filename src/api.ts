@@ -1,4 +1,5 @@
 import type { LabDetail, LabSummary, SearchParams } from "./types";
+import { calculateAnswer } from "./utils/checkAnswer";
 
 function redirectToLogin() {
 	sessionStorage.clear();
@@ -53,5 +54,28 @@ export async function getLab(
 	guid: string,
 	signal?: AbortSignal,
 ): Promise<LabDetail> {
-	return getJson<LabDetail>(`/api/labs/${encodeURIComponent(guid)}`, signal);
+	const lab = await getJson<LabDetail>(
+		`/api/labs/${encodeURIComponent(guid)}`,
+		signal,
+	);
+
+	return {
+		...lab,
+		stageSummaries: lab.stageSummaries.map((stage) => {
+			if (stage.correctAnswer) {
+				return stage;
+			}
+
+			const correctAnswer = calculateAnswer(stage);
+
+			if (correctAnswer) {
+				return {
+					...stage,
+					correctAnswer,
+				};
+			}
+
+			return stage;
+		}),
+	};
 }

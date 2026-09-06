@@ -140,7 +140,10 @@ describe("api", () => {
 		it("requests the encoded lab endpoint", async () => {
 			const fetchMock = vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({ adventureGuid: "abc/def" }),
+				json: async () => ({
+					adventureGuid: "abc/def",
+					stageSummaries: [],
+				}),
 			});
 			vi.stubGlobal("fetch", fetchMock);
 

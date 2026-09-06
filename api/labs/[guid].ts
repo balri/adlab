@@ -22,8 +22,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
-		const stage = await getAdventure(guid, accessToken);
-		res.status(200).json(stage);
+		const lab = await getAdventure(guid, accessToken);
+		res.status(200).json(lab);
 	} catch (err) {
 		res.status(502).json({ error: (err as Error).message });
 	}

@@ -1,6 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { LabStage } from "../types";
-import MD5 from "crypto-js/md5";
+import { checkAnswer } from "../utils/checkAnswer";
+
+interface LabStageQuestionParams {
+	stage: LabStage;
+	onUpdateStage: (answer: string) => void;
+}
 
 interface FormState {
 	answer: string;
@@ -8,54 +13,10 @@ interface FormState {
 
 const DEFAULT_FORM: FormState = { answer: "" };
 
-export default function LabStageQuestion(params: { stage: LabStage }) {
+export default function LabStageQuestion(params: LabStageQuestionParams) {
 	const [form, setForm] = useState<FormState>(DEFAULT_FORM);
-	const [submittedAnswer, setSubmittedAnswer] = useState("");
 	const [incorrectAnswer, setIncorrectAnswer] = useState<string>("");
-	const { stage } = params;
-
-	const checkAnswer = useCallback(
-		(answer: string): boolean => {
-			const userGuid = sessionStorage.getItem("userGuid") || "";
-			const answerNoSpace = answer.replaceAll(" ", "");
-			const hashInput = (userGuid + answerNoSpace).toLowerCase();
-			const hashResult = MD5(hashInput).toString();
-
-			return (
-				hashResult === stage.findCodeHashBase16v2 ||
-				stage.answerCodeHashesBase16v2.includes(hashResult)
-			);
-		},
-		[stage],
-	);
-
-	const calculatedAnswer = useMemo(() => {
-		if (stage.challengeType === "MultiChoice") {
-			return (
-				stage.multiChoiceOptions?.find((option) =>
-					checkAnswer(option.text),
-				)?.text ?? ""
-			);
-		}
-
-		const question = stage.question.toLowerCase();
-
-		if (
-			question.includes("how many") ||
-			question.includes("how much") ||
-			question.includes("number")
-		) {
-			for (let i = 0; i < 1000; i++) {
-				if (checkAnswer(String(i))) {
-					return String(i);
-				}
-			}
-		}
-
-		return "";
-	}, [stage, checkAnswer]);
-
-	const correctAnswer = calculatedAnswer || submittedAnswer;
+	const { stage, onUpdateStage } = params;
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -70,8 +31,8 @@ export default function LabStageQuestion(params: { stage: LabStage }) {
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 
-		if (checkAnswer(form.answer)) {
-			setSubmittedAnswer(form.answer);
+		if (checkAnswer(stage, form.answer)) {
+			onUpdateStage(form.answer);
 		} else {
 			setIncorrectAnswer(form.answer);
 		}
@@ -82,9 +43,9 @@ export default function LabStageQuestion(params: { stage: LabStage }) {
 			<h2>Question</h2>
 			<p>{stage.question}</p>
 
-			{correctAnswer && (
+			{stage.correctAnswer && (
 				<p className="success-text">
-					{correctAnswer} is the correct answer
+					{stage.correctAnswer} is the correct answer
 				</p>
 			)}
 
@@ -98,21 +59,21 @@ export default function LabStageQuestion(params: { stage: LabStage }) {
 					{stage.challengeType === "SingleChoice" && (
 						<input
 							type="text"
-							value={form.answer || correctAnswer}
+							value={form.answer || stage.correctAnswer}
 							onChange={(e) =>
 								updateForm("answer", e.target.value)
 							}
-							disabled={!!correctAnswer}
+							disabled={!!stage.correctAnswer}
 						/>
 					)}
 
 					{stage.challengeType === "MultiChoice" && (
 						<select
-							value={form.answer || correctAnswer}
+							value={form.answer || stage.correctAnswer}
 							onChange={(e) =>
 								updateForm("answer", e.target.value)
 							}
-							disabled={!!correctAnswer}
+							disabled={!!stage.correctAnswer}
 						>
 							<option value=""></option>
 
@@ -127,7 +88,7 @@ export default function LabStageQuestion(params: { stage: LabStage }) {
 					<input
 						type="submit"
 						value="Check"
-						disabled={!!correctAnswer}
+						disabled={!!stage.correctAnswer}
 					/>
 				</div>
 			</form>

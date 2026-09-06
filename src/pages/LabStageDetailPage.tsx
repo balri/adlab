@@ -43,6 +43,23 @@ export default function LabStageDetailPage() {
 	// The lab is now guaranteed to be loaded
 	const stage = lab.stageSummaries.find((stage) => stage.id === stageId);
 
+	const updateCorrectAnswer = (correctAnswer: string) => {
+		setLab((currentLab) => {
+			if (!currentLab) return currentLab;
+
+			const updatedLab: LabDetail = {
+				...currentLab,
+				stageSummaries: currentLab.stageSummaries.map((s) =>
+					s.id === stageId ? { ...s, correctAnswer } : s,
+				),
+			};
+
+			sessionStorage.setItem(`lab_${guid}`, JSON.stringify(updatedLab));
+
+			return updatedLab;
+		});
+	};
+
 	if (!stage) {
 		return <div>Stage not found</div>;
 	}
@@ -64,8 +81,11 @@ export default function LabStageDetailPage() {
 					</p>
 				</div>
 			</div>
+			<LabStageQuestion
+				stage={stage}
+				onUpdateStage={updateCorrectAnswer}
+			/>
 			{stage.isComplete && <LabStageJournal stage={stage} />}
-			{!stage.isComplete && <LabStageQuestion stage={stage} />}
 		</div>
 	);
 }

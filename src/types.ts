@@ -60,6 +60,7 @@ export interface LabStage {
 	question: string;
 	multiChoiceOptions: Array<MultiChoiceOption> | undefined;
 	isFinal: boolean;
+	correctAnswer?: string;
 }
 
 export interface LabDetail extends LabSummary {

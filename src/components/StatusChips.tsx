@@ -20,6 +20,9 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 		} else {
 			statuses.push("NotStarted");
 		}
+		if (stage.correctAnswer) {
+			statuses.push("CorrectAnswer");
+		}
 	}
 	return (
 		<span className="status-chips">
@@ -34,6 +37,9 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			)}
 			{statuses.includes("Owned") && (
 				<span className="status-chip owned">Owned</span>
+			)}
+			{statuses.includes("CorrectAnswer") && (
+				<span className="status-chip correct">Confirmed Answer</span>
 			)}
 		</span>
 	);
