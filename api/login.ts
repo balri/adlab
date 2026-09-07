@@ -32,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 	res.setHeader(
 		"Set-Cookie",
-		`refreshToken=${encodeURIComponent(refreshToken)}; HttpOnly; Secure; SameSite=Strict; Path=/api/refresh; Max-Age=259200`,
+		`__Secure-refreshToken=${encodeURIComponent(refreshToken)}; HttpOnly; Secure; SameSite=Strict; Path=/api/refresh; Max-Age=259200`,
 	);
 
 	return res.status(200).json({
