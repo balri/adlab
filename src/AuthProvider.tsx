@@ -87,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setIsLoading(false);
 	}
 
+	// Note: refresh endpoint returns properties in snake case
 	const refreshAccessToken = useCallback(async (): Promise<string | null> => {
 		const refreshToken = sessionStorage.getItem("refreshToken");
 
@@ -110,17 +111,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		const data = await response.json();
 
-		sessionStorage.setItem("accessToken", data.accessToken);
+		sessionStorage.setItem("accessToken", data.access_token);
 		sessionStorage.setItem(
 			"accessTokenExpiresAt",
-			String(Date.now() + data.expiresIn * 1000),
+			String(Date.now() + data.expires_in * 1000),
 		);
 
-		if (data.refreshToken) {
-			sessionStorage.setItem("refreshToken", data.refreshToken);
+		if (data.refresh_token) {
+			sessionStorage.setItem("refreshToken", data.refresh_token);
 		}
 
-		return data.accessToken;
+		return data.access_token;
 	}, []);
 
 	const authenticatedFetch = useCallback(
