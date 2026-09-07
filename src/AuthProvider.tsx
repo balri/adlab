@@ -4,7 +4,7 @@ import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(() => {
-		const saved = sessionStorage.getItem("user");
+		const saved = localStorage.getItem("user");
 
 		if (!saved) {
 			return null;
@@ -13,28 +13,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		try {
 			return JSON.parse(saved);
 		} catch {
-			sessionStorage.removeItem("user");
+			localStorage.removeItem("user");
 			return null;
 		}
 	});
 
 	const [isLoading, setIsLoading] = useState(
 		() =>
-			sessionStorage.getItem("accessToken") !== null &&
-			sessionStorage.getItem("user") === null,
+			localStorage.getItem("accessToken") !== null &&
+			localStorage.getItem("user") === null,
 	);
 
 	const logout = useCallback(() => {
-		sessionStorage.clear();
+		localStorage.removeItem("accessToken");
+		localStorage.removeItem("accessTokenExpiresAt");
+		localStorage.removeItem("user");
+		localStorage.removeItem("userGuid");
 		setUser(null);
 		setIsLoading(false);
 	}, []);
 
 	useEffect(() => {
-		const accessToken = sessionStorage.getItem("accessToken");
-		const savedUser = sessionStorage.getItem("user");
+		const accessToken = localStorage.getItem("accessToken");
+		const savedUser = localStorage.getItem("user");
 
-		// No token, or user already loaded from sessionStorage.
+		// No token, or user already loaded from localStorage.
 		if (!accessToken || savedUser) {
 			return;
 		}
@@ -44,8 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		getCurrentUser(accessToken, controller.signal)
 			.then((currentUser) => {
 				setUser(currentUser);
-				sessionStorage.setItem("user", JSON.stringify(currentUser));
-				sessionStorage.setItem("userGuid", currentUser.PublicGuid);
+				localStorage.setItem("user", JSON.stringify(currentUser));
+				localStorage.setItem("userGuid", currentUser.PublicGuid);
 				setIsLoading(false);
 			})
 			.catch(() => {
@@ -74,14 +77,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const data: LoginResponse = await response.json();
 		const expiresAt = Date.now() + data.expiresIn * 1000;
 
-		sessionStorage.setItem("accessToken", data.accessToken);
-		sessionStorage.setItem("accessTokenExpiresAt", expiresAt.toString());
-		sessionStorage.setItem("refreshToken", data.refreshToken);
+		localStorage.setItem("accessToken", data.accessToken);
+		localStorage.setItem("accessTokenExpiresAt", expiresAt.toString());
 
 		const currentUser = await getCurrentUser(data.accessToken);
 
-		sessionStorage.setItem("user", JSON.stringify(currentUser));
-		sessionStorage.setItem("userGuid", currentUser.PublicGuid);
+		localStorage.setItem("user", JSON.stringify(currentUser));
+		localStorage.setItem("userGuid", currentUser.PublicGuid);
 
 		setUser(currentUser);
 		setIsLoading(false);
@@ -89,20 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	// Note: refresh endpoint returns properties in snake case
 	const refreshAccessToken = useCallback(async (): Promise<string | null> => {
-		const refreshToken = sessionStorage.getItem("refreshToken");
-
-		if (!refreshToken) {
-			return null;
-		}
-
 		const response = await fetch("/api/refresh", {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				refreshToken,
-			}),
 		});
 
 		if (!response.ok) {
@@ -111,23 +101,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		const data = await response.json();
 
-		sessionStorage.setItem("accessToken", data.access_token);
-		sessionStorage.setItem(
+		localStorage.setItem("accessToken", data.access_token);
+		localStorage.setItem(
 			"accessTokenExpiresAt",
 			String(Date.now() + data.expires_in * 1000),
 		);
-
-		if (data.refresh_token) {
-			sessionStorage.setItem("refreshToken", data.refresh_token);
-		}
 
 		return data.access_token;
 	}, []);
 
 	const authenticatedFetch = useCallback(
 		async <T,>(url: string, signal?: AbortSignal): Promise<T> => {
-			let accessToken = sessionStorage.getItem("accessToken");
-			const expiresAt = sessionStorage.getItem("accessTokenExpiresAt");
+			let accessToken = localStorage.getItem("accessToken");
+			const expiresAt = localStorage.getItem("accessTokenExpiresAt");
 
 			if (!accessToken || !expiresAt) {
 				logout();

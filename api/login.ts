@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { API_BASE_URL, consumerKey } from "./_lib/groundspeak.js";
+import { ApiLoginResponse } from "../src/types.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "POST") {
@@ -26,7 +27,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		return res.status(401).json({ error: "Invalid username or password" });
 	}
 
-	const data = await response.json();
+	const data = (await response.json()) as unknown as ApiLoginResponse;
+	const { accessToken, refreshToken, expiresIn } = data;
 
-	return res.status(200).json(data);
+	res.setHeader(
+		"Set-Cookie",
+		`refreshToken=${encodeURIComponent(refreshToken)}; HttpOnly; Secure; SameSite=Strict; Path=/api/refresh; Max-Age=259200`,
+	);
+
+	return res.status(200).json({
+		accessToken,
+		expiresIn,
+	});
 }

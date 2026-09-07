@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { consumerKey, LABS_API_BASE_URL } from "./_lib/groundspeak.js";
+import { ApiRefreshResponse } from "../src/types.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "POST") {
@@ -7,8 +8,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		return;
 	}
 
-	const { refreshToken } = req.body;
-	// const consumerKey = consumerKey();
+	const currentRefreshToken = req.cookies.refreshToken;
+
+	if (!currentRefreshToken) {
+		return res.status(401).json({ error: "No refresh token" });
+	}
+
 	const response = await fetch(
 		`${LABS_API_BASE_URL}/Accounts/RefreshAccessToken?consumerKey=${consumerKey()}`,
 		{
@@ -19,7 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				"X-Consumer-Key": consumerKey(),
 			},
 			body: JSON.stringify({
-				RefreshToken: refreshToken,
+				RefreshToken: currentRefreshToken,
 			}),
 		},
 	);
@@ -28,7 +33,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		return res.status(401).json({ error: "Failed to refresh token" });
 	}
 
-	const data = await response.json();
+	const data = (await response.json()) as unknown as ApiRefreshResponse;
+	const {
+		access_token: accessToken,
+		refresh_token: refreshToken,
+		expires_in: expiresIn,
+	} = data;
 
-	return res.status(200).json(data);
+	res.setHeader(
+		"Set-Cookie",
+		`__Secure-refreshToken=${encodeURIComponent(refreshToken)}; HttpOnly; Secure; SameSite=Strict; Path=/api/refresh`,
+	);
+
+	return res.status(200).json({
+		accessToken,
+		expiresIn,
+	});
 }

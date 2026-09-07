@@ -79,8 +79,19 @@ export interface LoginParams {
 
 export interface LoginResponse {
 	accessToken: string;
+	expiresIn: number;
+}
+
+export interface ApiLoginResponse {
+	accessToken: string;
 	refreshToken: string;
 	expiresIn: number;
+}
+
+export interface ApiRefreshResponse {
+	access_token: string;
+	refresh_token: string;
+	expires_in: number;
 }
 
 export interface SearchParams {

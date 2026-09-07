@@ -28,7 +28,7 @@ const POSSIBLE_COLOURS = [
 ];
 
 export const checkAnswer = (stage: LabStage, answer: string): boolean => {
-	const userGuid = sessionStorage.getItem("userGuid") || "";
+	const userGuid = localStorage.getItem("userGuid") || "";
 	const answerNoSpace = answer.replaceAll(" ", "");
 	const hashInput = (userGuid + answerNoSpace).toLowerCase();
 	const hashResult = MD5(hashInput).toString();

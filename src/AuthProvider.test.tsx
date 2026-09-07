@@ -52,7 +52,7 @@ function renderConsumer() {
 describe("AuthContext", () => {
 	afterEach(() => {
 		vi.unstubAllGlobals();
-		sessionStorage.clear();
+		localStorage.clear();
 	});
 
 	it("throws when useAuth is used outside an AuthProvider", () => {
@@ -78,7 +78,7 @@ describe("AuthContext", () => {
 	});
 
 	it("restores the session when a valid access token is stored", async () => {
-		sessionStorage.setItem("accessToken", "test-token");
+		localStorage.setItem("accessToken", "test-token");
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue({
@@ -95,11 +95,11 @@ describe("AuthContext", () => {
 			).toBeInTheDocument(),
 		);
 		expect(screen.getByText("user: alice")).toBeInTheDocument();
-		expect(sessionStorage.getItem("userGuid")).toBe("guid-1");
+		expect(localStorage.getItem("userGuid")).toBe("guid-1");
 	});
 
 	it("logs out when the stored access token is no longer valid", async () => {
-		sessionStorage.setItem("accessToken", "stale-token");
+		localStorage.setItem("accessToken", "stale-token");
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue({ ok: false, status: 401 }),
@@ -112,7 +112,7 @@ describe("AuthContext", () => {
 				screen.getByText("isAuthenticated: false"),
 			).toBeInTheDocument(),
 		);
-		expect(sessionStorage.getItem("accessToken")).toBeNull();
+		expect(localStorage.getItem("accessToken")).toBeNull();
 	});
 
 	it("logs in and stores the session", async () => {
@@ -145,8 +145,8 @@ describe("AuthContext", () => {
 			).toBeInTheDocument(),
 		);
 		expect(screen.getByText("user: alice")).toBeInTheDocument();
-		expect(sessionStorage.getItem("accessToken")).toBe("new-token");
-		expect(sessionStorage.getItem("userGuid")).toBe("guid-1");
+		expect(localStorage.getItem("accessToken")).toBe("new-token");
+		expect(localStorage.getItem("userGuid")).toBe("guid-1");
 	});
 
 	it("throws when login fails and does not store a session", async () => {
@@ -162,11 +162,11 @@ describe("AuthContext", () => {
 		});
 
 		expect(screen.getByText("isAuthenticated: false")).toBeInTheDocument();
-		expect(sessionStorage.getItem("accessToken")).toBeNull();
+		expect(localStorage.getItem("accessToken")).toBeNull();
 	});
 
 	it("clears the session on logout", async () => {
-		sessionStorage.setItem("accessToken", "test-token");
+		localStorage.setItem("accessToken", "test-token");
 		vi.stubGlobal(
 			"fetch",
 			vi
@@ -186,6 +186,6 @@ describe("AuthContext", () => {
 		});
 
 		expect(screen.getByText("isAuthenticated: false")).toBeInTheDocument();
-		expect(sessionStorage.getItem("accessToken")).toBeNull();
+		expect(localStorage.getItem("accessToken")).toBeNull();
 	});
 });

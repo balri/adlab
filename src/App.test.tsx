@@ -32,8 +32,8 @@ function renderApp(initialEntries: string[] = ["/"]) {
 
 describe("App", () => {
 	beforeEach(() => {
-		sessionStorage.setItem("accessToken", "test-token");
-		sessionStorage.setItem(
+		localStorage.setItem("accessToken", "test-token");
+		localStorage.setItem(
 			"accessTokenExpiresAt",
 			(Date.now() + 60 * 60 * 1000).toString(),
 		);
@@ -47,7 +47,7 @@ describe("App", () => {
 
 	afterEach(() => {
 		vi.unstubAllGlobals();
-		sessionStorage.clear();
+		localStorage.clear();
 	});
 
 	it("renders the app title as a link to the home page", () => {
@@ -67,7 +67,7 @@ describe("App", () => {
 	});
 
 	it("redirects to the login page when not authenticated", () => {
-		sessionStorage.clear();
+		localStorage.clear();
 		renderApp(["/"]);
 		expect(
 			screen.getByRole("heading", { name: "Login" }),
@@ -84,7 +84,7 @@ describe("App", () => {
 	});
 
 	it("does not show a log out link when not authenticated", () => {
-		sessionStorage.clear();
+		localStorage.clear();
 		renderApp(["/"]);
 		expect(
 			screen.queryByRole("button", { name: "Log out" }),
@@ -96,7 +96,7 @@ describe("App", () => {
 		await waitFor(() => screen.getByRole("button", { name: "Log out" }));
 		fireEvent.click(screen.getByRole("button", { name: "Log out" }));
 
-		expect(sessionStorage.getItem("accessToken")).toBeNull();
+		expect(localStorage.getItem("accessToken")).toBeNull();
 		expect(
 			screen.getByRole("heading", { name: "Login" }),
 		).toBeInTheDocument();
