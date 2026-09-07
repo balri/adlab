@@ -49,6 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			accessToken,
 		);
 
+		res.setHeader("Cache-Control", "no-store");
 		res.status(200).json(list.items);
 	} catch (err) {
 		res.status(502).json({ error: (err as Error).message });

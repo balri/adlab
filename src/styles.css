@@ -10,8 +10,14 @@ body {
 	margin: 0;
 }
 
+* {
+	box-sizing: border-box;
+}
+
 .app {
+	width: 100%;
 	max-width: 960px;
+	box-sizing: border-box;
 	margin: 0 auto;
 	padding: 0 1rem 2rem;
 }
@@ -20,7 +26,18 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	gap: 1rem;
 	padding: 1rem 0;
+}
+
+@media (width <=500px) {
+	.app-header {
+		align-items: flex-start;
+	}
+
+	.app-title {
+		flex: 1;
+	}
 }
 
 .app-title {
@@ -61,6 +78,39 @@ body {
 	align-items: flex-end;
 }
 
+.search-form-row input,
+.search-form-row select {
+	font: inherit;
+	max-width: 100%;
+}
+
+@media (width <=600px) {
+	.search-form-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.search-form-row label:not(.checkbox-label) {
+		width: 100%;
+	}
+
+	.search-form-row input:not([type="checkbox"]),
+	.search-form-row select {
+		width: 100%;
+	}
+
+	.search-form-row .btn {
+		width: 100%;
+	}
+
+	.search-form-row label.checkbox-label {
+		width: auto;
+		flex-direction: row;
+		align-items: center;
+		gap: 0.5rem;
+	}
+}
+
 .search-form-row label {
 	display: flex;
 	flex-direction: column;
@@ -71,6 +121,12 @@ body {
 .search-form-row label.checkbox-label {
 	flex-direction: row;
 	align-items: center;
+}
+
+.search-form-row input[type="checkbox"] {
+	width: auto;
+	flex: 0 0 auto;
+	margin: 0;
 }
 
 .error-text {
@@ -93,6 +149,14 @@ body {
 	border-radius: 8px;
 }
 
+@media (width <=600px) {
+	.results-map {
+		height: 50vh;
+		min-height: 300px;
+		max-height: 500px;
+	}
+}
+
 .results-list {
 	list-style: none;
 	padding: 0;
@@ -105,6 +169,12 @@ body {
 	border: 1px solid rgb(128 128 128 / 30%);
 	border-radius: 8px;
 	padding: 0.75rem 1rem;
+}
+
+@media (width <=600px) {
+	.results-list-item {
+		padding: 0.75rem;
+	}
 }
 
 .results-list-meta {
@@ -161,7 +231,22 @@ body {
 
 .lab-detail-content img {
 	width: 200px;
-	height: auto;
+}
+
+@media (width <=600px) {
+	.lab-detail-content {
+		flex-direction: column;
+	}
+
+	.lab-detail-content img {
+		width: 100%;
+		max-width: 300px;
+	}
+
+	.lab-detail-content > div {
+		max-height: none;
+		overflow-y: visible;
+	}
 }
 
 .lab-detail-content p {
@@ -258,28 +343,24 @@ body {
 	white-space: nowrap;
 }
 
-/* Grey */
 .status-chip.not-started {
 	color: #666;
 	background: #f0f0f0;
 	border-color: #ccc;
 }
 
-/* Amber */
 .status-chip.in-progress {
 	color: #8a5a00;
 	background: #fff3cd;
 	border-color: #f0c36d;
 }
 
-/* Green */
 .status-chip.completed {
 	color: #216e39;
 	background: #dff3e4;
 	border-color: #9ed2aa;
 }
 
-/* Blue */
 .status-chip.owned {
 	color: #245a8d;
 	background: #e1effa;

@@ -36,13 +36,6 @@ function renderResults(labs: LabSummary[]) {
 }
 
 describe("ResultsList", () => {
-	it("shows a message when there are no labs", () => {
-		renderResults([]);
-		expect(
-			screen.getByText("No Adventure Labs found in this area."),
-		).toBeInTheDocument();
-	});
-
 	it("renders a link, rating, and stage count for each lab", () => {
 		renderResults([lab()]);
 

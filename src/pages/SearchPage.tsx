@@ -76,6 +76,10 @@ export default function SearchPage() {
 		setError(null);
 		try {
 			const results = await searchLabs(params);
+			if (results.length === 0) {
+				setError("No Adventure Labs found in this area.");
+				return;
+			}
 			setLabs(results);
 			setCentreAndRadius(results, setCentre, setRadius);
 		} catch (err) {
@@ -89,7 +93,7 @@ export default function SearchPage() {
 		<div className="search-page">
 			<SearchForm onSearch={handleSearch} loading={loading} />
 			{error && <p className="error-text">{error}</p>}
-			{centre && (
+			{labs.length > 0 && centre && (
 				<div className="search-results">
 					<ResultsMap
 						centre={centre}

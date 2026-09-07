@@ -58,6 +58,19 @@ describe("SearchPage", () => {
 		expect(screen.queryByRole("list")).not.toBeInTheDocument();
 	});
 
+	it("shows a message when there are no labs", async () => {
+		mockSearchLabs.mockResolvedValue([]);
+		renderPage();
+
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+		await waitFor(() =>
+			expect(
+				screen.getByText("No Adventure Labs found in this area."),
+			).toBeInTheDocument(),
+		);
+	});
+
 	it("shows results and the map once a search resolves", async () => {
 		mockSearchLabs.mockResolvedValue([lab()]);
 		renderPage();

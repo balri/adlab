@@ -7,10 +7,6 @@ interface Props {
 }
 
 export default function ResultsList({ labs }: Props) {
-	if (labs.length === 0) {
-		return <p>No Adventure Labs found in this area.</p>;
-	}
-
 	return (
 		<ul className="results-list">
 			{labs.map((lab) => (
