@@ -98,6 +98,9 @@ export default function LabStageDetailPage() {
 			<LabStageQuestion
 				stage={stage}
 				onUpdateStage={updateCorrectAnswer}
+				ownedByUser={
+					lab.ownerPublicGuid === localStorage.getItem("userGuid")
+				}
 			/>
 			{stage.isComplete && <LabStageJournal stage={stage} />}
 		</div>

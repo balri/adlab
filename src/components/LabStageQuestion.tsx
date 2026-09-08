@@ -5,6 +5,7 @@ import { checkAnswer } from "../utils/checkAnswer";
 interface LabStageQuestionParams {
 	stage: LabStage;
 	onUpdateStage: (answer: string) => void;
+	ownedByUser: boolean;
 }
 
 interface FormState {
@@ -16,7 +17,7 @@ const DEFAULT_FORM: FormState = { answer: "" };
 export default function LabStageQuestion(params: LabStageQuestionParams) {
 	const [form, setForm] = useState<FormState>(DEFAULT_FORM);
 	const [incorrectAnswer, setIncorrectAnswer] = useState<string>("");
-	const { stage, onUpdateStage } = params;
+	const { stage, onUpdateStage, ownedByUser } = params;
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -97,13 +98,15 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 						value="Check"
 						disabled={!!stage.correctAnswer}
 					/>
-					{stage.correctAnswer && !stage.isComplete && (
-						<input
-							type="button"
-							value="Send Answer"
-							onClick={handleSendAnswer}
-						/>
-					)}
+					{stage.correctAnswer &&
+						!stage.isComplete &&
+						!ownedByUser && (
+							<input
+								type="button"
+								value="Send Answer"
+								onClick={handleSendAnswer}
+							/>
+						)}
 				</div>
 			</form>
 		</>

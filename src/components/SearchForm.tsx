@@ -1,51 +1,10 @@
 import { useEffect, useState } from "react";
-import type { CompletionStatus, SearchParams } from "../types";
+import type { CompletionStatus, FormState, SearchParams } from "../types";
+import { FORM_STORAGE_KEY, loadForm } from "../utils/loadForm";
 
 interface Props {
 	onSearch: (params: SearchParams) => void;
 	loading: boolean;
-}
-
-export const DEFAULT_LATITUDE = -27.4698;
-export const DEFAULT_LONGITUDE = 153.0251;
-export const DEFAULT_RADIUS = 20000;
-export const DEFAULT_TAKE = 25;
-
-const STORAGE_KEY = "searchForm";
-
-interface FormState {
-	latitude: string;
-	longitude: string;
-	radius: number;
-	take: number;
-	statuses: CompletionStatus[];
-	excludeOwned: boolean;
-}
-
-const DEFAULT_FORM: FormState = {
-	latitude: String(DEFAULT_LATITUDE),
-	longitude: String(DEFAULT_LONGITUDE),
-	radius: DEFAULT_RADIUS,
-	take: DEFAULT_TAKE,
-	statuses: ["NotStarted", "InProgress"],
-	excludeOwned: true,
-};
-
-function loadForm(): FormState {
-	try {
-		const saved = localStorage.getItem(STORAGE_KEY);
-
-		if (saved) {
-			return {
-				...DEFAULT_FORM,
-				...JSON.parse(saved),
-			};
-		}
-	} catch {
-		// Ignore invalid saved data
-	}
-
-	return DEFAULT_FORM;
 }
 
 export default function SearchForm({ onSearch, loading }: Props) {
@@ -53,7 +12,7 @@ export default function SearchForm({ onSearch, loading }: Props) {
 	const [geoError, setGeoError] = useState<string | null>(null);
 
 	useEffect(() => {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+		localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(form));
 	}, [form]);
 
 	function updateForm<K extends keyof FormState>(

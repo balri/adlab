@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
-import type { LabSummary } from "../types";
+import type { LabSummary, LatLng } from "../types";
 import StatusChips from "./StatusChips";
+import { distanceBetween } from "../utils/distanceBetween";
 
 interface Props {
 	labs: LabSummary[];
+	searchCentre: LatLng | null;
 }
 
-export default function ResultsList({ labs }: Props) {
+export default function ResultsList({ labs, searchCentre }: Props) {
 	return (
 		<ul className="results-list">
 			{labs.map((lab) => (
@@ -19,6 +21,17 @@ export default function ResultsList({ labs }: Props) {
 						)}
 						{lab.stagesTotalCount !== null && (
 							<span>{lab.stagesTotalCount} stages</span>
+						)}
+						{searchCentre && (
+							<span>
+								{(
+									distanceBetween(
+										lab.location,
+										searchCentre,
+									) / 1000
+								).toFixed(2)}{" "}
+								km
+							</span>
 						)}
 					</div>
 				</li>

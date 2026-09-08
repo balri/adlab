@@ -5,21 +5,8 @@ import ResultsList from "../components/ResultsList";
 import ResultsMap from "../components/ResultsMap";
 import type { LabSummary, LatLng, SearchParams } from "../types";
 import { useApi } from "../useApi";
-
-function distanceBetween(a: LatLng, b: LatLng): number {
-	const R = 6371000; // Earth radius in metres
-
-	const lat1 = (a.latitude * Math.PI) / 180;
-	const lat2 = (b.latitude * Math.PI) / 180;
-	const dLat = ((b.latitude - a.latitude) * Math.PI) / 180;
-	const dLng = ((b.longitude - a.longitude) * Math.PI) / 180;
-
-	const h =
-		Math.sin(dLat / 2) ** 2 +
-		Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-
-	return 2 * R * Math.asin(Math.sqrt(h));
-}
+import { distanceBetween } from "../utils/distanceBetween";
+import { loadForm } from "../utils/loadForm";
 
 function setCentreAndRadius(
 	labs: LabSummary[],
@@ -64,6 +51,13 @@ export default function SearchPage() {
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [searchCentre, setSearchCentre] = useState<LatLng | null>(() => {
+		const { latitude, longitude } = loadForm();
+		return {
+			latitude: Number(latitude),
+			longitude: Number(longitude),
+		} as LatLng;
+	});
 
 	useEffect(() => {
 		sessionStorage.setItem("searchResults", JSON.stringify(labs));
@@ -81,6 +75,8 @@ export default function SearchPage() {
 				return;
 			}
 			setLabs(results);
+			const { latitude, longitude } = params;
+			setSearchCentre({ latitude, longitude });
 			setCentreAndRadius(results, setCentre, setRadius);
 		} catch (err) {
 			setError((err as Error).message);
@@ -101,7 +97,7 @@ export default function SearchPage() {
 						labs={labs}
 						onSelect={(guid) => navigate(`/labs/${guid}`)}
 					/>
-					<ResultsList labs={labs} />
+					<ResultsList labs={labs} searchCentre={searchCentre} />
 				</div>
 			)}
 		</div>

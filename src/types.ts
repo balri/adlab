@@ -140,3 +140,12 @@ export interface User {
 	// InProgressAdventuresCount: number;
 	// AccountSettings: UserAccountSettings;
 }
+
+export interface FormState {
+	latitude: string;
+	longitude: string;
+	radius: number;
+	take: number;
+	statuses: CompletionStatus[];
+	excludeOwned: boolean;
+}

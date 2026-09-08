@@ -1,14 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import type { LabDetail } from "../types";
+import type { LabDetail, LatLng } from "../types";
 import StatusChips from "../components/StatusChips";
 import { useApi } from "../useApi";
+import { loadForm } from "../utils/loadForm";
+import { distanceBetween } from "../utils/distanceBetween";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
 	const { getLab } = useApi();
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [searchCentre, setSearchCentre] = useState<LatLng | null>(() => {
+		const { latitude, longitude } = loadForm();
+		return {
+			latitude: Number(latitude),
+			longitude: Number(longitude),
+		} as LatLng;
+	});
 
 	useEffect(() => {
 		async function loadLab() {
@@ -33,6 +42,11 @@ export default function LabDetailPage() {
 
 				sessionStorage.setItem(cacheKey, JSON.stringify(lab));
 				setLab(lab);
+				const { latitude, longitude } = loadForm();
+				setSearchCentre({
+					latitude: Number(latitude),
+					longitude: Number(longitude),
+				});
 			} catch (err) {
 				if (controller.signal.aborted) return;
 				setLab(null);
@@ -79,6 +93,19 @@ export default function LabDetailPage() {
 							{stage.title}
 						</Link>
 						<StatusChips lab={lab} stage={stage} />
+						{searchCentre && (
+							<div className="results-list-meta">
+								<span>
+									{(
+										distanceBetween(
+											stage.location,
+											searchCentre,
+										) / 1000
+									).toFixed(2)}{" "}
+									km
+								</span>
+							</div>
+						)}
 					</li>
 				))}
 			</ol>
