@@ -1,11 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import SearchForm, {
+import SearchForm from "./SearchForm";
+import {
 	DEFAULT_LATITUDE,
 	DEFAULT_LONGITUDE,
 	DEFAULT_RADIUS,
 	DEFAULT_TAKE,
-} from "./SearchForm";
+} from "../utils/loadForm";
 import { beforeEach } from "vitest";
 
 beforeEach(() => {

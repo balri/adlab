@@ -30,7 +30,10 @@ function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 function renderResults(labs: LabSummary[]) {
 	return render(
 		<MemoryRouter>
-			<ResultsList labs={labs} />
+			<ResultsList
+				labs={labs}
+				searchCentre={{ latitude: -27.5, longitude: 153.0 }}
+			/>
 		</MemoryRouter>,
 	);
 }
