@@ -13,25 +13,42 @@ interface Props {
 	labs: LabSummary[];
 	searchCentre: LatLng | null;
 }
-
 const statusMarker = (lab: LabSummary) => {
-	const colours = {
-		NotStarted: "#d32f2f",
-		InProgress: "#f9a825",
-		Completed: "#388e3c",
-	};
-
 	const colour =
 		lab.ownerPublicGuid === localStorage.getItem("userGuid")
 			? "#1976d2"
-			: colours[lab.completionStatus];
+			: {
+					NotStarted: "#d32f2f",
+					InProgress: "#f9a825",
+					Completed: "#388e3c",
+				}[lab.completionStatus];
 
 	return L.divIcon({
-		className: "status-marker",
-		html: `<div class="status-marker-pin" style="background-color: ${colour}"></div>`,
-		iconSize: [25, 41],
-		iconAnchor: [12, 41],
-		popupAnchor: [1, -34],
+		className: "",
+		html: `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="33"
+        viewBox="0 0 25 41"
+      >
+        <path
+          fill="${colour}"
+          stroke="#fff"
+          stroke-width="1"
+          d="M12.5 0C5.6 0 0 5.6 0 12.5c0 9.4 12.5 28.5 12.5 28.5S25 21.9 25 12.5C25 5.6 19.4 0 12.5 0z"
+        />
+        <circle
+          cx="12.5"
+          cy="12.5"
+          r="4"
+          fill="#fff"
+        />
+      </svg>
+    `,
+		iconSize: [20, 33],
+		iconAnchor: [10, 33],
+		popupAnchor: [0, -33],
 	});
 };
 
