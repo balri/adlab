@@ -372,3 +372,22 @@ body {
 	background: #dff3e4;
 	border-color: #9ed2aa;
 }
+
+.status-marker {
+	background: transparent;
+	border: none;
+	width: 25px !important;
+	height: 41px !important;
+}
+
+.status-marker-pin {
+	position: absolute;
+	left: 2px;
+	top: 0;
+	width: 21px;
+	height: 21px;
+	border-radius: 50% 50% 50% 0;
+	transform: rotate(-45deg);
+	border: 2px solid white;
+	box-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+}

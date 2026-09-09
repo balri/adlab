@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
@@ -35,7 +34,6 @@ function setCentreAndRadius(
 }
 
 export default function SearchPage() {
-	const navigate = useNavigate();
 	const { searchLabs } = useApi();
 	const [labs, setLabs] = useState<LabSummary[]>(() => {
 		const saved = sessionStorage.getItem("searchResults");
@@ -95,7 +93,7 @@ export default function SearchPage() {
 						centre={centre}
 						radius={radius}
 						labs={labs}
-						onSelect={(guid) => navigate(`/labs/${guid}`)}
+						searchCentre={searchCentre}
 					/>
 					<ResultsList labs={labs} searchCentre={searchCentre} />
 				</div>

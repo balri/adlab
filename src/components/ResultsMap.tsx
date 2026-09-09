@@ -1,12 +1,9 @@
-import {
-	MapContainer,
-	Marker,
-	TileLayer,
-	Tooltip,
-	useMap,
-} from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useEffect } from "react";
 import type { LabSummary, LatLng } from "../types";
+import { Link } from "react-router-dom";
+import { distanceBetween } from "../utils/distanceBetween";
+import L from "leaflet";
 
 const mapWidth = 360;
 
@@ -14,8 +11,29 @@ interface Props {
 	centre: LatLng;
 	radius: number;
 	labs: LabSummary[];
-	onSelect: (guid: string) => void;
+	searchCentre: LatLng | null;
 }
+
+const statusMarker = (lab: LabSummary) => {
+	const colours = {
+		NotStarted: "#d32f2f",
+		InProgress: "#f9a825",
+		Completed: "#388e3c",
+	};
+
+	const colour =
+		lab.ownerPublicGuid === localStorage.getItem("userGuid")
+			? "#1976d2"
+			: colours[lab.completionStatus];
+
+	return L.divIcon({
+		className: "status-marker",
+		html: `<div class="status-marker-pin" style="background-color: ${colour}"></div>`,
+		iconSize: [25, 41],
+		iconAnchor: [12, 41],
+		popupAnchor: [1, -34],
+	});
+};
 
 function RecentreOnChange({
 	centre,
@@ -47,7 +65,12 @@ function radiusToZoom(
 	return Math.log2((metresPerPixelAtZoom0 * desiredPixels) / radius);
 }
 
-export default function ResultsMap({ centre, radius, labs, onSelect }: Props) {
+export default function ResultsMap({
+	centre,
+	radius,
+	labs,
+	searchCentre,
+}: Props) {
 	const zoomLevel = radiusToZoom(radius, centre.latitude, mapWidth);
 
 	return (
@@ -65,9 +88,32 @@ export default function ResultsMap({ centre, radius, labs, onSelect }: Props) {
 				<Marker
 					key={lab.adventureGuid}
 					position={[lab.location.latitude, lab.location.longitude]}
-					eventHandlers={{ click: () => onSelect(lab.adventureGuid) }}
+					icon={statusMarker(lab)}
 				>
-					<Tooltip>{lab.title}</Tooltip>
+					<Popup>
+						<Link to={`/labs/${lab.adventureGuid}`}>
+							{lab.title}
+						</Link>
+						<div className="results-list-meta">
+							{lab.ratingsAverage !== null && (
+								<span>★ {lab.ratingsAverage.toFixed(1)}</span>
+							)}
+							{lab.stagesTotalCount !== null && (
+								<span>{lab.stagesTotalCount} stages</span>
+							)}
+							{searchCentre && (
+								<span>
+									{(
+										distanceBetween(
+											lab.location,
+											searchCentre,
+										) / 1000
+									).toFixed(2)}{" "}
+									km
+								</span>
+							)}
+						</div>
+					</Popup>
 				</Marker>
 			))}
 		</MapContainer>
