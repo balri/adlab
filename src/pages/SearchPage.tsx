@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
-import ResultsMap from "../components/ResultsMap";
 import type { LabSummary, LatLng, SearchParams } from "../types";
 import { useApi } from "../useApi";
 import { distanceBetween } from "../utils/distanceBetween";
 import { loadForm } from "../utils/loadForm";
+import SearchMap from "../components/SearchMap";
 
 function setCentreAndRadius(
 	labs: LabSummary[],
@@ -69,6 +69,7 @@ export default function SearchPage() {
 		try {
 			const results = await searchLabs(params);
 			if (results.length === 0) {
+				setLabs([]);
 				setError("No Adventure Labs found in this area.");
 				return;
 			}
@@ -85,16 +86,24 @@ export default function SearchPage() {
 
 	return (
 		<div className="search-page">
-			<SearchForm onSearch={handleSearch} loading={loading} />
+			{searchCentre && (
+				<SearchMap
+					centre={centre || searchCentre}
+					radius={radius}
+					labs={labs}
+					searchCentre={searchCentre}
+					onRecentre={setSearchCentre}
+				/>
+			)}
+			<SearchForm
+				onSearch={handleSearch}
+				loading={loading}
+				searchCentre={searchCentre}
+				onSearchCentreChange={setSearchCentre}
+			/>
 			{error && <p className="error-text">{error}</p>}
-			{labs.length > 0 && centre && (
+			{!!labs.length && (
 				<div className="search-results">
-					<ResultsMap
-						centre={centre}
-						radius={radius}
-						labs={labs}
-						searchCentre={searchCentre}
-					/>
 					<ResultsList labs={labs} searchCentre={searchCentre} />
 				</div>
 			)}

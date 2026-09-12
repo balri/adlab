@@ -8,6 +8,7 @@ import {
 	DEFAULT_TAKE,
 } from "../utils/loadForm";
 import { beforeEach } from "vitest";
+import { LatLng } from "../types";
 
 beforeEach(() => {
 	localStorage.clear();
@@ -20,7 +21,14 @@ describe("SearchForm", () => {
 
 	it("submits the entered search params", () => {
 		const onSearch = vi.fn();
-		render(<SearchForm onSearch={onSearch} loading={false} />);
+		render(
+			<SearchForm
+				onSearch={onSearch}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
 
 		fireEvent.change(screen.getByLabelText("Latitude"), {
 			target: { value: "10" },
@@ -50,7 +58,14 @@ describe("SearchForm", () => {
 
 	it("does not search when latitude is left empty", () => {
 		const onSearch = vi.fn();
-		render(<SearchForm onSearch={onSearch} loading={false} />);
+		render(
+			<SearchForm
+				onSearch={onSearch}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
 
 		fireEvent.change(screen.getByLabelText("Latitude"), {
 			target: { value: "" },
@@ -61,14 +76,21 @@ describe("SearchForm", () => {
 	});
 
 	it("disables the search button and shows a status while loading", () => {
-		render(<SearchForm onSearch={() => {}} loading />);
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
 
 		expect(
 			screen.getByRole("button", { name: "Searching…" }),
 		).toBeDisabled();
 	});
 
-	it("fills in latitude and longitude from the browser's geolocation", () => {
+	it("reports the browser's geolocation via onSearchCentreChange", () => {
 		vi.stubGlobal("navigator", {
 			...navigator,
 			geolocation: {
@@ -78,10 +100,43 @@ describe("SearchForm", () => {
 					} as GeolocationPosition),
 			},
 		});
-		render(<SearchForm onSearch={() => {}} loading={false} />);
+		const onSearchCentreChange = vi.fn();
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={onSearchCentreChange}
+			/>,
+		);
 
 		fireEvent.click(
 			screen.getByRole("button", { name: "Use my location" }),
+		);
+
+		expect(onSearchCentreChange).toHaveBeenCalledWith({
+			latitude: 51.5,
+			longitude: -0.12,
+		});
+	});
+
+	it("fills in latitude and longitude when searchCentre changes", () => {
+		const { rerender } = render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
+
+		rerender(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={{ latitude: 51.5, longitude: -0.12 } as LatLng}
+				onSearchCentreChange={() => {}}
+			/>,
 		);
 
 		expect(screen.getByLabelText("Latitude")).toHaveValue(51.5);
@@ -90,7 +145,14 @@ describe("SearchForm", () => {
 
 	it("shows an error when geolocation is not supported", () => {
 		vi.stubGlobal("navigator", { ...navigator, geolocation: undefined });
-		render(<SearchForm onSearch={() => {}} loading={false} />);
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
 
 		fireEvent.click(
 			screen.getByRole("button", { name: "Use my location" }),
@@ -112,7 +174,14 @@ describe("SearchForm", () => {
 			}),
 		);
 
-		render(<SearchForm onSearch={() => {}} loading={false} />);
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
 
 		expect(screen.getByLabelText("Latitude")).toHaveValue(-27.4698);
 		expect(screen.getByLabelText("Longitude")).toHaveValue(153.0251);
@@ -123,7 +192,14 @@ describe("SearchForm", () => {
 	it("saves form values to localStorage when they change", async () => {
 		const user = userEvent.setup();
 
-		render(<SearchForm onSearch={() => {}} loading={false} />);
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
 
 		const latitude = screen.getByLabelText("Latitude");
 
@@ -136,7 +212,14 @@ describe("SearchForm", () => {
 	});
 
 	it("uses default values when nothing is saved", () => {
-		render(<SearchForm onSearch={() => {}} loading={false} />);
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
 
 		expect(screen.getByLabelText("Latitude")).toHaveValue(DEFAULT_LATITUDE);
 		expect(screen.getByLabelText("Longitude")).toHaveValue(

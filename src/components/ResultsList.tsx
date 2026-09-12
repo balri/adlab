@@ -17,7 +17,10 @@ export default function ResultsList({ labs, searchCentre }: Props) {
 					<StatusChips lab={lab} />
 					<div className="results-list-meta">
 						{lab.ratingsAverage !== null && (
-							<span>★ {lab.ratingsAverage.toFixed(1)}</span>
+							<span>
+								★ {lab.ratingsAverage.toFixed(1)} (
+								{lab.ratingsTotalCount})
+							</span>
 						)}
 						{lab.stagesTotalCount !== null && (
 							<span>{lab.stagesTotalCount} stages</span>

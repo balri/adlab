@@ -46,7 +46,13 @@ describe("ResultsList", () => {
 			"href",
 			"/labs/guid-1",
 		);
-		expect(screen.getByText("★ 4.5")).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				(_, element) =>
+					element?.tagName === "SPAN" &&
+					element.textContent === "★ 4.5 (10)",
+			),
+		).toBeInTheDocument();
 		expect(screen.getByText("3 stages")).toBeInTheDocument();
 	});
 

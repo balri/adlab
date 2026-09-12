@@ -1,19 +1,43 @@
 import { useEffect, useState } from "react";
-import type { CompletionStatus, FormState, SearchParams } from "../types";
+import type {
+	CompletionStatus,
+	FormState,
+	LatLng,
+	SearchParams,
+} from "../types";
 import { FORM_STORAGE_KEY, loadForm } from "../utils/loadForm";
 
 interface Props {
 	onSearch: (params: SearchParams) => void;
 	loading: boolean;
+	searchCentre: LatLng | null;
+	onSearchCentreChange: (centre: LatLng) => void;
 }
 
-export default function SearchForm({ onSearch, loading }: Props) {
+export default function SearchForm({
+	onSearch,
+	loading,
+	searchCentre,
+	onSearchCentreChange,
+}: Props) {
 	const [form, setForm] = useState<FormState>(loadForm);
 	const [geoError, setGeoError] = useState<string | null>(null);
+	const [prevSearchCentre, setPrevSearchCentre] = useState(searchCentre);
 
 	useEffect(() => {
 		localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(form));
 	}, [form]);
+
+	if (searchCentre !== prevSearchCentre) {
+		setPrevSearchCentre(searchCentre);
+		if (searchCentre) {
+			setForm((current) => ({
+				...current,
+				latitude: String(searchCentre.latitude),
+				longitude: String(searchCentre.longitude),
+			}));
+		}
+	}
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -45,11 +69,10 @@ export default function SearchForm({ onSearch, loading }: Props) {
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				setForm((current) => ({
-					...current,
-					latitude: position.coords.latitude.toFixed(6),
-					longitude: position.coords.longitude.toFixed(6),
-				}));
+				onSearchCentreChange({
+					latitude: Number(position.coords.latitude.toFixed(6)),
+					longitude: Number(position.coords.longitude.toFixed(6)),
+				});
 			},
 			(err) => setGeoError(err.message),
 		);
