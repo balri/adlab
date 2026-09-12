@@ -23,6 +23,7 @@ export default function SearchForm({
 	const [form, setForm] = useState<FormState>(loadForm);
 	const [geoError, setGeoError] = useState<string | null>(null);
 	const [prevSearchCentre, setPrevSearchCentre] = useState(searchCentre);
+	const [expanded, setExpanded] = useState(false);
 
 	useEffect(() => {
 		localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(form));
@@ -104,109 +105,125 @@ export default function SearchForm({
 	return (
 		<form className="search-form" onSubmit={handleSubmit}>
 			<div className="search-form-row">
-				<label>
-					Latitude
-					<input
-						type="number"
-						step="any"
-						value={form.latitude}
-						onChange={(e) => updateForm("latitude", e.target.value)}
-						required
-					/>
-				</label>
-
-				<label>
-					Longitude
-					<input
-						type="number"
-						step="any"
-						value={form.longitude}
-						onChange={(e) =>
-							updateForm("longitude", e.target.value)
-						}
-						required
-					/>
-				</label>
-
-				<button type="button" onClick={useMyLocation}>
-					Use my location
-				</button>
-			</div>
-
-			<div className="search-form-row">
-				<label>
-					Radius (m)
-					<input
-						type="number"
-						min={100}
-						max={100000}
-						step={100}
-						value={form.radius}
-						onChange={(e) =>
-							updateForm("radius", Number(e.target.value))
-						}
-					/>
-				</label>
-
-				<label>
-					Max results
-					<input
-						type="number"
-						min={1}
-						max={100}
-						value={form.take}
-						onChange={(e) =>
-							updateForm("take", Number(e.target.value))
-						}
-					/>
-				</label>
-			</div>
-
-			<div className="search-form-row">
-				<label className="checkbox-label">
-					<input
-						type="checkbox"
-						checked={form.statuses.includes("NotStarted")}
-						onChange={() => toggleStatus("NotStarted")}
-					/>
-					Not Started
-				</label>
-
-				<label className="checkbox-label">
-					<input
-						type="checkbox"
-						checked={form.statuses.includes("InProgress")}
-						onChange={() => toggleStatus("InProgress")}
-					/>
-					In Progress
-				</label>
-
-				<label className="checkbox-label">
-					<input
-						type="checkbox"
-						checked={form.statuses.includes("Completed")}
-						onChange={() => toggleStatus("Completed")}
-					/>
-					Completed
-				</label>
-				<label className="checkbox-label">
-					<input
-						type="checkbox"
-						checked={!form.excludeOwned}
-						onChange={(e) =>
-							updateForm("excludeOwned", !e.target.checked)
-						}
-					/>
-					Owned
-				</label>
-			</div>
-
-			<div className="search-form-row">
 				<button type="submit" disabled={loading}>
 					{loading ? "Searching…" : "Search"}
 				</button>
+				<button
+					type="button"
+					className="search-options-toggle"
+					onClick={() => setExpanded((current) => !current)}
+					aria-expanded={expanded}
+				>
+					Search options {expanded ? "▲" : "▼"}
+				</button>
 			</div>
 
+			{expanded && (
+				<>
+					<div className="search-form-row">
+						<label>
+							Latitude
+							<input
+								type="number"
+								step="any"
+								value={form.latitude}
+								onChange={(e) =>
+									updateForm("latitude", e.target.value)
+								}
+								required
+							/>
+						</label>
+
+						<label>
+							Longitude
+							<input
+								type="number"
+								step="any"
+								value={form.longitude}
+								onChange={(e) =>
+									updateForm("longitude", e.target.value)
+								}
+								required
+							/>
+						</label>
+
+						<button type="button" onClick={useMyLocation}>
+							Use my location
+						</button>
+					</div>
+
+					<div className="search-form-row">
+						<label>
+							Radius (m)
+							<input
+								type="number"
+								min={100}
+								max={100000}
+								step={100}
+								value={form.radius}
+								onChange={(e) =>
+									updateForm("radius", Number(e.target.value))
+								}
+							/>
+						</label>
+
+						<label>
+							Max results
+							<input
+								type="number"
+								min={1}
+								max={100}
+								value={form.take}
+								onChange={(e) =>
+									updateForm("take", Number(e.target.value))
+								}
+							/>
+						</label>
+					</div>
+
+					<div className="search-form-row">
+						<label className="checkbox-label">
+							<input
+								type="checkbox"
+								checked={form.statuses.includes("NotStarted")}
+								onChange={() => toggleStatus("NotStarted")}
+							/>
+							Not Started
+						</label>
+
+						<label className="checkbox-label">
+							<input
+								type="checkbox"
+								checked={form.statuses.includes("InProgress")}
+								onChange={() => toggleStatus("InProgress")}
+							/>
+							In Progress
+						</label>
+
+						<label className="checkbox-label">
+							<input
+								type="checkbox"
+								checked={form.statuses.includes("Completed")}
+								onChange={() => toggleStatus("Completed")}
+							/>
+							Completed
+						</label>
+						<label className="checkbox-label">
+							<input
+								type="checkbox"
+								checked={!form.excludeOwned}
+								onChange={(e) =>
+									updateForm(
+										"excludeOwned",
+										!e.target.checked,
+									)
+								}
+							/>
+							Owned
+						</label>
+					</div>
+				</>
+			)}
 			{geoError && <p className="error-text">{geoError}</p>}
 		</form>
 	);

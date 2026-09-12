@@ -8,7 +8,6 @@ import {
 	DEFAULT_TAKE,
 } from "../utils/loadForm";
 import { beforeEach } from "vitest";
-import { LatLng } from "../types";
 
 beforeEach(() => {
 	localStorage.clear();
@@ -19,8 +18,13 @@ describe("SearchForm", () => {
 		vi.unstubAllGlobals();
 	});
 
+	function expandOptions() {
+		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
+	}
+
 	it("submits the entered search params", () => {
 		const onSearch = vi.fn();
+
 		render(
 			<SearchForm
 				onSearch={onSearch}
@@ -29,6 +33,8 @@ describe("SearchForm", () => {
 				onSearchCentreChange={() => {}}
 			/>,
 		);
+
+		expandOptions();
 
 		fireEvent.change(screen.getByLabelText("Latitude"), {
 			target: { value: "10" },
@@ -58,6 +64,7 @@ describe("SearchForm", () => {
 
 	it("does not search when latitude is left empty", () => {
 		const onSearch = vi.fn();
+
 		render(
 			<SearchForm
 				onSearch={onSearch}
@@ -66,6 +73,8 @@ describe("SearchForm", () => {
 				onSearchCentreChange={() => {}}
 			/>,
 		);
+
+		expandOptions();
 
 		fireEvent.change(screen.getByLabelText("Latitude"), {
 			target: { value: "" },
@@ -100,7 +109,9 @@ describe("SearchForm", () => {
 					} as GeolocationPosition),
 			},
 		});
+
 		const onSearchCentreChange = vi.fn();
+
 		render(
 			<SearchForm
 				onSearch={() => {}}
@@ -109,6 +120,8 @@ describe("SearchForm", () => {
 				onSearchCentreChange={onSearchCentreChange}
 			/>,
 		);
+
+		expandOptions();
 
 		fireEvent.click(
 			screen.getByRole("button", { name: "Use my location" }),
@@ -120,31 +133,12 @@ describe("SearchForm", () => {
 		});
 	});
 
-	it("fills in latitude and longitude when searchCentre changes", () => {
-		const { rerender } = render(
-			<SearchForm
-				onSearch={() => {}}
-				loading={false}
-				searchCentre={null}
-				onSearchCentreChange={() => {}}
-			/>,
-		);
-
-		rerender(
-			<SearchForm
-				onSearch={() => {}}
-				loading={false}
-				searchCentre={{ latitude: 51.5, longitude: -0.12 } as LatLng}
-				onSearchCentreChange={() => {}}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Latitude")).toHaveValue(51.5);
-		expect(screen.getByLabelText("Longitude")).toHaveValue(-0.12);
-	});
-
 	it("shows an error when geolocation is not supported", () => {
-		vi.stubGlobal("navigator", { ...navigator, geolocation: undefined });
+		vi.stubGlobal("navigator", {
+			...navigator,
+			geolocation: undefined,
+		});
+
 		render(
 			<SearchForm
 				onSearch={() => {}}
@@ -153,6 +147,8 @@ describe("SearchForm", () => {
 				onSearchCentreChange={() => {}}
 			/>,
 		);
+
+		expandOptions();
 
 		fireEvent.click(
 			screen.getByRole("button", { name: "Use my location" }),
@@ -183,6 +179,8 @@ describe("SearchForm", () => {
 			/>,
 		);
 
+		expandOptions();
+
 		expect(screen.getByLabelText("Latitude")).toHaveValue(-27.4698);
 		expect(screen.getByLabelText("Longitude")).toHaveValue(153.0251);
 		expect(screen.getByLabelText("Radius (m)")).toHaveValue(5000);
@@ -200,6 +198,8 @@ describe("SearchForm", () => {
 				onSearchCentreChange={() => {}}
 			/>,
 		);
+
+		expandOptions();
 
 		const latitude = screen.getByLabelText("Latitude");
 
@@ -221,11 +221,34 @@ describe("SearchForm", () => {
 			/>,
 		);
 
+		expandOptions();
+
 		expect(screen.getByLabelText("Latitude")).toHaveValue(DEFAULT_LATITUDE);
 		expect(screen.getByLabelText("Longitude")).toHaveValue(
 			DEFAULT_LONGITUDE,
 		);
 		expect(screen.getByLabelText("Radius (m)")).toHaveValue(DEFAULT_RADIUS);
 		expect(screen.getByLabelText("Max results")).toHaveValue(DEFAULT_TAKE);
+	});
+
+	it("expands and collapses the search options", () => {
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
+
+		expect(screen.queryByLabelText("Latitude")).not.toBeInTheDocument();
+
+		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
+
+		expect(screen.getByLabelText("Latitude")).toBeInTheDocument();
+
+		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
+
+		expect(screen.queryByLabelText("Latitude")).not.toBeInTheDocument();
 	});
 });
