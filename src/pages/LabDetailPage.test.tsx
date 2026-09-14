@@ -89,7 +89,13 @@ describe("LabDetailPage", () => {
 			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
 		);
 		expect(screen.getByText("by adventurer")).toBeInTheDocument();
-		expect(screen.getByText("★ 4.2")).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				(_, element) =>
+					element?.tagName === "SPAN" &&
+					element.textContent === "★ 4.2 (8)",
+			),
+		).toBeInTheDocument();
 		expect(screen.getByText("Stages (1)")).toBeInTheDocument();
 		expect(screen.getByRole("link", { name: "Stage One" })).toHaveAttribute(
 			"href",

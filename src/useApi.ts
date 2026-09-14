@@ -53,6 +53,7 @@ export function useApi() {
 							return stage;
 						},
 					),
+					stagesTotalCount: lab.stageSummaries.length,
 				};
 			},
 			[authenticatedFetch],

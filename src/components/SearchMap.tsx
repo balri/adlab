@@ -1,16 +1,9 @@
-import {
-	MapContainer,
-	Marker,
-	Popup,
-	TileLayer,
-	Tooltip,
-	useMap,
-} from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useEffect, useRef } from "react";
 import type { LabSummary, LatLng } from "../types";
 import { Link } from "react-router-dom";
-import { distanceBetween } from "../utils/distanceBetween";
 import L from "leaflet";
+import LabMeta from "./LabMeta";
 
 const mapWidth = 360;
 
@@ -172,33 +165,11 @@ export default function SearchMap({
 					position={[lab.location.latitude, lab.location.longitude]}
 					icon={statusMarker(lab)}
 				>
-					<Tooltip>{lab.title}</Tooltip>
 					<Popup>
 						<Link to={`/labs/${lab.adventureGuid}`}>
 							{lab.title}
 						</Link>
-						<div className="results-list-meta">
-							{lab.ratingsAverage !== null && (
-								<span>
-									★ {lab.ratingsAverage.toFixed(1)} (
-									{lab.ratingsTotalCount})
-								</span>
-							)}
-							{lab.stagesTotalCount !== null && (
-								<span>{lab.stagesTotalCount} stages</span>
-							)}
-							{searchCentre && (
-								<span>
-									{(
-										distanceBetween(
-											lab.location,
-											searchCentre,
-										) / 1000
-									).toFixed(2)}{" "}
-									km
-								</span>
-							)}
-						</div>
+						<LabMeta lab={lab} searchCentre={searchCentre} />
 					</Popup>
 				</Marker>
 			))}

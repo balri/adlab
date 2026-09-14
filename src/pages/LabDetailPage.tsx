@@ -5,6 +5,7 @@ import StatusChips from "../components/StatusChips";
 import { useApi } from "../useApi";
 import { loadForm } from "../utils/loadForm";
 import { distanceBetween } from "../utils/distanceBetween";
+import LabMeta from "../components/LabMeta";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -73,12 +74,7 @@ export default function LabDetailPage() {
 				{lab.title}
 				<StatusChips lab={lab} />
 			</h1>
-			<div className="results-list-meta">
-				<span>by {lab.ownerUsername}</span>
-				{lab.ratingsAverage !== null && (
-					<span>★ {lab.ratingsAverage.toFixed(1)}</span>
-				)}
-			</div>
+			<LabMeta lab={lab} searchCentre={searchCentre} />
 			<div className="lab-detail-content">
 				{lab.keyImageUrl && <img src={lab.keyImageUrl} width="300" />}
 				<div>
