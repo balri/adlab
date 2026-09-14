@@ -157,7 +157,7 @@ body {
 	gap: 1rem;
 }
 
-.results-map {
+.search-map {
 	width: 100%;
 	height: 360px;
 	border-radius: 8px;
@@ -165,7 +165,7 @@ body {
 }
 
 @media (width <=600px) {
-	.results-map {
+	.search-map {
 		height: 50vh;
 		min-height: 300px;
 		max-height: 500px;

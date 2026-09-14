@@ -147,7 +147,7 @@ export default function SearchMap({
 		<MapContainer
 			center={[centre.latitude, centre.longitude]}
 			zoom={zoomLevel}
-			className="results-map"
+			className="search-map"
 		>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
