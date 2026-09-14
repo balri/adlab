@@ -3,34 +3,22 @@ import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
 import type { LabSummary, LatLng, SearchParams } from "../types";
 import { useApi } from "../useApi";
-import { distanceBetween } from "../utils/distanceBetween";
 import { loadForm } from "../utils/loadForm";
 import SearchMap from "../components/SearchMap";
+import { getCentre, getRadius } from "../utils/mapUtils";
 
 function setCentreAndRadius(
 	labs: LabSummary[],
 	setCentre: (centre: LatLng) => void,
 	setRadius: (radius: number) => void,
 ) {
-	if (labs.length === 0) {
+	const centre = getCentre(labs);
+	if (!centre) {
 		return;
 	}
 
-	// Centre of the bounding area
-	const lats = labs.map((l) => l.location.latitude);
-	const lngs = labs.map((l) => l.location.longitude);
-
-	const centre = {
-		latitude: (Math.min(...lats) + Math.max(...lats)) / 2,
-		longitude: (Math.min(...lngs) + Math.max(...lngs)) / 2,
-	} as LatLng;
 	setCentre(centre);
-
-	// Furthest point from centre and add fudge factor
-	const radius =
-		Math.max(...labs.map((lab) => distanceBetween(centre, lab.location))) *
-		1.1;
-	setRadius(radius);
+	setRadius(getRadius(centre, labs));
 }
 
 export default function SearchPage() {

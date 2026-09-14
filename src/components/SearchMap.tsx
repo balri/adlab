@@ -2,8 +2,8 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useEffect, useRef } from "react";
 import type { LabSummary, LatLng } from "../types";
 import { Link } from "react-router-dom";
-import L from "leaflet";
 import LabMeta from "./LabMeta";
+import { radiusToZoom, statusMarker } from "../utils/mapUtils";
 
 const mapWidth = 360;
 
@@ -14,44 +14,6 @@ interface Props {
 	searchCentre: LatLng | null;
 	onRecentre: (centre: LatLng) => void;
 }
-const statusMarker = (lab: LabSummary) => {
-	const colour =
-		lab.ownerPublicGuid === localStorage.getItem("userGuid")
-			? "#1976d2"
-			: {
-					NotStarted: "#c62828",
-					InProgress: "#e09f00",
-					Completed: "#388e3c",
-				}[lab.completionStatus];
-
-	return L.divIcon({
-		className: "",
-		html: `
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="33"
-        viewBox="0 0 25 41"
-      >
-        <path
-          fill="${colour}"
-          stroke="#fff"
-          stroke-width="1"
-          d="M12.5 0C5.6 0 0 5.6 0 12.5c0 9.4 12.5 28.5 12.5 28.5S25 21.9 25 12.5C25 5.6 19.4 0 12.5 0z"
-        />
-        <circle
-          cx="12.5"
-          cy="12.5"
-          r="4"
-          fill="#fff"
-        />
-      </svg>
-    `,
-		iconSize: [20, 33],
-		iconAnchor: [10, 33],
-		popupAnchor: [0, -33],
-	});
-};
 
 function RecentreOnChange({
 	centre,
@@ -119,21 +81,6 @@ function RecentreOnChange({
 	return null;
 }
 
-function radiusToZoom(
-	radius: number,
-	latitude: number,
-	mapWidthPixels: number,
-): number {
-	const earthCircumference = 40075016.686;
-
-	const metresPerPixelAtZoom0 =
-		(earthCircumference * Math.cos((latitude * Math.PI) / 180)) / 256;
-
-	const desiredPixels = mapWidthPixels / 2;
-
-	return Math.log2((metresPerPixelAtZoom0 * desiredPixels) / radius);
-}
-
 export default function SearchMap({
 	centre,
 	radius,
@@ -163,7 +110,7 @@ export default function SearchMap({
 				<Marker
 					key={lab.adventureGuid}
 					position={[lab.location.latitude, lab.location.longitude]}
-					icon={statusMarker(lab)}
+					icon={statusMarker({ lab })}
 				>
 					<Popup>
 						<Link to={`/labs/${lab.adventureGuid}`}>
