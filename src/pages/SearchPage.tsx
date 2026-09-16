@@ -3,7 +3,12 @@ import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
 import type { LabSummary, LatLng, SearchParams } from "../types";
 import { useApi } from "../useApi";
-import { loadForm } from "../utils/loadForm";
+import {
+	DEFAULT_LATITUDE,
+	DEFAULT_LONGITUDE,
+	DEFAULT_RADIUS,
+	loadForm,
+} from "../utils/loadForm";
 import SearchMap from "../components/SearchMap";
 import { getCentre, getRadius } from "../utils/mapUtils";
 
@@ -27,13 +32,9 @@ export default function SearchPage() {
 		const saved = sessionStorage.getItem("searchResults");
 		return saved ? JSON.parse(saved) : [];
 	});
-	const [centre, setCentre] = useState<LatLng | null>(() => {
-		const saved = sessionStorage.getItem("searchCentre");
-		return saved ? JSON.parse(saved) : null;
-	});
 	const [radius, setRadius] = useState<number>(() => {
 		const saved = sessionStorage.getItem("searchRadius");
-		return saved ? JSON.parse(saved) : 0;
+		return saved ? JSON.parse(saved) : DEFAULT_RADIUS;
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -43,6 +44,14 @@ export default function SearchPage() {
 			latitude: Number(latitude),
 			longitude: Number(longitude),
 		} as LatLng;
+	});
+	const [centre, setCentre] = useState<LatLng | null>(() => {
+		const saved = sessionStorage.getItem("searchCentre");
+		return saved
+			? JSON.parse(saved)
+			: searchCentre
+				? searchCentre
+				: { latitude: DEFAULT_LATITUDE, longitude: DEFAULT_LONGITUDE };
 	});
 
 	useEffect(() => {

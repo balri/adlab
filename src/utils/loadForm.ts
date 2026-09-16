@@ -1,8 +1,8 @@
 import { FormState } from "../types";
 
-export const DEFAULT_LATITUDE = -27.4698;
-export const DEFAULT_LONGITUDE = 153.0251;
-export const DEFAULT_RADIUS = 20000;
+export const DEFAULT_LATITUDE = -27.469518;
+export const DEFAULT_LONGITUDE = 153.031593;
+export const DEFAULT_RADIUS = 10000;
 export const DEFAULT_TAKE = 25;
 
 const DEFAULT_FORM: FormState = {
