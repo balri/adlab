@@ -7,7 +7,6 @@ import { loadForm } from "../utils/loadForm";
 import { distanceBetween } from "../utils/distanceBetween";
 import LabMeta from "../components/LabMeta";
 import LabMap from "../components/LabMap";
-import { getCentre, getRadius } from "../utils/mapUtils";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -67,9 +66,6 @@ export default function LabDetailPage() {
 	if (error) return <p className="error-text">{error}</p>;
 	if (!lab) return <p>Loading…</p>;
 
-	const centre = getCentre(lab.stageSummaries);
-	const radius = centre ? getRadius(centre, lab.stageSummaries) : 0;
-
 	return (
 		<div className="lab-detail">
 			<p>
@@ -87,13 +83,8 @@ export default function LabDetailPage() {
 				</div>
 			</div>
 			<h2>Stages ({lab.stageSummaries.length})</h2>
-			{centre !== null && searchCentre !== null && (
-				<LabMap
-					lab={lab}
-					centre={centre}
-					radius={radius}
-					searchCentre={searchCentre}
-				/>
+			{lab.stageSummaries.length > 0 && searchCentre !== null && (
+				<LabMap lab={lab} searchCentre={searchCentre} />
 			)}
 			<ul className="results-list">
 				{lab.stageSummaries.map((stage) => (

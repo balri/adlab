@@ -63,9 +63,9 @@ export function radiusToZoom(
 	const metresPerPixelAtZoom0 =
 		(earthCircumference * Math.cos((latitude * Math.PI) / 180)) / 256;
 
-	const desiredPixels = mapWidthPixels / 2;
+	const metresPerPixel = (2 * radius) / mapWidthPixels;
 
-	return Math.log2((metresPerPixelAtZoom0 * desiredPixels) / radius);
+	return Math.log2(metresPerPixelAtZoom0 / metresPerPixel);
 }
 
 export function getCentre(items: LabSummary[] | LabStage[]): LatLng | null {
@@ -88,9 +88,29 @@ export function getRadius(
 	centre: LatLng,
 	items: LabSummary[] | LabStage[],
 ): number {
-	return (
-		Math.max(
-			...items.map((item) => distanceBetween(centre, item.location)),
-		) * 1.1
+	if (items.length === 0) {
+		return 0;
+	}
+
+	const maxDistance = Math.max(
+		...items.map((item) => distanceBetween(centre, item.location)),
 	);
+
+	return maxDistance * 1.1;
+}
+
+export function getBounds(
+	items: LabSummary[] | LabStage[],
+): [[number, number], [number, number]] | null {
+	if (items.length === 0) {
+		return null;
+	}
+
+	const lats = items.map((item) => item.location.latitude);
+	const lngs = items.map((item) => item.location.longitude);
+
+	return [
+		[Math.min(...lats), Math.min(...lngs)],
+		[Math.max(...lats), Math.max(...lngs)],
+	];
 }
