@@ -103,6 +103,20 @@ export interface SearchParams {
 	excludeOwned: boolean;
 }
 
+export interface SubmitParams {
+	adventureGuid: string;
+	stageGuid: string;
+	answer: string;
+	challengeType: string;
+}
+
+export interface SubmitResponse {
+	result: string;
+	journalMessage: string;
+	adventureComplete: boolean;
+	completedAdventureProperties: unknown;
+}
+
 // interface UserAccountSettings {
 // 	Admin: {
 // 		SuspendHidingPrivileges: boolean;

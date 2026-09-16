@@ -1,7 +1,6 @@
 import { LabDetail, LabSummary } from "../../src/types.js";
 
-export const API_BASE_URL =
-	"https://api.groundspeak.com/adventuresmobile/v1/public";
+export const API_BASE_URL = "https://api.groundspeak.com/adventuresmobile/v1";
 export const LABS_API_BASE_URL = "https://labs-api.geocaching.com/Api";
 
 export function consumerKey(): string {
@@ -64,7 +63,7 @@ async function requestLabsApi(
 	return res.json();
 }
 
-export interface SearchAdventuresRequest {
+interface SearchAdventuresRequest {
 	Origin: { Latitude: number; Longitude: number };
 	RadiusInMeters: number;
 	Take: number;
@@ -76,16 +75,30 @@ export interface SearchAdventuresRequest {
 	ExcludeOwned: boolean;
 }
 
-export interface SearchAdventuresResponse {
+interface SearchAdventuresResponse {
 	totalCount: number;
 	items: Array<LabSummary>;
+}
+
+interface AnswerRequest {
+	AdventureGuid: string;
+	StageGuid: string;
+	Answer: string;
+	ChallengeType: string;
+}
+
+interface AnswerResponse {
+	result: string;
+	journalMessage: string;
+	adventureComplete: boolean;
+	completedAdventureProperties: unknown;
 }
 
 export async function searchAdventures(
 	body: SearchAdventuresRequest,
 	accessToken: string,
 ): Promise<SearchAdventuresResponse> {
-	return (await request("/adventures/search", accessToken, {
+	return (await request("/public/adventures/search", accessToken, {
 		method: "POST",
 		body: JSON.stringify(body),
 	})) as unknown as SearchAdventuresResponse;
@@ -96,11 +109,18 @@ export async function getAdventure(
 	accessToken: string,
 ): Promise<LabDetail> {
 	return (await request(
-		`/adventures/${encodeURIComponent(guid)}`,
+		`/public/adventures/${encodeURIComponent(guid)}`,
 		accessToken,
 	)) as unknown as LabDetail;
 }
 
 export async function getUser(accessToken: string): Promise<unknown> {
 	return await requestLabsApi(`/Accounts/GetAccount`, accessToken);
+}
+
+export async function submitAnswer(body: AnswerRequest, accessToken: string) {
+	return (await request(`/submitAnswer`, accessToken, {
+		method: "POST",
+		body: JSON.stringify(body),
+	})) as unknown as AnswerResponse;
 }

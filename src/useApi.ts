@@ -1,5 +1,12 @@
 import { useCallback } from "react";
-import { LabDetail, LabStage, LabSummary, SearchParams } from "./types";
+import {
+	LabDetail,
+	LabStage,
+	LabSummary,
+	SearchParams,
+	SubmitParams,
+	SubmitResponse,
+} from "./types";
 import { useAuth } from "./useAuth";
 import { calculateAnswer } from "./utils/checkAnswer";
 
@@ -55,6 +62,26 @@ export function useApi() {
 					),
 					stagesTotalCount: lab.stageSummaries.length,
 				};
+			},
+			[authenticatedFetch],
+		),
+		submitAnswer: useCallback(
+			async (
+				params: SubmitParams,
+				signal?: AbortSignal,
+			): Promise<SubmitResponse> => {
+				const body = {
+					...params,
+					userGuid: localStorage.getItem("userGuid"),
+				};
+				return await authenticatedFetch<SubmitResponse>(
+					`/api/labs/submit`,
+					signal,
+					{
+						method: "POST",
+						body: JSON.stringify(body),
+					},
+				);
 			},
 			[authenticatedFetch],
 		),

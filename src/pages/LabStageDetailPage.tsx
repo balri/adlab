@@ -8,11 +8,14 @@ import { useApi } from "../useApi";
 
 export default function LabStageDetailPage() {
 	const { guid, stageId } = useParams<{ guid: string; stageId: string }>();
-	const { getLab } = useApi();
+	const { getLab, submitAnswer } = useApi();
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
+		const controller = new AbortController();
+
 		async function loadLab() {
 			if (!guid) return;
 
@@ -28,8 +31,6 @@ export default function LabStageDetailPage() {
 				}
 			}
 
-			const controller = new AbortController();
-
 			try {
 				const lab = await getLab(guid, controller.signal);
 
@@ -40,16 +41,15 @@ export default function LabStageDetailPage() {
 				setLab(null);
 				setError((err as Error).message);
 			}
-
-			return () => {
-				controller.abort();
-			};
 		}
 
 		loadLab();
+
+		return () => {
+			controller.abort();
+		};
 	}, [guid, getLab]);
 
-	if (error) return <p className="error-text">{error}</p>;
 	if (!lab) return <p>Loading…</p>;
 
 	const labUrl = `/labs/${guid}`;
@@ -74,6 +74,44 @@ export default function LabStageDetailPage() {
 		});
 	};
 
+	async function reloadLab() {
+		if (!guid) return;
+
+		try {
+			const refreshedLab = await getLab(guid);
+
+			sessionStorage.setItem(`lab_${guid}`, JSON.stringify(refreshedLab));
+
+			setLab(refreshedLab);
+		} catch (err) {
+			setError((err as Error).message);
+		}
+	}
+
+	async function handleSendAnswer(answer: string) {
+		setLoading(true);
+		setError(null);
+		try {
+			if (confirm("Are you sure you want to submit this answer?")) {
+				const resp = await submitAnswer({
+					adventureGuid: lab?.adventureGuid || "",
+					stageGuid: stage?.id || "",
+					answer,
+					challengeType: stage?.challengeType || "",
+				});
+				if (resp.result == "Success") {
+					await reloadLab();
+				} else {
+					setError("An error occurred");
+				}
+			}
+		} catch (err) {
+			setError((err as Error).message);
+		} finally {
+			setLoading(false);
+		}
+	}
+
 	if (!stage) {
 		return <div>Stage not found</div>;
 	}
@@ -87,6 +125,7 @@ export default function LabStageDetailPage() {
 				{stage.title}
 				<StatusChips lab={lab} stage={stage} />
 			</h1>
+			{error && <p className="error-text">{error}</p>}
 			<div className="lab-detail-content">
 				{stage.keyImageUrl && <img src={stage.keyImageUrl} />}
 				<div>
@@ -96,11 +135,13 @@ export default function LabStageDetailPage() {
 				</div>
 			</div>
 			<LabStageQuestion
+				loading={loading}
 				stage={stage}
 				onUpdateStage={updateCorrectAnswer}
 				ownedByUser={
 					lab.ownerPublicGuid === localStorage.getItem("userGuid")
 				}
+				onSubmit={handleSendAnswer}
 			/>
 			{stage.isComplete && <LabStageJournal stage={stage} />}
 		</div>

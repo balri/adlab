@@ -7,7 +7,11 @@ export interface AuthContextType {
 	isLoading: boolean;
 	login: (params: LoginParams) => Promise<void>;
 	logout: () => void;
-	authenticatedFetch: <T>(url: string, signal?: AbortSignal) => Promise<T>;
+	authenticatedFetch: <T>(
+		url: string,
+		signal?: AbortSignal,
+		init?: RequestInit,
+	) => Promise<T>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

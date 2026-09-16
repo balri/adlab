@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 	const { username, password } = req.body;
 
-	const response = await fetch(`${API_BASE_URL}/accounts/login`, {
+	const response = await fetch(`${API_BASE_URL}/public/accounts/login`, {
 		method: "POST",
 		headers: {
 			"User-Agent": "Adventures/1.56.0 (4936) (android/32)",

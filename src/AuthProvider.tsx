@@ -110,7 +110,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const authenticatedFetch = useCallback(
-		async <T,>(url: string, signal?: AbortSignal): Promise<T> => {
+		async <T,>(
+			url: string,
+			signal?: AbortSignal,
+			init?: RequestInit,
+		): Promise<T> => {
 			let accessToken = localStorage.getItem("accessToken");
 			const expiresAt = localStorage.getItem("accessTokenExpiresAt");
 
@@ -130,7 +134,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			}
 
 			const response = await fetch(url, {
+				...init,
 				headers: {
+					"Content-Type": "application/json",
 					Authorization: `Bearer ${accessToken}`,
 				},
 				signal,

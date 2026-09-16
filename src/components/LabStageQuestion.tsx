@@ -3,9 +3,11 @@ import { LabStage } from "../types";
 import { checkAnswer } from "../utils/checkAnswer";
 
 interface LabStageQuestionParams {
+	loading: boolean;
 	stage: LabStage;
 	onUpdateStage: (answer: string) => void;
 	ownedByUser: boolean;
+	onSubmit: (answer: string) => void;
 }
 
 interface FormState {
@@ -17,7 +19,7 @@ const DEFAULT_FORM: FormState = { answer: "" };
 export default function LabStageQuestion(params: LabStageQuestionParams) {
 	const [form, setForm] = useState<FormState>(DEFAULT_FORM);
 	const [incorrectAnswer, setIncorrectAnswer] = useState<string>("");
-	const { stage, onUpdateStage, ownedByUser } = params;
+	const { loading, stage, onUpdateStage, ownedByUser, onSubmit } = params;
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -40,10 +42,14 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 		}
 	}
 
-	function handleSendAnswer() {
-		if (confirm("Are you sure you want to submit this answer?")) {
-			// TODO: send answer
+	async function handleSendAnswer(e: React.FormEvent) {
+		e.preventDefault();
+
+		if (!stage.correctAnswer) {
+			return;
 		}
+
+		onSubmit(stage.correctAnswer);
 	}
 
 	return (
@@ -56,7 +62,6 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 					{stage.correctAnswer} is the correct answer
 				</p>
 			)}
-
 			{incorrectAnswer && (
 				<p className="error-text">
 					{incorrectAnswer} is not the correct answer
@@ -101,11 +106,13 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 					{stage.correctAnswer &&
 						!stage.isComplete &&
 						!ownedByUser && (
-							<input
+							<button
 								type="button"
-								value="Send Answer"
 								onClick={handleSendAnswer}
-							/>
+								disabled={loading}
+							>
+								{loading ? "Sending…" : "Send Answer"}
+							</button>
 						)}
 				</div>
 			</form>
