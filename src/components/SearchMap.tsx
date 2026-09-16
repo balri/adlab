@@ -29,27 +29,31 @@ function RecentreOnChange({
 	const map = useMap();
 
 	const previousCentre = useRef<LatLng | null>(null);
+	const previousRadius = useRef<number | null>(null);
+	const userDragged = useRef(false);
 
-	// A new search result centre has arrived.
 	useEffect(() => {
-		const centreChanged =
+		const searchChanged =
 			previousCentre.current === null ||
 			previousCentre.current.latitude !== centre.latitude ||
-			previousCentre.current.longitude !== centre.longitude;
+			previousCentre.current.longitude !== centre.longitude ||
+			previousRadius.current !== radius;
 
-		if (centreChanged) {
-			map.setView(
+		if (searchChanged) {
+			map.flyTo(
 				[centre.latitude, centre.longitude],
 				radiusToZoom(radius, centre.latitude, mapWidth),
 			);
 
 			previousCentre.current = centre;
+			previousRadius.current = radius;
 		}
 	}, [centre, radius, map]);
 
 	// User dragged the map.
 	useEffect(() => {
 		const handleDragEnd = () => {
+			userDragged.current = true;
 			const mapCentre = map.getCenter();
 
 			onRecentre({
@@ -67,16 +71,22 @@ function RecentreOnChange({
 
 	// Use My Location / other external search-centre change.
 	useEffect(() => {
-		if (!searchCentre) return;
+		if (!searchCentre || userDragged.current) {
+			userDragged.current = false;
+			return;
+		}
 
 		const isDifferent =
 			searchCentre.latitude !== map.getCenter().lat ||
 			searchCentre.longitude !== map.getCenter().lng;
 
 		if (isDifferent) {
-			map.panTo([searchCentre.latitude, searchCentre.longitude]);
+			map.flyTo(
+				[searchCentre.latitude, searchCentre.longitude],
+				radiusToZoom(radius, centre.latitude, mapWidth),
+			);
 		}
-	}, [searchCentre, map]);
+	}, [searchCentre, map, centre.latitude, radius]);
 
 	return null;
 }
