@@ -153,6 +153,7 @@ export interface User {
 	// SignupSource: string;
 	// InProgressAdventuresCount: number;
 	// AccountSettings: UserAccountSettings;
+	CanAnswer: boolean;
 }
 
 export interface FormState {

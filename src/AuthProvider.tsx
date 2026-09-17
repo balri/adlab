@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		localStorage.removeItem("accessTokenExpiresAt");
 		localStorage.removeItem("user");
 		localStorage.removeItem("userGuid");
+		localStorage.removeItem("userCanAnswer");
 		setUser(null);
 		setIsLoading(false);
 	}, []);
@@ -49,6 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				setUser(currentUser);
 				localStorage.setItem("user", JSON.stringify(currentUser));
 				localStorage.setItem("userGuid", currentUser.PublicGuid);
+				localStorage.setItem(
+					"userCanAnswer",
+					currentUser.CanAnswer ? "true" : "false",
+				);
 				setIsLoading(false);
 			})
 			.catch(() => {
@@ -84,6 +89,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		localStorage.setItem("user", JSON.stringify(currentUser));
 		localStorage.setItem("userGuid", currentUser.PublicGuid);
+		localStorage.setItem(
+			"userCanAnswer",
+			currentUser.CanAnswer ? "true" : "false",
+		);
 
 		setUser(currentUser);
 		setIsLoading(false);

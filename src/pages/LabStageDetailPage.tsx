@@ -56,6 +56,9 @@ export default function LabStageDetailPage() {
 
 	// The lab is now guaranteed to be loaded
 	const stage = lab.stageSummaries.find((stage) => stage.id === stageId);
+	const canAnswer =
+		lab.ownerPublicGuid !== localStorage.getItem("userGuid") &&
+		localStorage.getItem("userCanAnswer") == "true";
 
 	const updateCorrectAnswer = (correctAnswer: string) => {
 		setLab((currentLab) => {
@@ -138,9 +141,7 @@ export default function LabStageDetailPage() {
 				loading={loading}
 				stage={stage}
 				onUpdateStage={updateCorrectAnswer}
-				ownedByUser={
-					lab.ownerPublicGuid === localStorage.getItem("userGuid")
-				}
+				canAnswer={canAnswer}
 				onSubmit={handleSendAnswer}
 			/>
 			{stage.isComplete && <LabStageJournal stage={stage} />}

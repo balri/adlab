@@ -1,4 +1,4 @@
-import { LabDetail, LabSummary } from "../../src/types.js";
+import { LabDetail, LabSummary, User } from "../../src/types.js";
 
 export const API_BASE_URL = "https://api.groundspeak.com/adventuresmobile/v1";
 export const LABS_API_BASE_URL = "https://labs-api.geocaching.com/Api";
@@ -114,8 +114,8 @@ export async function getAdventure(
 	)) as unknown as LabDetail;
 }
 
-export async function getUser(accessToken: string): Promise<unknown> {
-	return await requestLabsApi(`/Accounts/GetAccount`, accessToken);
+export async function getUser(accessToken: string): Promise<User> {
+	return (await requestLabsApi(`/Accounts/GetAccount`, accessToken)) as User;
 }
 
 export async function submitAnswer(body: AnswerRequest, accessToken: string) {

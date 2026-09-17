@@ -6,7 +6,7 @@ interface LabStageQuestionParams {
 	loading: boolean;
 	stage: LabStage;
 	onUpdateStage: (answer: string) => void;
-	ownedByUser: boolean;
+	canAnswer: boolean;
 	onSubmit: (answer: string) => void;
 }
 
@@ -19,7 +19,7 @@ const DEFAULT_FORM: FormState = { answer: "" };
 export default function LabStageQuestion(params: LabStageQuestionParams) {
 	const [form, setForm] = useState<FormState>(DEFAULT_FORM);
 	const [incorrectAnswer, setIncorrectAnswer] = useState<string>("");
-	const { loading, stage, onUpdateStage, ownedByUser, onSubmit } = params;
+	const { loading, stage, onUpdateStage, canAnswer, onSubmit } = params;
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -45,7 +45,7 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 	async function handleSendAnswer(e: React.FormEvent) {
 		e.preventDefault();
 
-		if (!stage.correctAnswer) {
+		if (!canAnswer || !stage.correctAnswer) {
 			return;
 		}
 
@@ -103,17 +103,15 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 						value="Check"
 						disabled={!!stage.correctAnswer}
 					/>
-					{stage.correctAnswer &&
-						!stage.isComplete &&
-						!ownedByUser && (
-							<button
-								type="button"
-								onClick={handleSendAnswer}
-								disabled={loading}
-							>
-								{loading ? "Sending…" : "Send Answer"}
-							</button>
-						)}
+					{stage.correctAnswer && !stage.isComplete && canAnswer && (
+						<button
+							type="button"
+							onClick={handleSendAnswer}
+							disabled={loading}
+						>
+							{loading ? "Sending…" : "Send Answer"}
+						</button>
+					)}
 				</div>
 			</form>
 		</>
