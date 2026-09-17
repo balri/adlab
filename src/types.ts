@@ -153,7 +153,7 @@ export interface User {
 	// SignupSource: string;
 	// InProgressAdventuresCount: number;
 	// AccountSettings: UserAccountSettings;
-	CanAnswer: boolean;
+	CanAnswer?: boolean | undefined;
 }
 
 export interface FormState {
