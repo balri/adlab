@@ -59,12 +59,12 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 
 			{stage.correctAnswer && (
 				<p className="success-text">
-					{stage.correctAnswer} is the correct answer
+					"{stage.correctAnswer}" is the correct answer
 				</p>
 			)}
 			{incorrectAnswer && (
 				<p className="error-text">
-					{incorrectAnswer} is not the correct answer
+					"{incorrectAnswer}" is not the correct answer
 				</p>
 			)}
 			<form className="search-form" onSubmit={handleSubmit}>

@@ -70,6 +70,18 @@ const QUESTION_TYPES = [
 	},
 ];
 
+export const checkAnswer = (stage: LabStage, answer: string): boolean => {
+	const userGuid = localStorage.getItem("userGuid") || "";
+	const answerNoSpace = answer.replaceAll(" ", "");
+	const hashInput = (userGuid + answerNoSpace).toLowerCase();
+	const hashResult = MD5(hashInput).toString();
+
+	return (
+		hashResult === stage.findCodeHashBase16v2 ||
+		stage.answerCodeHashesBase16v2.includes(hashResult)
+	);
+};
+
 const findMatchingAnswer = (
 	stage: LabStage,
 	candidates: Iterable<string>,
@@ -77,6 +89,22 @@ const findMatchingAnswer = (
 	for (const candidate of candidates) {
 		if (checkAnswer(stage, candidate)) {
 			return candidate;
+		}
+	}
+
+	return null;
+};
+
+const findMatchingPhrases = (stage: LabStage, maxWords = 3): string | null => {
+	const words = stage.description.match(/\b[\w'-]+\b/g) ?? [];
+
+	for (let wordCount = 1; wordCount <= maxWords; wordCount++) {
+		for (let i = 0; i <= words.length - wordCount; i++) {
+			const candidate = words.slice(i, i + wordCount).join(" ");
+
+			if (checkAnswer(stage, candidate)) {
+				return candidate;
+			}
 		}
 	}
 
@@ -94,18 +122,6 @@ const numbers = function* () {
 			yield inWords.replaceAll("-", "");
 		}
 	}
-};
-
-export const checkAnswer = (stage: LabStage, answer: string): boolean => {
-	const userGuid = localStorage.getItem("userGuid") || "";
-	const answerNoSpace = answer.replaceAll(" ", "");
-	const hashInput = (userGuid + answerNoSpace).toLowerCase();
-	const hashResult = MD5(hashInput).toString();
-
-	return (
-		hashResult === stage.findCodeHashBase16v2 ||
-		stage.answerCodeHashesBase16v2.includes(hashResult)
-	);
 };
 
 export const calculateAnswer = (stage: LabStage): string | null => {
@@ -129,7 +145,5 @@ export const calculateAnswer = (stage: LabStage): string | null => {
 	}
 
 	// Finally, try words in the description.
-	const words = stage.description.match(/\b[\w'-]+\b/g) ?? [];
-
-	return findMatchingAnswer(stage, words);
+	return findMatchingPhrases(stage, 3);
 };
