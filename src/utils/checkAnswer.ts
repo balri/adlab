@@ -1,10 +1,12 @@
 import { MD5 } from "crypto-js";
 import { LabStage } from "../types";
+import { numberToWords } from "./numbersToWords";
 
 const POSSIBLE_NUMBER_QUESTIONS = [
 	"how much",
 	"how many",
-	'what date", "what month',
+	"what date",
+	"what month",
 	"what year",
 	"which date",
 	"which month",
@@ -13,6 +15,7 @@ const POSSIBLE_NUMBER_QUESTIONS = [
 	"when",
 	"number",
 	"numeral",
+	"digit",
 ];
 
 const POSSIBLE_COLOURS = [
@@ -26,6 +29,72 @@ const POSSIBLE_COLOURS = [
 	"purple",
 	"orange",
 ];
+
+const MONTHS = [
+	"january",
+	"february",
+	"march",
+	"april",
+	"may",
+	"june",
+	"july",
+	"august",
+	"september",
+	"october",
+	"november",
+	"december",
+];
+
+const LETTERS = "abcdefghijklmnopqrstuvwxyz";
+
+const QUESTION_TYPES = [
+	{
+		matches: (question: string) =>
+			POSSIBLE_NUMBER_QUESTIONS.some((text) => question.includes(text)),
+		candidates: () => numbers(),
+	},
+	{
+		matches: (question: string) => question.includes("colour"),
+		candidates: () => POSSIBLE_COLOURS,
+	},
+	{
+		matches: (question: string) =>
+			question.includes("what letter") ||
+			question.includes("which letter"),
+		candidates: () => LETTERS,
+	},
+	{
+		matches: (question: string) =>
+			question.includes("what month") || question.includes("which month"),
+		candidates: () => MONTHS,
+	},
+];
+
+const findMatchingAnswer = (
+	stage: LabStage,
+	candidates: Iterable<string>,
+): string | null => {
+	for (const candidate of candidates) {
+		if (checkAnswer(stage, candidate)) {
+			return candidate;
+		}
+	}
+
+	return null;
+};
+
+const numbers = function* () {
+	for (let i = 0; i <= 3000; i++) {
+		yield String(i);
+
+		if (i <= 100) {
+			const inWords = numberToWords(i);
+
+			yield inWords;
+			yield inWords.replaceAll("-", "");
+		}
+	}
+};
 
 export const checkAnswer = (stage: LabStage, answer: string): boolean => {
 	const userGuid = localStorage.getItem("userGuid") || "";
@@ -41,38 +110,26 @@ export const checkAnswer = (stage: LabStage, answer: string): boolean => {
 
 export const calculateAnswer = (stage: LabStage): string | null => {
 	if (stage.challengeType === "MultiChoice") {
-		return (
-			stage.multiChoiceOptions?.find((option) =>
-				checkAnswer(stage, option.text),
-			)?.text ?? ""
+		return findMatchingAnswer(
+			stage,
+			stage.multiChoiceOptions?.map((option) => option.text) ?? [],
 		);
 	}
 
 	const question = stage.question.toLowerCase();
 
-	if (POSSIBLE_NUMBER_QUESTIONS.some((str) => question.includes(str))) {
-		for (let i = 0; i < 3000; i++) {
-			if (checkAnswer(stage, String(i))) {
-				return String(i);
+	for (const type of QUESTION_TYPES) {
+		if (type.matches(question)) {
+			const answer = findMatchingAnswer(stage, type.candidates());
+
+			if (answer) {
+				return answer;
 			}
 		}
 	}
 
-	if (question.includes("colour")) {
-		for (const colour of POSSIBLE_COLOURS) {
-			if (checkAnswer(stage, colour)) {
-				return colour;
-			}
-		}
-	}
+	// Finally, try words in the description.
+	const words = stage.description.match(/\b[\w'-]+\b/g) ?? [];
 
-	if (question.includes("what letter") || question.includes("which letter")) {
-		for (const letter of "abcdefghijklmnopqrstuvwxyz") {
-			if (checkAnswer(stage, letter)) {
-				return letter;
-			}
-		}
-	}
-
-	return null;
+	return findMatchingAnswer(stage, words);
 };
