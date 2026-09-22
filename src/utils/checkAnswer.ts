@@ -49,6 +49,24 @@ const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
 const QUESTION_TYPES = [
 	{
+		matches: (question: string) => /\b\d+\s*-?\s*digit\b/.test(question),
+		candidates: (question: string) => {
+			const match = question.match(/\b(\d+)\s*-?\s*digit\b/);
+
+			if (!match) {
+				return [];
+			}
+
+			const digits = Number(match[1]);
+
+			if (digits > 6) {
+				return [];
+			}
+
+			return digitRange(digits);
+		},
+	},
+	{
 		matches: (question: string) =>
 			POSSIBLE_NUMBER_QUESTIONS.some((text) => question.includes(text)),
 		candidates: () => numbers(),
@@ -124,6 +142,17 @@ const numbers = function* () {
 	}
 };
 
+const digitRange = (digits: number): Iterable<string> => {
+	const min = digits === 1 ? 0 : 10 ** (digits - 1);
+	const max = 10 ** digits - 1;
+
+	return (function* () {
+		for (let i = min; i <= max; i++) {
+			yield String(i);
+		}
+	})();
+};
+
 export const calculateAnswer = (stage: LabStage): string | null => {
 	if (stage.challengeType === "MultiChoice") {
 		return findMatchingAnswer(
@@ -136,7 +165,7 @@ export const calculateAnswer = (stage: LabStage): string | null => {
 
 	for (const type of QUESTION_TYPES) {
 		if (type.matches(question)) {
-			const answer = findMatchingAnswer(stage, type.candidates());
+			const answer = findMatchingAnswer(stage, type.candidates(question));
 
 			if (answer) {
 				return answer;
