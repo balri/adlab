@@ -5,12 +5,9 @@ import { numberToWords } from "./numbersToWords";
 const POSSIBLE_NUMBER_QUESTIONS = [
 	"how much",
 	"how many",
-	"what date",
-	"what month",
-	"what year",
-	"which date",
-	"which month",
-	"which year",
+	"date",
+	"month",
+	"year",
 	"how old",
 	"when",
 	"number",
@@ -76,14 +73,11 @@ const QUESTION_TYPES = [
 		candidates: () => POSSIBLE_COLOURS,
 	},
 	{
-		matches: (question: string) =>
-			question.includes("what letter") ||
-			question.includes("which letter"),
+		matches: (question: string) => question.includes("letter"),
 		candidates: () => LETTERS,
 	},
 	{
-		matches: (question: string) =>
-			question.includes("what month") || question.includes("which month"),
+		matches: (question: string) => question.includes("month"),
 		candidates: () => MONTHS,
 	},
 ];
