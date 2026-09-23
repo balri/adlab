@@ -1,6 +1,6 @@
-import { describe, expect, it, beforeEach } from "vitest";
-import { calculateAnswer, checkAnswer, hashAnswer } from "./checkAnswer";
-import type { LabStage } from "../types";
+import { describe, expect, it } from "vitest";
+import { calculateAnswer, checkAnswer, hashAnswer } from "./answer.js";
+import type { LabStage } from "../../src/types.js";
 
 const makeStage = (overrides: Partial<LabStage> = {}): LabStage =>
 	({
@@ -14,11 +14,6 @@ const makeStage = (overrides: Partial<LabStage> = {}): LabStage =>
 
 const testGuid = "test-guid";
 
-beforeEach(() => {
-	localStorage.clear();
-	localStorage.setItem("userGuid", testGuid);
-});
-
 describe("checkAnswer", () => {
 	it("returns true when the answer matches findCodeHashBase16v2", () => {
 		const answer = "42";
@@ -27,7 +22,7 @@ describe("checkAnswer", () => {
 			findCodeHashBase16v2: hashAnswer(answer, testGuid),
 		});
 
-		expect(checkAnswer(stage, answer)).toBe(true);
+		expect(checkAnswer(testGuid, stage, answer)).toBe(true);
 	});
 
 	it("returns true when the answer matches answerCodeHashesBase16v2", () => {
@@ -37,7 +32,7 @@ describe("checkAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer(answer, testGuid)],
 		});
 
-		expect(checkAnswer(stage, answer)).toBe(true);
+		expect(checkAnswer(testGuid, stage, answer)).toBe(true);
 	});
 
 	it("returns false when the answer does not match", () => {
@@ -45,7 +40,7 @@ describe("checkAnswer", () => {
 			findCodeHashBase16v2: hashAnswer("42", testGuid),
 		});
 
-		expect(checkAnswer(stage, "43")).toBe(false);
+		expect(checkAnswer(testGuid, stage, "43")).toBe(false);
 	});
 
 	it("ignores spaces in the answer", () => {
@@ -53,7 +48,7 @@ describe("checkAnswer", () => {
 			findCodeHashBase16v2: hashAnswer("42", testGuid),
 		});
 
-		expect(checkAnswer(stage, "4 2")).toBe(true);
+		expect(checkAnswer(testGuid, stage, "4 2")).toBe(true);
 	});
 
 	it("matches case-insensitively", () => {
@@ -61,7 +56,7 @@ describe("checkAnswer", () => {
 			findCodeHashBase16v2: hashAnswer("Hello", testGuid),
 		});
 
-		expect(checkAnswer(stage, "HELLO")).toBe(true);
+		expect(checkAnswer(testGuid, stage, "HELLO")).toBe(true);
 	});
 });
 
@@ -86,7 +81,7 @@ describe("calculateAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer("42", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("42");
+		expect(calculateAnswer(testGuid, stage)).toBe("42");
 	});
 
 	it("returns null when no multiple choice answer matches", () => {
@@ -104,7 +99,7 @@ describe("calculateAnswer", () => {
 			],
 		});
 
-		expect(calculateAnswer(stage)).toBeNull();
+		expect(calculateAnswer(testGuid, stage)).toBeNull();
 	});
 
 	it("finds a numeric answer", () => {
@@ -113,7 +108,7 @@ describe("calculateAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer("42", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("42");
+		expect(calculateAnswer(testGuid, stage)).toBe("42");
 	});
 
 	it("finds a number written in words", () => {
@@ -122,7 +117,7 @@ describe("calculateAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer("forty-two", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("forty-two");
+		expect(calculateAnswer(testGuid, stage)).toBe("forty-two");
 	});
 
 	it("finds a colour", () => {
@@ -131,7 +126,7 @@ describe("calculateAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer("green", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("green");
+		expect(calculateAnswer(testGuid, stage)).toBe("green");
 	});
 
 	it("finds a letter", () => {
@@ -140,7 +135,7 @@ describe("calculateAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer("q", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("q");
+		expect(calculateAnswer(testGuid, stage)).toBe("q");
 	});
 
 	it("finds a month", () => {
@@ -149,7 +144,7 @@ describe("calculateAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer("september", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("september");
+		expect(calculateAnswer(testGuid, stage)).toBe("september");
 	});
 
 	it("falls back to phrases from the description", () => {
@@ -159,7 +154,7 @@ describe("calculateAnswer", () => {
 			answerCodeHashesBase16v2: [hashAnswer("hidden answer", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("hidden answer");
+		expect(calculateAnswer(testGuid, stage)).toBe("hidden answer");
 	});
 
 	it("returns null when nothing matches", () => {
@@ -168,7 +163,7 @@ describe("calculateAnswer", () => {
 			description: "There is nothing useful here.",
 		});
 
-		expect(calculateAnswer(stage)).toBeNull();
+		expect(calculateAnswer(testGuid, stage)).toBeNull();
 	});
 });
 
@@ -179,7 +174,7 @@ describe("digit questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("7", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("7");
+		expect(calculateAnswer(testGuid, stage)).toBe("7");
 	});
 
 	it("finds a 2-digit number", () => {
@@ -188,7 +183,7 @@ describe("digit questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("42", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("42");
+		expect(calculateAnswer(testGuid, stage)).toBe("42");
 	});
 
 	it("supports spaces around the hyphen", () => {
@@ -197,7 +192,7 @@ describe("digit questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("1234", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("1234");
+		expect(calculateAnswer(testGuid, stage)).toBe("1234");
 	});
 
 	it("supports no hyphen", () => {
@@ -206,7 +201,7 @@ describe("digit questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("1234", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("1234");
+		expect(calculateAnswer(testGuid, stage)).toBe("1234");
 	});
 
 	it("does not search 7-digit numbers", () => {
@@ -215,7 +210,7 @@ describe("digit questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("1234567", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBeNull();
+		expect(calculateAnswer(testGuid, stage)).toBeNull();
 	});
 
 	it("does not include leading zeroes in multi-digit ranges", () => {
@@ -224,7 +219,7 @@ describe("digit questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("07", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBeNull();
+		expect(calculateAnswer(testGuid, stage)).toBeNull();
 	});
 
 	it("prioritises a digit-range question over the generic number question", () => {
@@ -233,7 +228,7 @@ describe("digit questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("123", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("123");
+		expect(calculateAnswer(testGuid, stage)).toBe("123");
 	});
 });
 
@@ -244,7 +239,7 @@ describe("month questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("9", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("9");
+		expect(calculateAnswer(testGuid, stage)).toBe("9");
 	});
 
 	it("finds a month name", () => {
@@ -253,7 +248,7 @@ describe("month questions", () => {
 			answerCodeHashesBase16v2: [hashAnswer("september", testGuid)],
 		});
 
-		expect(calculateAnswer(stage)).toBe("september");
+		expect(calculateAnswer(testGuid, stage)).toBe("september");
 	});
 
 	it("prefers a numeric month before a month name", () => {
@@ -265,6 +260,6 @@ describe("month questions", () => {
 			],
 		});
 
-		expect(calculateAnswer(stage)).toBe("9");
+		expect(calculateAnswer(testGuid, stage)).toBe("9");
 	});
 });

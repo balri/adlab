@@ -1,14 +1,12 @@
 import { useCallback } from "react";
 import {
 	LabDetail,
-	LabStage,
 	LabSummary,
 	SearchParams,
 	SubmitParams,
 	SubmitResponse,
 } from "./types";
 import { useAuth } from "./useAuth";
-import { calculateAnswer } from "./utils/checkAnswer";
 
 export function useApi() {
 	const { authenticatedFetch } = useAuth();
@@ -35,33 +33,10 @@ export function useApi() {
 		),
 		getLab: useCallback(
 			async (guid: string, signal?: AbortSignal): Promise<LabDetail> => {
-				const lab = await authenticatedFetch<LabDetail>(
+				return await authenticatedFetch<LabDetail>(
 					`/api/labs/${encodeURIComponent(guid)}`,
 					signal,
 				);
-
-				return {
-					...lab,
-					stageSummaries: lab.stageSummaries.map(
-						(stage: LabStage) => {
-							if (stage.correctAnswer) {
-								return stage;
-							}
-
-							const correctAnswer = calculateAnswer(stage);
-
-							if (correctAnswer) {
-								return {
-									...stage,
-									correctAnswer,
-								};
-							}
-
-							return stage;
-						},
-					),
-					stagesTotalCount: lab.stageSummaries.length,
-				};
 			},
 			[authenticatedFetch],
 		),

@@ -17,7 +17,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 	try {
 		const user = await getUser(accessToken);
+
 		user.CanAnswer = user.PublicGuid == process.env.GEOCACHING_USER_GUID;
+
+		res.setHeader(
+			"Set-Cookie",
+			`userGuid=${encodeURIComponent(user.PublicGuid)}; Path=/; HttpOnly; Secure; SameSite=Lax`,
+		);
+
 		res.status(200).json(user);
 	} catch (err) {
 		res.status(502).json({ error: (err as Error).message });

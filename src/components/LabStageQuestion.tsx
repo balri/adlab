@@ -31,6 +31,7 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 		}));
 	}
 
+	// TODO: submit POST to backend to check answer
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 

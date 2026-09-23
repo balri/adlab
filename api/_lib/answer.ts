@@ -1,9 +1,5 @@
-import { MD5 } from "crypto-js";
-import { LabStage } from "../types";
-import { numberToWords } from "./numbersToWords";
-
-// TODO: delete this file once check answer is completely backend
-// Do not make changes to this file in the meantime without changing api/_lib/answer.ts
+import CryptoJS from "crypto-js";
+import { LabStage } from "../../src/types.js";
 
 const POSSIBLE_NUMBER_QUESTIONS = [
 	"how much",
@@ -47,6 +43,42 @@ const MONTHS = [
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
+const ones = [
+	"",
+	"one",
+	"two",
+	"three",
+	"four",
+	"five",
+	"six",
+	"seven",
+	"eight",
+	"nine",
+	"ten",
+	"eleven",
+	"twelve",
+	"thirteen",
+	"fourteen",
+	"fifteen",
+	"sixteen",
+	"seventeen",
+	"eighteen",
+	"nineteen",
+];
+
+const tens = [
+	"",
+	"",
+	"twenty",
+	"thirty",
+	"forty",
+	"fifty",
+	"sixty",
+	"seventy",
+	"eighty",
+	"ninety",
+];
+
 const QUESTION_TYPES = [
 	{
 		matches: (question: string) => /\b\d+\s*-?\s*digit\b/.test(question),
@@ -86,10 +118,15 @@ const QUESTION_TYPES = [
 ];
 
 export const hashAnswer = (answer: string, userGuid: string) =>
-	MD5((userGuid + answer.replaceAll(" ", "")).toLowerCase()).toString();
+	CryptoJS.MD5(
+		(userGuid + answer.replaceAll(" ", "")).toLowerCase(),
+	).toString();
 
-export const checkAnswer = (stage: LabStage, answer: string): boolean => {
-	const userGuid = localStorage.getItem("userGuid") || "";
+export const checkAnswer = (
+	userGuid: string,
+	stage: LabStage,
+	answer: string,
+): boolean => {
 	const hashResult = hashAnswer(answer, userGuid);
 
 	return (
@@ -99,11 +136,12 @@ export const checkAnswer = (stage: LabStage, answer: string): boolean => {
 };
 
 const findMatchingAnswer = (
+	userGuid: string,
 	stage: LabStage,
 	candidates: Iterable<string>,
 ): string | null => {
 	for (const candidate of candidates) {
-		if (checkAnswer(stage, candidate)) {
+		if (checkAnswer(userGuid, stage, candidate)) {
 			return candidate;
 		}
 	}
@@ -111,14 +149,18 @@ const findMatchingAnswer = (
 	return null;
 };
 
-const findMatchingPhrases = (stage: LabStage, maxWords = 3): string | null => {
+const findMatchingPhrases = (
+	userGuid: string,
+	stage: LabStage,
+	maxWords = 3,
+): string | null => {
 	const words = stage.description.match(/\b[\w'-]+\b/g) ?? [];
 
 	for (let wordCount = 1; wordCount <= maxWords; wordCount++) {
 		for (let i = 0; i <= words.length - wordCount; i++) {
 			const candidate = words.slice(i, i + wordCount).join(" ");
 
-			if (checkAnswer(stage, candidate)) {
+			if (checkAnswer(userGuid, stage, candidate)) {
 				return candidate;
 			}
 		}
@@ -151,11 +193,17 @@ const digitRange = (digits: number): Iterable<string> => {
 	})();
 };
 
-export const calculateAnswer = (stage: LabStage): string | null => {
+export const calculateAnswer = (
+	userGuid: string,
+	stage: LabStage,
+): string | null => {
 	if (stage.challengeType === "MultiChoice") {
 		return findMatchingAnswer(
+			userGuid,
 			stage,
-			stage.multiChoiceOptions?.map((option) => option.text) ?? [],
+			stage.multiChoiceOptions?.map(
+				(option: { text: string }) => option.text,
+			) ?? [],
 		);
 	}
 
@@ -163,7 +211,11 @@ export const calculateAnswer = (stage: LabStage): string | null => {
 
 	for (const type of QUESTION_TYPES) {
 		if (type.matches(question)) {
-			const answer = findMatchingAnswer(stage, type.candidates(question));
+			const answer = findMatchingAnswer(
+				userGuid,
+				stage,
+				type.candidates(question),
+			);
 
 			if (answer) {
 				return answer;
@@ -172,5 +224,17 @@ export const calculateAnswer = (stage: LabStage): string | null => {
 	}
 
 	// Finally, try words in the description.
-	return findMatchingPhrases(stage, 3);
+	return findMatchingPhrases(userGuid, stage, 3);
 };
+
+function numberToWords(n: number): string {
+	if (n === 100) {
+		return "one hundred";
+	}
+
+	if (n < 20) {
+		return ones[n];
+	}
+
+	return tens[Math.floor(n / 10)] + (n % 10 ? `-${ones[n % 10]}` : "");
+}
