@@ -117,6 +117,18 @@ export interface SubmitResponse {
 	completedAdventureProperties: unknown;
 }
 
+export interface CheckParams {
+	adventureGuid: string;
+	stage?: LabStage;
+	answer: string;
+}
+
+export interface CheckResponse {
+	success: boolean;
+	message?: string;
+	error?: string;
+}
+
 // interface UserAccountSettings {
 // 	Admin: {
 // 		SuspendHidingPrivileges: boolean;

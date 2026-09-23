@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { LabStage } from "../types";
-import { checkAnswer } from "../utils/checkAnswer";
 
 interface LabStageQuestionParams {
 	loading: boolean;
 	stage: LabStage;
-	onUpdateStage: (answer: string) => void;
 	canAnswer: boolean;
+	onCheck: (answer: string) => void;
 	onSubmit: (answer: string) => void;
 }
 
@@ -18,8 +17,7 @@ const DEFAULT_FORM: FormState = { answer: "" };
 
 export default function LabStageQuestion(params: LabStageQuestionParams) {
 	const [form, setForm] = useState<FormState>(DEFAULT_FORM);
-	const [incorrectAnswer, setIncorrectAnswer] = useState<string>("");
-	const { loading, stage, onUpdateStage, canAnswer, onSubmit } = params;
+	const { loading, stage, canAnswer, onCheck, onSubmit } = params;
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -31,16 +29,10 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 		}));
 	}
 
-	// TODO: submit POST to backend to check answer
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 
-		if (checkAnswer(stage, form.answer)) {
-			onUpdateStage(form.answer);
-			setIncorrectAnswer("");
-		} else {
-			setIncorrectAnswer(form.answer);
-		}
+		onCheck(form.answer);
 	}
 
 	async function handleSendAnswer(e: React.FormEvent) {
@@ -61,11 +53,6 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 			{stage.correctAnswer && (
 				<p className="success-text">
 					"{stage.correctAnswer}" is the correct answer
-				</p>
-			)}
-			{incorrectAnswer && (
-				<p className="error-text">
-					"{incorrectAnswer}" is not the correct answer
 				</p>
 			)}
 			<form className="search-form" onSubmit={handleSubmit}>
@@ -102,7 +89,7 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 					<input
 						type="submit"
 						value="Check"
-						disabled={!!stage.correctAnswer}
+						disabled={!!stage.correctAnswer || loading}
 					/>
 					{stage.correctAnswer && !stage.isComplete && canAnswer && (
 						<button

@@ -73,6 +73,7 @@ describe("LabDetailPage", () => {
 		vi.mocked(useApi).mockReturnValue({
 			getLab: mockGetLab,
 			searchLabs: vi.fn(),
+			checkAnswer: vi.fn(),
 			submitAnswer: vi.fn(),
 		});
 	});

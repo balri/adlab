@@ -1,5 +1,7 @@
 import { useCallback } from "react";
 import {
+	CheckParams,
+	CheckResponse,
 	LabDetail,
 	LabSummary,
 	SearchParams,
@@ -36,6 +38,22 @@ export function useApi() {
 				return await authenticatedFetch<LabDetail>(
 					`/api/labs/${encodeURIComponent(guid)}`,
 					signal,
+				);
+			},
+			[authenticatedFetch],
+		),
+		checkAnswer: useCallback(
+			async (
+				params: CheckParams,
+				signal?: AbortSignal,
+			): Promise<CheckResponse> => {
+				return await authenticatedFetch<CheckResponse>(
+					`/api/labs/check`,
+					signal,
+					{
+						method: "POST",
+						body: JSON.stringify(params),
+					},
 				);
 			},
 			[authenticatedFetch],

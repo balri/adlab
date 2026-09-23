@@ -8,7 +8,7 @@ import { useApi } from "../useApi";
 
 export default function LabStageDetailPage() {
 	const { guid, stageId } = useParams<{ guid: string; stageId: string }>();
-	const { getLab, submitAnswer } = useApi();
+	const { getLab, checkAnswer, submitAnswer } = useApi();
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
@@ -91,6 +91,27 @@ export default function LabStageDetailPage() {
 		}
 	}
 
+	async function handleCheckAnswer(answer: string) {
+		setLoading(true);
+		setError(null);
+		try {
+			const resp = await checkAnswer({
+				adventureGuid: lab?.adventureGuid || "",
+				stage,
+				answer,
+			});
+			if (resp.success) {
+				updateCorrectAnswer(answer);
+			} else {
+				setError(resp.error || "An error occurred");
+			}
+		} catch (err) {
+			setError((err as Error).message);
+		} finally {
+			setLoading(false);
+		}
+	}
+
 	async function handleSendAnswer(answer: string) {
 		setLoading(true);
 		setError(null);
@@ -140,8 +161,8 @@ export default function LabStageDetailPage() {
 			<LabStageQuestion
 				loading={loading}
 				stage={stage}
-				onUpdateStage={updateCorrectAnswer}
 				canAnswer={canAnswer}
+				onCheck={handleCheckAnswer}
 				onSubmit={handleSendAnswer}
 			/>
 			{stage.isComplete && <LabStageJournal stage={stage} />}
