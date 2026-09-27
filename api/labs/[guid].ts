@@ -70,6 +70,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		);
 		const stagesTotalCount = stageSummaries.length;
 
+		res.setHeader("Cache-Control", "no-store");
 		res.status(200).json({
 			...lab,
 			stageSummaries,
