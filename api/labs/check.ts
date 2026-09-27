@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { checkAnswer } from "../_lib/answer";
-import { upsertAnswer } from "../_lib/database";
+import { checkAnswer } from "../_lib/answer.js";
+import { upsertAnswer } from "../_lib/database.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method != "POST") {
