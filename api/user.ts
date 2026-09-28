@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		res.setHeader(
 			"Set-Cookie",
-			`userGuid=${encodeURIComponent(user.PublicGuid)}; Path=/; HttpOnly; Secure; SameSite=Lax`,
+			`userGuid=${encodeURIComponent(user.PublicGuid)}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`,
 		);
 
 		res.status(200).json(user);

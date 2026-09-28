@@ -17,6 +17,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	const { adventureGuid, stage, answer } = req.body;
 	const userGuid = req.cookies.userGuid;
 
+	if (!userGuid) {
+		res.status(404).json({ error: "No current user found" });
+		return;
+	}
+
 	try {
 		const isAnswerCorrect = checkAnswer(userGuid, stage, answer);
 

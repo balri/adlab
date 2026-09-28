@@ -1,10 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getAdventure } from "../_lib/groundspeak.js";
-import {
-	deleteAnswer,
-	getStoredAnswers,
-	upsertAnswer,
-} from "../_lib/database.js";
+import { getStoredAnswers, upsertAnswer } from "../_lib/database.js";
 import { calculateAnswer, checkAnswer } from "../_lib/answer.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -41,24 +37,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			lab.stageSummaries.map(async (stage) => {
 				let calculatedAnswer = answerMap.get(stage.id);
 
-				// Answer may have changed since storage
-				if (calculatedAnswer !== undefined) {
-					const isAnswerCorrect = checkAnswer(
-						userGuid,
-						stage,
-						calculatedAnswer,
-					);
-					if (!isAnswerCorrect) {
-						await deleteAnswer(guid, stage.id);
-						calculatedAnswer = undefined;
+				if (userGuid) {
+					// Answer may have changed since storage
+					if (calculatedAnswer !== undefined) {
+						const isAnswerCorrect = checkAnswer(
+							userGuid,
+							stage,
+							calculatedAnswer,
+						);
+						if (!isAnswerCorrect) {
+							calculatedAnswer = undefined;
+						}
 					}
-				}
 
-				if (calculatedAnswer === undefined) {
-					calculatedAnswer = calculateAnswer(userGuid, stage);
+					if (calculatedAnswer === undefined) {
+						calculatedAnswer = calculateAnswer(userGuid, stage);
 
-					if (calculatedAnswer !== null) {
-						await upsertAnswer(guid, stage.id, calculatedAnswer);
+						if (calculatedAnswer !== null) {
+							await upsertAnswer(
+								guid,
+								stage.id,
+								calculatedAnswer,
+							);
+						}
 					}
 				}
 

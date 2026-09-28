@@ -36,12 +36,3 @@ export const upsertAnswer = async (
 			updated_at = NOW()
 	`;
 };
-
-export const deleteAnswer = async (guid: string, stageId: string) => {
-	return await sql`
-		DELETE
-		FROM stage_answers
-		WHERE lab_guid = ${guid}
-		AND stage_guid = ${stageId}
-	`;
-};
