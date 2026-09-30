@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { LabStage } from "../types";
+import { LabDetail, LabStage } from "../types";
+import SubmitAnswer from "./SubmitAnswer";
 
 interface LabStageQuestionParams {
 	loading: boolean;
+	lab: LabDetail;
 	stage: LabStage;
-	canAnswer: boolean;
 	onCheck: (answer: string) => void;
-	onSubmit: (answer: string) => void;
+	onSuccess: (lab: LabDetail) => void;
+	onError: (err: string) => void;
 }
 
 interface FormState {
@@ -17,7 +19,7 @@ const DEFAULT_FORM: FormState = { answer: "" };
 
 export default function LabStageQuestion(params: LabStageQuestionParams) {
 	const [form, setForm] = useState<FormState>(DEFAULT_FORM);
-	const { loading, stage, canAnswer, onCheck, onSubmit } = params;
+	const { loading, stage, onCheck, lab, onSuccess, onError } = params;
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -33,16 +35,6 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 		e.preventDefault();
 
 		onCheck(form.answer);
-	}
-
-	async function handleSendAnswer(e: React.FormEvent) {
-		e.preventDefault();
-
-		if (!canAnswer || !stage.correctAnswer) {
-			return;
-		}
-
-		onSubmit(stage.correctAnswer);
 	}
 
 	return (
@@ -91,15 +83,12 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 						value="Check"
 						disabled={!!stage.correctAnswer || loading}
 					/>
-					{stage.correctAnswer && !stage.isComplete && canAnswer && (
-						<button
-							type="button"
-							onClick={handleSendAnswer}
-							disabled={loading}
-						>
-							{loading ? "Sending…" : "Send Answer"}
-						</button>
-					)}
+					<SubmitAnswer
+						lab={lab}
+						stage={stage}
+						onSuccess={onSuccess}
+						onError={onError}
+					/>
 				</div>
 			</form>
 		</>

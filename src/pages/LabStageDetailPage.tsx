@@ -8,7 +8,7 @@ import { useApi } from "../useApi";
 
 export default function LabStageDetailPage() {
 	const { guid, stageId } = useParams<{ guid: string; stageId: string }>();
-	const { getLab, checkAnswer, submitAnswer } = useApi();
+	const { getLab, checkAnswer } = useApi();
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
@@ -56,9 +56,6 @@ export default function LabStageDetailPage() {
 
 	// The lab is now guaranteed to be loaded
 	const stage = lab.stageSummaries.find((stage) => stage.id === stageId);
-	const canAnswer =
-		lab.ownerPublicGuid !== localStorage.getItem("userGuid") &&
-		localStorage.getItem("userCanAnswer") == "true";
 
 	const updateCorrectAnswer = (correctAnswer: string) => {
 		setLab((currentLab) => {
@@ -77,20 +74,6 @@ export default function LabStageDetailPage() {
 		});
 	};
 
-	async function reloadLab() {
-		if (!guid) return;
-
-		try {
-			const refreshedLab = await getLab(guid);
-
-			sessionStorage.setItem(`lab_${guid}`, JSON.stringify(refreshedLab));
-
-			setLab(refreshedLab);
-		} catch (err) {
-			setError((err as Error).message);
-		}
-	}
-
 	async function handleCheckAnswer(answer: string) {
 		setLoading(true);
 		setError(null);
@@ -104,30 +87,6 @@ export default function LabStageDetailPage() {
 				updateCorrectAnswer(answer);
 			} else {
 				setError(resp.error || "An error occurred");
-			}
-		} catch (err) {
-			setError((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	}
-
-	async function handleSendAnswer(answer: string) {
-		setLoading(true);
-		setError(null);
-		try {
-			if (confirm("Are you sure you want to submit this answer?")) {
-				const resp = await submitAnswer({
-					adventureGuid: lab?.adventureGuid || "",
-					stageGuid: stage?.id || "",
-					answer,
-					challengeType: stage?.challengeType || "",
-				});
-				if (resp.result == "Success") {
-					await reloadLab();
-				} else {
-					setError("An error occurred");
-				}
 			}
 		} catch (err) {
 			setError((err as Error).message);
@@ -160,10 +119,11 @@ export default function LabStageDetailPage() {
 			</div>
 			<LabStageQuestion
 				loading={loading}
+				lab={lab}
 				stage={stage}
-				canAnswer={canAnswer}
 				onCheck={handleCheckAnswer}
-				onSubmit={handleSendAnswer}
+				onSuccess={setLab}
+				onError={setError}
 			/>
 			{stage.isComplete && <LabStageJournal stage={stage} />}
 		</div>

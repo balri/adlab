@@ -7,6 +7,7 @@ import { loadForm } from "../utils/loadForm";
 import { distanceBetween } from "../utils/distanceBetween";
 import LabMeta from "../components/LabMeta";
 import LabMap from "../components/LabMap";
+import SubmitAnswer from "../components/SubmitAnswer";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -106,6 +107,12 @@ export default function LabDetailPage() {
 								</span>
 							</div>
 						)}
+						<SubmitAnswer
+							lab={lab}
+							stage={stage}
+							onSuccess={setLab}
+							onError={setError}
+						/>
 					</li>
 				))}
 			</ul>
