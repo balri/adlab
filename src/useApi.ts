@@ -63,16 +63,12 @@ export function useApi() {
 				params: SubmitParams,
 				signal?: AbortSignal,
 			): Promise<SubmitResponse> => {
-				const body = {
-					...params,
-					userGuid: localStorage.getItem("userGuid"),
-				};
 				return await authenticatedFetch<SubmitResponse>(
 					`/api/labs/submit`,
 					signal,
 					{
 						method: "POST",
-						body: JSON.stringify(body),
+						body: JSON.stringify(params),
 					},
 				);
 			},

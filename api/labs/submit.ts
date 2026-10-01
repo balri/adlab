@@ -15,8 +15,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 	const accessToken = authHeader.substring(7);
 
-	const { adventureGuid, stageGuid, answer, challengeType, userGuid } =
-		req.body;
+	const { adventureGuid, stageGuid, answer, challengeType } = req.body;
+	const userGuid = req.cookies.userGuid;
 
 	if (userGuid !== process.env.GEOCACHING_USER_GUID) {
 		res.status(403).json({ error: "Forbidden" });

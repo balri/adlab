@@ -37,6 +37,7 @@ export interface LabSummary {
 	completionStatus: CompletionStatus;
 	adventureThemes: Array<string>;
 	// adventureCredit: AdventureCredit;
+	ownedByUser?: boolean | undefined;
 }
 
 interface MultiChoiceOption {

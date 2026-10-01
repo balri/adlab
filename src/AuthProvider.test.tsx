@@ -95,7 +95,6 @@ describe("AuthContext", () => {
 			).toBeInTheDocument(),
 		);
 		expect(screen.getByText("user: alice")).toBeInTheDocument();
-		expect(localStorage.getItem("userGuid")).toBe("guid-1");
 	});
 
 	it("logs out when the stored access token is no longer valid", async () => {
@@ -146,7 +145,7 @@ describe("AuthContext", () => {
 		);
 		expect(screen.getByText("user: alice")).toBeInTheDocument();
 		expect(localStorage.getItem("accessToken")).toBe("new-token");
-		expect(localStorage.getItem("userGuid")).toBe("guid-1");
+		expect(localStorage.getItem("userGuid")).toBeNull();
 	});
 
 	it("throws when login fails and does not store a session", async () => {

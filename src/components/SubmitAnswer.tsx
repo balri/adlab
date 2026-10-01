@@ -9,6 +9,8 @@ interface SubmitAnswerProps {
 	onError: (err: string) => void;
 }
 
+const minCompletionCount = 10;
+
 export default function SubmitAnswer({
 	lab,
 	stage,
@@ -19,7 +21,7 @@ export default function SubmitAnswer({
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const canAnswer =
-		lab.ownerPublicGuid !== localStorage.getItem("userGuid") &&
+		lab.completionCount >= minCompletionCount &&
 		localStorage.getItem("userCanAnswer") == "true";
 
 	if (!stage.correctAnswer || stage.isComplete || !canAnswer) {

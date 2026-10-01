@@ -10,7 +10,7 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 		if (!stage) {
 			statuses.push(lab.completionStatus);
 		}
-		if (lab.ownerPublicGuid === localStorage.getItem("userGuid")) {
+		if (lab.ownedByUser) {
 			statuses.push("Owned");
 		}
 	}

@@ -11,14 +11,13 @@ export const statusMarker = (props: Props) => {
 	const { lab, stage } = props;
 	let colour = "#fff";
 	if (lab) {
-		colour =
-			lab.ownerPublicGuid === localStorage.getItem("userGuid")
-				? "#1976d2"
-				: {
-						NotStarted: "#c62828",
-						InProgress: "#e09f00",
-						Completed: "#388e3c",
-					}[lab.completionStatus];
+		colour = lab.ownedByUser
+			? "#1976d2"
+			: {
+					NotStarted: "#c62828",
+					InProgress: "#e09f00",
+					Completed: "#388e3c",
+				}[lab.completionStatus];
 	}
 	if (stage) {
 		colour = stage.isComplete ? "#388e3c" : "#c62828";

@@ -74,6 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		res.setHeader("Cache-Control", "no-store");
 		res.status(200).json({
 			...lab,
+			ownedByUser: lab.ownerPublicGuid === userGuid,
 			stageSummaries,
 			stagesTotalCount,
 		});
