@@ -72,10 +72,24 @@ export default function LabDetailPage() {
 			<p>
 				<Link to="/">&larr; Back to search</Link>
 			</p>
-			<h1>
-				{lab.title}
-				<StatusChips lab={lab} />
-			</h1>
+			<div className="lab-detail-header">
+				<h1>
+					{lab.title}
+					<StatusChips lab={lab} />
+				</h1>
+				{lab.smartLink && (
+					<p>
+						<a
+							href={`https://labs.geocaching.com/goto/${lab.smartLink}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="external-lab-link"
+						>
+							Open lab ↗
+						</a>
+					</p>
+				)}
+			</div>
 			<LabMeta lab={lab} searchCentre={searchCentre} />
 			<div className="lab-detail-content">
 				{lab.keyImageUrl && <img src={lab.keyImageUrl} width="300" />}
