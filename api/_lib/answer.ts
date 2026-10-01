@@ -117,10 +117,15 @@ const QUESTION_TYPES = [
 	},
 ];
 
-export const hashAnswer = (answer: string, userGuid: string) =>
-	CryptoJS.MD5(
-		(userGuid + answer.replaceAll(" ", "")).toLowerCase(),
-	).toString();
+export const hashAnswer = (answer: string, userGuid: string) => {
+	const normalizedAnswer = answer
+		.replaceAll(/[\u2013\u2014]/g, "-")
+		.replaceAll(/[\u2018\u2019]/g, "'")
+		.replaceAll(/[\u201C\u201D]/g, '"')
+		.replaceAll(" ", "");
+
+	return CryptoJS.MD5((userGuid + normalizedAnswer).toLowerCase()).toString();
+};
 
 export const checkAnswer = (
 	userGuid: string,

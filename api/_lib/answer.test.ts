@@ -51,6 +51,12 @@ describe("checkAnswer", () => {
 		expect(checkAnswer(testGuid, stage, "4 2")).toBe(true);
 	});
 
+	it("normalizes typographic dashes, apostrophes, and quotation marks", () => {
+		expect(
+			hashAnswer("a\u2013\u2014\u2018\u2019\u201C\u201Db", testGuid),
+		).toBe(hashAnswer("a--''\"\"b", testGuid));
+	});
+
 	it("matches case-insensitively", () => {
 		const stage = makeStage({
 			findCodeHashBase16v2: hashAnswer("Hello", testGuid),
