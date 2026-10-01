@@ -58,6 +58,10 @@ export function radiusToZoom(
 	latitude: number,
 	mapWidthPixels: number,
 ): number {
+	if (!Number.isFinite(radius) || radius <= 0) {
+		return 15;
+	}
+
 	const earthCircumference = 40075016.686;
 
 	const metresPerPixelAtZoom0 =
@@ -96,7 +100,7 @@ export function getRadius(
 		...items.map((item) => distanceBetween(centre, item.location)),
 	);
 
-	return maxDistance * 1.1;
+	return Math.max(maxDistance * 1.1, 2000);
 }
 
 export function getBounds(
