@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { searchAdventures } from "../_lib/groundspeak.js";
 import { LabSummary } from "../../src/types.js";
+import { getNumAnswers } from "../_lib/database.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "GET") {
@@ -51,10 +52,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			accessToken,
 		);
 
-		const items = list.items.map((lab: LabSummary) => ({
-			...lab,
-			ownedByUser: lab.ownerPublicGuid === userGuid,
-		}));
+		const items = await Promise.all(
+			list.items.map(async (lab: LabSummary) => {
+				const guid = lab.adventureGuid;
+				const [{ count }] = await getNumAnswers(guid);
+
+				return {
+					...lab,
+					numAnswers: Number(count),
+					ownedByUser: lab.ownerPublicGuid === userGuid,
+				};
+			}),
+		);
 
 		res.setHeader("Cache-Control", "no-store");
 		res.status(200).json(items);

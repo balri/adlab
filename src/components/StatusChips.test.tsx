@@ -41,4 +41,20 @@ describe("StatusChips", () => {
 
 		expect(screen.queryByText("Owned")).not.toBeInTheDocument();
 	});
+
+	it("shows the number of answers when the lab has answers", () => {
+		render(
+			<StatusChips
+				lab={makeLab({ numAnswers: 3, stagesTotalCount: 5 })}
+			/>,
+		);
+
+		expect(screen.getByText("3 of 5 answers*")).toBeInTheDocument();
+	});
+
+	it("does not show the answer count when there are no answers", () => {
+		render(<StatusChips lab={makeLab({ numAnswers: 0 })} />);
+
+		expect(screen.queryByText(/answers\*/)).not.toBeInTheDocument();
+	});
 });

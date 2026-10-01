@@ -38,6 +38,7 @@ export interface LabSummary {
 	adventureThemes: Array<string>;
 	// adventureCredit: AdventureCredit;
 	ownedByUser?: boolean | undefined;
+	numAnswers?: number | undefined;
 }
 
 interface MultiChoiceOption {

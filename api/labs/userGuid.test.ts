@@ -5,7 +5,7 @@ import {
 	searchAdventures,
 	submitAnswer,
 } from "../_lib/groundspeak.js";
-import { getStoredAnswers } from "../_lib/database.js";
+import { getNumAnswers, getStoredAnswers } from "../_lib/database.js";
 import detailHandler from "./[guid].js";
 import searchHandler from "./search.js";
 import submitHandler from "./submit.js";
@@ -16,6 +16,7 @@ vi.mock("../_lib/groundspeak.js", () => ({
 	submitAnswer: vi.fn(),
 }));
 vi.mock("../_lib/database.js", () => ({
+	getNumAnswers: vi.fn(),
 	getStoredAnswers: vi.fn(),
 	upsertAnswer: vi.fn(),
 }));
@@ -23,6 +24,7 @@ vi.mock("../_lib/database.js", () => ({
 const mockGetAdventure = vi.mocked(getAdventure);
 const mockSearchAdventures = vi.mocked(searchAdventures);
 const mockSubmitAnswer = vi.mocked(submitAnswer);
+const mockGetNumAnswers = vi.mocked(getNumAnswers);
 const mockGetStoredAnswers = vi.mocked(getStoredAnswers);
 
 function makeResponse() {
@@ -67,11 +69,15 @@ describe("lab handlers use the userGuid cookie", () => {
 	});
 
 	it("marks search results owned by the cookie user", async () => {
+		mockGetNumAnswers.mockImplementation(
+			async (guid) =>
+				[{ count: guid === "adventure-1" ? "3" : "0" }] as never,
+		);
 		mockSearchAdventures.mockResolvedValue({
 			totalCount: 2,
 			items: [
-				{ ownerPublicGuid: "guid-1" },
-				{ ownerPublicGuid: "guid-2" },
+				{ adventureGuid: "adventure-1", ownerPublicGuid: "guid-1" },
+				{ adventureGuid: "adventure-2", ownerPublicGuid: "guid-2" },
 			],
 		} as never);
 		const req = {
@@ -84,10 +90,22 @@ describe("lab handlers use the userGuid cookie", () => {
 
 		await searchHandler(req, res);
 
+		expect(mockGetNumAnswers).toHaveBeenNthCalledWith(1, "adventure-1");
+		expect(mockGetNumAnswers).toHaveBeenNthCalledWith(2, "adventure-2");
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.json).toHaveBeenCalledWith([
-			{ ownerPublicGuid: "guid-1", ownedByUser: true },
-			{ ownerPublicGuid: "guid-2", ownedByUser: false },
+			{
+				adventureGuid: "adventure-1",
+				ownerPublicGuid: "guid-1",
+				numAnswers: 3,
+				ownedByUser: true,
+			},
+			{
+				adventureGuid: "adventure-2",
+				ownerPublicGuid: "guid-2",
+				numAnswers: 0,
+				ownedByUser: false,
+			},
 		]);
 	});
 

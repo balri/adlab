@@ -89,6 +89,31 @@ describe("SearchPage", () => {
 		expect(screen.getByLabelText("Longitude")).toHaveValue(153);
 	});
 
+	it("shows the answer-count disclaimer when results have answer counts", async () => {
+		mockSearchLabs.mockResolvedValue([lab({ numAnswers: 2 })]);
+		renderPage();
+
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+		expect(
+			await screen.findByText(
+				"* Answer counts are a guideline only; actual counts may differ.",
+			),
+		).toBeInTheDocument();
+	});
+
+	it("does not show the answer-count disclaimer when all counts are zero", async () => {
+		mockSearchLabs.mockResolvedValue([lab({ numAnswers: 0 })]);
+		renderPage();
+
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+		await screen.findByRole("link", { name: "Test Lab" });
+		expect(
+			screen.queryByText(/Answer counts are a guideline only/),
+		).not.toBeInTheDocument();
+	});
+
 	it("shows an error message when the search fails", async () => {
 		mockSearchLabs.mockRejectedValue(new Error("Search failed"));
 		renderPage();

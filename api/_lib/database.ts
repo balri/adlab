@@ -8,10 +8,18 @@ export const sql = neon(process.env.DATABASE_URL);
 
 export const getStoredAnswers = async (guid: string) => {
 	return await sql`
-			SELECT stage_guid, calculated_answer
-			FROM stage_answers
-			WHERE lab_guid = ${guid}
+		SELECT stage_guid, calculated_answer
+		FROM stage_answers
+		WHERE lab_guid = ${guid}
 		`;
+};
+
+export const getNumAnswers = async (guid: string) => {
+	return await sql`
+		SELECT COUNT(*) AS count
+		FROM stage_answers
+		WHERE lab_guid = ${guid}
+	`;
 };
 
 export const upsertAnswer = async (

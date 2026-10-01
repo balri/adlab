@@ -104,6 +104,12 @@ export default function SearchPage() {
 			{!!labs.length && (
 				<div className="search-results">
 					<ResultsList labs={labs} searchCentre={searchCentre} />
+					{labs.some((lab) => (lab.numAnswers ?? 0) > 0) && (
+						<p className="answer-count-disclaimer">
+							* Answer counts are a guideline only; actual counts
+							may differ.
+						</p>
+					)}
 				</div>
 			)}
 		</div>
