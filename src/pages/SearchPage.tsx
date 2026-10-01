@@ -71,9 +71,11 @@ export default function SearchPage() {
 				return;
 			}
 			setLabs(results);
-			const { latitude, longitude } = params;
-			setSearchCentre({ latitude, longitude });
-			setCentreAndRadius(results, setCentre, setRadius);
+			const resultsCentre = getCentre(results);
+			if (resultsCentre) {
+				setSearchCentre(resultsCentre);
+				setCentreAndRadius(results, setCentre, setRadius);
+			}
 		} catch (err) {
 			setError((err as Error).message);
 		} finally {

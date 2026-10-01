@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import type { LabSummary, LatLng } from "../types";
 import { Link } from "react-router-dom";
 import LabMeta from "./LabMeta";
-import { radiusToZoom, statusMarker } from "../utils/mapUtils";
+import { getBounds, radiusToZoom, statusMarker } from "../utils/mapUtils";
 
 const mapWidth = 360;
 
@@ -19,18 +19,20 @@ function RecentreOnChange({
 	centre,
 	searchCentre,
 	radius,
+	labs,
 	onRecentre,
 }: {
 	centre: LatLng;
 	searchCentre: LatLng | null;
 	radius: number;
+	labs: LabSummary[];
 	onRecentre: (centre: LatLng) => void;
 }) {
 	const map = useMap();
 
 	const previousCentre = useRef<LatLng | null>(null);
 	const previousRadius = useRef<number | null>(null);
-	const userDragged = useRef(false);
+	const userMoved = useRef(false);
 
 	useEffect(() => {
 		const searchChanged =
@@ -39,7 +41,10 @@ function RecentreOnChange({
 			previousCentre.current.longitude !== centre.longitude ||
 			previousRadius.current !== radius;
 
-		if (searchChanged) {
+		const bounds = getBounds(labs);
+		if (bounds) {
+			map.fitBounds(bounds, { padding: [24, 24], maxZoom: 15 });
+		} else if (searchChanged) {
 			map.flyTo(
 				[centre.latitude, centre.longitude],
 				radiusToZoom(radius, centre.latitude, mapWidth),
@@ -48,12 +53,12 @@ function RecentreOnChange({
 			previousCentre.current = centre;
 			previousRadius.current = radius;
 		}
-	}, [centre, radius, map]);
+	}, [centre, labs, radius, map]);
 
-	// User dragged the map.
+	// Keep the form aligned with the settled map centre after any pan or zoom.
 	useEffect(() => {
-		const handleDragEnd = () => {
-			userDragged.current = true;
+		const handleMoveEnd = () => {
+			userMoved.current = true;
 			const mapCentre = map.getCenter();
 
 			onRecentre({
@@ -62,17 +67,24 @@ function RecentreOnChange({
 			});
 		};
 
-		map.on("dragend", handleDragEnd);
+		map.on("moveend", handleMoveEnd);
 
 		return () => {
-			map.off("dragend", handleDragEnd);
+			map.off("moveend", handleMoveEnd);
 		};
 	}, [map, onRecentre]);
 
 	// Use My Location / other external search-centre change.
 	useEffect(() => {
-		if (!searchCentre || userDragged.current) {
-			userDragged.current = false;
+		if (!searchCentre || userMoved.current) {
+			userMoved.current = false;
+			return;
+		}
+
+		if (
+			searchCentre.latitude === centre.latitude &&
+			searchCentre.longitude === centre.longitude
+		) {
 			return;
 		}
 
@@ -86,7 +98,7 @@ function RecentreOnChange({
 				radiusToZoom(radius, centre.latitude, mapWidth),
 			);
 		}
-	}, [searchCentre, map, centre.latitude, radius]);
+	}, [searchCentre, map, centre.latitude, centre.longitude, radius]);
 
 	return null;
 }
@@ -113,6 +125,7 @@ export default function SearchMap({
 			<RecentreOnChange
 				centre={centre}
 				radius={radius}
+				labs={labs}
 				searchCentre={searchCentre}
 				onRecentre={onRecentre}
 			/>

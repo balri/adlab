@@ -84,6 +84,9 @@ describe("SearchPage", () => {
 				screen.getByRole("link", { name: "Test Lab" }),
 			).toBeInTheDocument(),
 		);
+		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
+		expect(screen.getByLabelText("Latitude")).toHaveValue(-27.4);
+		expect(screen.getByLabelText("Longitude")).toHaveValue(153);
 	});
 
 	it("shows an error message when the search fails", async () => {
