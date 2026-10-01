@@ -9,7 +9,7 @@ interface SubmitAnswerProps {
 	onError: (err: string) => void;
 }
 
-const minCompletionCount = 10;
+const minRatingsTotalCount = 10;
 
 export default function SubmitAnswer({
 	lab,
@@ -21,7 +21,7 @@ export default function SubmitAnswer({
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const canAnswer =
-		lab.completionCount >= minCompletionCount &&
+		lab.ratingsTotalCount >= minRatingsTotalCount &&
 		localStorage.getItem("userCanAnswer") == "true";
 
 	if (!stage.correctAnswer || stage.isComplete || !canAnswer) {
