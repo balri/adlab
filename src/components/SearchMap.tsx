@@ -13,6 +13,7 @@ interface Props {
 	labs: LabSummary[];
 	searchCentre: LatLng | null;
 	onRecentre: (centre: LatLng) => void;
+	onUserMapMove: (centre: LatLng) => void;
 }
 
 function RecentreOnChange({
@@ -21,18 +22,21 @@ function RecentreOnChange({
 	radius,
 	labs,
 	onRecentre,
+	onUserMapMove,
 }: {
 	centre: LatLng;
 	searchCentre: LatLng | null;
 	radius: number;
 	labs: LabSummary[];
 	onRecentre: (centre: LatLng) => void;
+	onUserMapMove: (centre: LatLng) => void;
 }) {
 	const map = useMap();
 
 	const previousCentre = useRef<LatLng | null>(null);
 	const previousRadius = useRef<number | null>(null);
 	const userMoved = useRef(false);
+	const userInteractionPending = useRef(false);
 
 	useEffect(() => {
 		const searchChanged =
@@ -57,22 +61,72 @@ function RecentreOnChange({
 
 	// Keep the form aligned with the settled map centre after any pan or zoom.
 	useEffect(() => {
-		const handleMoveEnd = () => {
-			userMoved.current = true;
+		let userInteractionTimeout: number | undefined;
+		const markUserInteraction = () => {
+			userInteractionPending.current = true;
+			window.clearTimeout(userInteractionTimeout);
+			userInteractionTimeout = window.setTimeout(() => {
+				userInteractionPending.current = false;
+			}, 1000);
+		};
+		const centreFromMap = () => {
 			const mapCentre = map.getCenter();
-
-			onRecentre({
+			return {
 				latitude: Number(mapCentre.lat.toFixed(6)),
 				longitude: Number(mapCentre.lng.toFixed(6)),
-			});
+			};
 		};
+		const handleMoveEnd = () => {
+			userMoved.current = true;
+			const mapCentre = centreFromMap();
+			onRecentre(mapCentre);
+
+			if (userInteractionPending.current) {
+				userInteractionPending.current = false;
+				window.clearTimeout(userInteractionTimeout);
+				onUserMapMove(mapCentre);
+			}
+		};
+		const handleDragEnd = () => {
+			onUserMapMove(centreFromMap());
+		};
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (
+				[
+					"+",
+					"-",
+					"=",
+					"_",
+					"ArrowLeft",
+					"ArrowRight",
+					"ArrowUp",
+					"ArrowDown",
+				].includes(event.key)
+			) {
+				markUserInteraction();
+			}
+		};
+		const container = map.getContainer();
+		container.addEventListener("wheel", markUserInteraction);
+		container.addEventListener("dblclick", markUserInteraction);
+		container.addEventListener("touchmove", markUserInteraction, {
+			passive: true,
+		});
+		container.addEventListener("keydown", handleKeyDown);
 
 		map.on("moveend", handleMoveEnd);
+		map.on("dragend", handleDragEnd);
 
 		return () => {
 			map.off("moveend", handleMoveEnd);
+			map.off("dragend", handleDragEnd);
+			container.removeEventListener("wheel", markUserInteraction);
+			container.removeEventListener("dblclick", markUserInteraction);
+			container.removeEventListener("touchmove", markUserInteraction);
+			container.removeEventListener("keydown", handleKeyDown);
+			window.clearTimeout(userInteractionTimeout);
 		};
-	}, [map, onRecentre]);
+	}, [map, onRecentre, onUserMapMove]);
 
 	// Use My Location / other external search-centre change.
 	useEffect(() => {
@@ -109,6 +163,7 @@ export default function SearchMap({
 	labs,
 	searchCentre,
 	onRecentre,
+	onUserMapMove,
 }: Props) {
 	const zoomLevel = radiusToZoom(radius, centre.latitude, mapWidth);
 
@@ -128,6 +183,7 @@ export default function SearchMap({
 				labs={labs}
 				searchCentre={searchCentre}
 				onRecentre={onRecentre}
+				onUserMapMove={onUserMapMove}
 			/>
 			{labs.map((lab) => (
 				<Marker

@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import SearchPage from "./SearchPage";
 import type { LabSummary } from "../types";
 import { useApi } from "../useApi";
+import { DEFAULT_LATITUDE, DEFAULT_LONGITUDE } from "../utils/loadForm";
 
 vi.mock("../useApi", () => ({
 	useApi: vi.fn(),
@@ -85,8 +86,9 @@ describe("SearchPage", () => {
 			).toBeInTheDocument(),
 		);
 		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
-		expect(screen.getByLabelText("Latitude")).toHaveValue(-27.4);
-		expect(screen.getByLabelText("Longitude")).toHaveValue(153);
+		expect(screen.getByLabelText("Location")).toHaveValue(
+			`${DEFAULT_LATITUDE}, ${DEFAULT_LONGITUDE}`,
+		);
 	});
 
 	it("shows the answer-count disclaimer when results have answer counts", async () => {

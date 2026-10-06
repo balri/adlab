@@ -118,6 +118,21 @@ body {
 	gap: 0.25rem;
 }
 
+.search-form-actions .location-field {
+	flex: 0 1 18rem;
+	max-width: 18rem;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	font-size: 0.85rem;
+	gap: 0.25rem;
+}
+
+.location-field input {
+	width: 100%;
+	min-width: 0;
+}
+
 .search-form-row label.checkbox-label {
 	flex-direction: row;
 	align-items: center;
@@ -131,16 +146,31 @@ body {
 
 .search-form-actions {
 	display: flex;
-	align-items: center;
+	flex-wrap: nowrap;
+	align-items: flex-end;
 	gap: 0.75rem;
 }
 
+.location-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.location-button svg {
+	display: block;
+	width: 1em;
+	height: 1em;
+}
+
 .search-options-toggle {
+	align-self: flex-start;
 	background: none;
 	border: none;
 	padding: 0;
 	font-size: 0.8rem;
 	cursor: pointer;
+	text-align: left;
 }
 
 .error-text {

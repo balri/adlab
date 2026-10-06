@@ -12,6 +12,80 @@ interface Props {
 	loading: boolean;
 	searchCentre: LatLng | null;
 	onSearchCentreChange: (centre: LatLng) => void;
+	mapInteractionCentre?: LatLng | null;
+}
+
+function parseCoordinates(location: string): LatLng | null {
+	const parts = location.split(",");
+	if (parts.length !== 2 || parts.some((part) => !part.trim())) {
+		return null;
+	}
+
+	const latitude = Number(parts[0]);
+	const longitude = Number(parts[1]);
+	if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+		return null;
+	}
+	if (
+		latitude < -90 ||
+		latitude > 90 ||
+		longitude < -180 ||
+		longitude > 180
+	) {
+		throw new Error("Latitude must be -90 to 90 and longitude -180 to 180");
+	}
+
+	return { latitude, longitude };
+}
+
+async function resolveLocation(location: string): Promise<LatLng> {
+	const query = location.trim();
+	if (!query) {
+		throw new Error("Enter coordinates or a place name");
+	}
+
+	const coordinates = parseCoordinates(query);
+	if (coordinates) {
+		return coordinates;
+	}
+
+	const params = new URLSearchParams({
+		q: query,
+		format: "jsonv2",
+		limit: "1",
+	});
+	const response = await fetch(
+		`https://nominatim.openstreetmap.org/search?${params}`,
+	);
+	if (!response.ok) {
+		throw new Error("Location lookup failed. Please try again.");
+	}
+
+	const results = (await response.json()) as Array<{
+		lat: string;
+		lon: string;
+	}>;
+	const result = results[0];
+	if (!result) {
+		throw new Error("No matching location found");
+	}
+
+	const centre = {
+		latitude: Number(result.lat),
+		longitude: Number(result.lon),
+	};
+	if (
+		!Number.isFinite(centre.latitude) ||
+		!Number.isFinite(centre.longitude) ||
+		centre.latitude < -90 ||
+		centre.latitude > 90 ||
+		centre.longitude < -180 ||
+		centre.longitude > 180
+	) {
+		throw new Error("The location service returned invalid coordinates");
+	}
+
+	return centre;
 }
 
 export default function SearchForm({
@@ -19,10 +93,15 @@ export default function SearchForm({
 	loading,
 	searchCentre,
 	onSearchCentreChange,
+	mapInteractionCentre = null,
 }: Props) {
 	const [form, setForm] = useState<FormState>(loadForm);
 	const [geoError, setGeoError] = useState<string | null>(null);
+	const [resolvingLocation, setResolvingLocation] = useState(false);
+	const [searching, setSearching] = useState(false);
 	const [prevSearchCentre, setPrevSearchCentre] = useState(searchCentre);
+	const [prevMapInteractionCentre, setPrevMapInteractionCentre] =
+		useState(mapInteractionCentre);
 	const [expanded, setExpanded] = useState(false);
 
 	useEffect(() => {
@@ -36,6 +115,18 @@ export default function SearchForm({
 				...current,
 				latitude: String(searchCentre.latitude),
 				longitude: String(searchCentre.longitude),
+			}));
+		}
+	}
+
+	if (mapInteractionCentre !== prevMapInteractionCentre) {
+		setPrevMapInteractionCentre(mapInteractionCentre);
+		if (mapInteractionCentre) {
+			setForm((current) => ({
+				...current,
+				location: `${mapInteractionCentre.latitude}, ${mapInteractionCentre.longitude}`,
+				latitude: String(mapInteractionCentre.latitude),
+				longitude: String(mapInteractionCentre.longitude),
 			}));
 		}
 	}
@@ -70,88 +161,119 @@ export default function SearchForm({
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				onSearchCentreChange({
+				const centre = {
 					latitude: Number(position.coords.latitude.toFixed(6)),
 					longitude: Number(position.coords.longitude.toFixed(6)),
-				});
+				};
+				applyLocationCentre(
+					centre,
+					`${centre.latitude}, ${centre.longitude}`,
+				);
 			},
 			(err) => setGeoError(err.message),
 		);
 	}
 
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
+	function applyLocationCentre(centre: LatLng, location?: string) {
+		setForm((current) => ({
+			...current,
+			location: location ?? current.location,
+			latitude: String(centre.latitude),
+			longitude: String(centre.longitude),
+		}));
+		onSearchCentreChange(centre);
+	}
 
-		const latitude = Number(form.latitude);
-		const longitude = Number(form.longitude);
-
-		if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-			setGeoError("Enter a valid latitude and longitude");
-			return;
-		}
-
+	async function centreOnLocation() {
 		setGeoError(null);
+		setResolvingLocation(true);
+		try {
+			applyLocationCentre(await resolveLocation(form.location));
+		} catch (err) {
+			setGeoError((err as Error).message);
+		} finally {
+			setResolvingLocation(false);
+		}
+	}
 
-		onSearch({
-			latitude,
-			longitude,
-			radiusInMeters: form.radius,
-			take: form.take,
-			statuses: form.statuses,
-			excludeOwned: form.excludeOwned,
-		});
+	async function handleSubmit(e: React.FormEvent) {
+		e.preventDefault();
+		setGeoError(null);
+		setResolvingLocation(true);
+		setSearching(true);
+		try {
+			const centre = await resolveLocation(form.location);
+			applyLocationCentre(centre);
+			onSearch({
+				latitude: centre.latitude,
+				longitude: centre.longitude,
+				radiusInMeters: form.radius,
+				take: form.take,
+				statuses: form.statuses,
+				excludeOwned: form.excludeOwned,
+			});
+		} catch (err) {
+			setGeoError((err as Error).message);
+		} finally {
+			setResolvingLocation(false);
+			setSearching(false);
+		}
 	}
 
 	return (
 		<form className="search-form" onSubmit={handleSubmit}>
-			<div className="search-form-row">
-				<button type="submit" disabled={loading}>
-					{loading ? "Searching…" : "Search"}
-				</button>
+			<div className="search-form-actions">
 				<button
 					type="button"
-					className="search-options-toggle"
-					onClick={() => setExpanded((current) => !current)}
-					aria-expanded={expanded}
+					className="location-button"
+					aria-label="Use my location"
+					title="Use my location"
+					onClick={useMyLocation}
 				>
-					Search options {expanded ? "▲" : "▼"}
+					<svg
+						aria-hidden="true"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+					>
+						<circle cx="12" cy="12" r="4" />
+						<path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+					</svg>
+				</button>
+				<div className="location-field">
+					<input
+						type="text"
+						aria-label="Location"
+						value={form.location}
+						placeholder="Coordinates or place name"
+						onChange={(e) => updateForm("location", e.target.value)}
+						required
+					/>
+				</div>
+				<button
+					type="button"
+					disabled={resolvingLocation}
+					onClick={() => void centreOnLocation()}
+				>
+					{resolvingLocation ? "Locating…" : "Centre"}
+				</button>
+				<button type="submit" disabled={loading || resolvingLocation}>
+					{loading || searching ? "Searching…" : "Search"}
 				</button>
 			</div>
+			<button
+				type="button"
+				className="search-options-toggle"
+				onClick={() => setExpanded((current) => !current)}
+				aria-expanded={expanded}
+			>
+				Search options {expanded ? "▲" : "▼"}
+			</button>
 
 			{expanded && (
 				<>
-					<div className="search-form-row">
-						<label>
-							Latitude
-							<input
-								type="number"
-								step="any"
-								value={form.latitude}
-								onChange={(e) =>
-									updateForm("latitude", e.target.value)
-								}
-								required
-							/>
-						</label>
-
-						<label>
-							Longitude
-							<input
-								type="number"
-								step="any"
-								value={form.longitude}
-								onChange={(e) =>
-									updateForm("longitude", e.target.value)
-								}
-								required
-							/>
-						</label>
-
-						<button type="button" onClick={useMyLocation}>
-							Use my location
-						</button>
-					</div>
-
 					<div className="search-form-row">
 						<label>
 							Radius (m)

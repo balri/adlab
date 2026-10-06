@@ -171,6 +171,7 @@ export interface User {
 }
 
 export interface FormState {
+	location: string;
 	latitude: string;
 	longitude: string;
 	radius: number;

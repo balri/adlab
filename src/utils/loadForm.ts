@@ -6,6 +6,7 @@ export const DEFAULT_RADIUS = 10000;
 export const DEFAULT_TAKE = 25;
 
 const DEFAULT_FORM: FormState = {
+	location: `${DEFAULT_LATITUDE}, ${DEFAULT_LONGITUDE}`,
 	latitude: String(DEFAULT_LATITUDE),
 	longitude: String(DEFAULT_LONGITUDE),
 	radius: DEFAULT_RADIUS,
@@ -21,9 +22,20 @@ export function loadForm(): FormState {
 		const saved = localStorage.getItem(FORM_STORAGE_KEY);
 
 		if (saved) {
+			const savedForm = JSON.parse(saved) as Partial<FormState>;
+			const latitude = String(
+				savedForm.latitude ?? DEFAULT_FORM.latitude,
+			);
+			const longitude = String(
+				savedForm.longitude ?? DEFAULT_FORM.longitude,
+			);
+
 			return {
 				...DEFAULT_FORM,
-				...JSON.parse(saved),
+				...savedForm,
+				location: savedForm.location ?? `${latitude}, ${longitude}`,
+				latitude,
+				longitude,
 			};
 		}
 	} catch {

@@ -45,6 +45,8 @@ export default function SearchPage() {
 			longitude: Number(longitude),
 		} as LatLng;
 	});
+	const [mapInteractionCentre, setMapInteractionCentre] =
+		useState<LatLng | null>(null);
 	const [centre, setCentre] = useState<LatLng | null>(() => {
 		const saved = sessionStorage.getItem("searchCentre");
 		return saved
@@ -92,6 +94,7 @@ export default function SearchPage() {
 					labs={labs}
 					searchCentre={searchCentre}
 					onRecentre={setSearchCentre}
+					onUserMapMove={setMapInteractionCentre}
 				/>
 			)}
 			<SearchForm
@@ -99,6 +102,7 @@ export default function SearchPage() {
 				loading={loading}
 				searchCentre={searchCentre}
 				onSearchCentreChange={setSearchCentre}
+				mapInteractionCentre={mapInteractionCentre}
 			/>
 			{error && <p className="error-text">{error}</p>}
 			{!!labs.length && (
