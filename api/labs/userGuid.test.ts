@@ -48,6 +48,7 @@ describe("lab handlers use the userGuid cookie", () => {
 			stageSummaries: [],
 		} as never);
 		mockGetStoredAnswers.mockResolvedValue([]);
+		mockGetNumAnswers.mockResolvedValue([{ count: "4" }] as never);
 		const req = {
 			method: "GET",
 			headers: { authorization: "Bearer access-token" },
@@ -63,6 +64,7 @@ describe("lab handlers use the userGuid cookie", () => {
 			expect.objectContaining({
 				adventureGuid: "adventure-1",
 				ownedByUser: true,
+				numAnswers: 4,
 				stageSummaries: [],
 			}),
 		);

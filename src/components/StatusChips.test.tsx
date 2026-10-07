@@ -57,4 +57,16 @@ describe("StatusChips", () => {
 
 		expect(screen.queryByText(/answers\*/)).not.toBeInTheDocument();
 	});
+
+	it("shows the stage answer chip instead of the lab answer count", () => {
+		render(
+			<StatusChips
+				lab={makeLab({ numAnswers: 3, stagesTotalCount: 5 })}
+				stage={{ correctAnswer: "42", isComplete: false } as never}
+			/>,
+		);
+
+		expect(screen.getByText("Confirmed Answer")).toBeInTheDocument();
+		expect(screen.queryByText(/answers\*/)).not.toBeInTheDocument();
+	});
 });

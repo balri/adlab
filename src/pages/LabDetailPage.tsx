@@ -8,6 +8,7 @@ import { distanceBetween } from "../utils/distanceBetween";
 import LabMeta from "../components/LabMeta";
 import LabMap from "../components/LabMap";
 import SubmitAnswer from "../components/SubmitAnswer";
+import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -31,7 +32,9 @@ export default function LabDetailPage() {
 
 			if (cached) {
 				try {
-					setLab(JSON.parse(cached));
+					const cachedLab = JSON.parse(cached) as LabDetail;
+					updateStoredSearchResult(cachedLab);
+					setLab(cachedLab);
 					return;
 				} catch {
 					sessionStorage.removeItem(cacheKey);
@@ -44,6 +47,7 @@ export default function LabDetailPage() {
 				const lab = await getLab(guid, controller.signal);
 
 				sessionStorage.setItem(cacheKey, JSON.stringify(lab));
+				updateStoredSearchResult(lab);
 				setLab(lab);
 				const { latitude, longitude } = loadForm();
 				setSearchCentre({

@@ -5,6 +5,7 @@ import LabStageJournal from "../components/LabStageJournal";
 import LabStageQuestion from "../components/LabStageQuestion";
 import StatusChips from "../components/StatusChips";
 import { useApi } from "../useApi";
+import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
 export default function LabStageDetailPage() {
 	const { guid, stageId } = useParams<{ guid: string; stageId: string }>();
@@ -24,7 +25,9 @@ export default function LabStageDetailPage() {
 
 			if (cached) {
 				try {
-					setLab(JSON.parse(cached));
+					const cachedLab = JSON.parse(cached) as LabDetail;
+					updateStoredSearchResult(cachedLab);
+					setLab(cachedLab);
 					return;
 				} catch {
 					sessionStorage.removeItem(cacheKey);
@@ -35,6 +38,7 @@ export default function LabStageDetailPage() {
 				const lab = await getLab(guid, controller.signal);
 
 				sessionStorage.setItem(cacheKey, JSON.stringify(lab));
+				updateStoredSearchResult(lab);
 				setLab(lab);
 			} catch (err) {
 				if (controller.signal.aborted) return;

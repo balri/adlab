@@ -41,7 +41,7 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			{statuses.includes("CorrectAnswer") && (
 				<span className="status-chip correct">Confirmed Answer</span>
 			)}
-			{!!lab?.numAnswers && lab.numAnswers > 0 && (
+			{!stage && !!lab?.numAnswers && lab.numAnswers > 0 && (
 				<span className="status-chip correct">
 					{lab.numAnswers} of {lab.stagesTotalCount} answers*
 				</span>

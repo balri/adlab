@@ -134,6 +134,24 @@ describe("LabDetailPage", () => {
 		expect(sessionStorage.getItem("lab_guid-1")).toBe(JSON.stringify(lab));
 	});
 
+	it("updates a matching stored search result when the lab loads", async () => {
+		const searchResult = {
+			...lab,
+			title: "Old title",
+			ownedByUser: true,
+			numAnswers: 3,
+		};
+		sessionStorage.setItem("searchResults", JSON.stringify([searchResult]));
+		mockGetLab.mockResolvedValue({ ...lab, numAnswers: 4 });
+		renderPage();
+
+		await waitFor(() =>
+			expect(
+				JSON.parse(sessionStorage.getItem("searchResults")!),
+			).toEqual([{ ...lab, ownedByUser: true, numAnswers: 4 }]),
+		);
+	});
+
 	it("renders from sessionStorage without fetching when a cached lab exists", () => {
 		sessionStorage.setItem("lab_guid-1", JSON.stringify(lab));
 		renderPage();

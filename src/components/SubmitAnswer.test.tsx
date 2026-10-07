@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { LabDetail, LabStage } from "../types";
 import { useApi } from "../useApi";
 import SubmitAnswer from "./SubmitAnswer";
@@ -102,5 +102,43 @@ describe("SubmitAnswer", () => {
 		expect(
 			screen.queryByRole("button", { name: "Send Answer" }),
 		).not.toBeInTheDocument();
+	});
+
+	it("updates the stored search result after reloading a submitted lab", async () => {
+		localStorage.setItem("userCanAnswer", "true");
+		const refreshedLab = {
+			...makeLab(10),
+			title: "Updated Lab",
+			numAnswers: 4,
+		};
+		const previousResult = {
+			...makeLab(10),
+			title: "Old Lab",
+			numAnswers: 2,
+		};
+		sessionStorage.setItem(
+			"searchResults",
+			JSON.stringify([previousResult]),
+		);
+		const mockSubmitAnswer = vi
+			.fn()
+			.mockResolvedValue({ result: "Success" });
+		const mockGetLab = vi.fn().mockResolvedValue(refreshedLab);
+		vi.spyOn(window, "confirm").mockReturnValue(true);
+		vi.mocked(useApi).mockReturnValue({
+			getLab: mockGetLab,
+			searchLabs: vi.fn(),
+			checkAnswer: vi.fn(),
+			submitAnswer: mockSubmitAnswer,
+		});
+		renderSubmitAnswer(10);
+
+		fireEvent.click(screen.getByRole("button", { name: "Send Answer" }));
+
+		await waitFor(() =>
+			expect(
+				JSON.parse(sessionStorage.getItem("searchResults")!),
+			).toEqual([{ ...refreshedLab, ownedByUser: undefined }]),
+		);
 	});
 });

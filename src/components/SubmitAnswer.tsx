@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LabDetail, LabStage } from "../types";
 import { useApi } from "../useApi";
+import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
 interface SubmitAnswerProps {
 	lab: LabDetail;
@@ -38,6 +39,7 @@ export default function SubmitAnswer({
 				`lab_${lab.adventureGuid}`,
 				JSON.stringify(refreshedLab),
 			);
+			updateStoredSearchResult(refreshedLab);
 
 			onSuccess(refreshedLab);
 		} catch (err) {

@@ -1,6 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getAdventure } from "../_lib/groundspeak.js";
-import { getStoredAnswers, upsertAnswer } from "../_lib/database.js";
+import {
+	getNumAnswers,
+	getStoredAnswers,
+	upsertAnswer,
+} from "../_lib/database.js";
 import { calculateAnswer, checkAnswer } from "../_lib/answer.js";
 import { LabStage } from "../../src/types.js";
 
@@ -71,11 +75,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			}),
 		);
 		const stagesTotalCount = stageSummaries.length;
+		const [{ count }] = await getNumAnswers(guid);
 
 		res.setHeader("Cache-Control", "no-store");
 		res.status(200).json({
 			...lab,
 			ownedByUser: lab.ownerPublicGuid === userGuid,
+			numAnswers: Number(count),
 			stageSummaries,
 			stagesTotalCount,
 		});
