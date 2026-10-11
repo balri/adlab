@@ -333,15 +333,12 @@ export default function SearchForm({
 						<label className="checkbox-label">
 							<input
 								type="checkbox"
-								checked={!form.excludeOwned}
+								checked={form.excludeOwned}
 								onChange={(e) =>
-									updateForm(
-										"excludeOwned",
-										!e.target.checked,
-									)
+									updateForm("excludeOwned", e.target.checked)
 								}
 							/>
-							Owned
+							Hide Owned
 						</label>
 					</div>
 				</>
