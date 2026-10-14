@@ -154,9 +154,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			}
 
 			if (!response.ok) {
-				const body = await response.text().catch(() => "");
+				const message = await getResponseErrorMessage(response);
 				throw new Error(
-					`Request to ${url} failed (${response.status}): ${body}`,
+					`Request to ${url} failed (${response.status}): ${message}`,
 				);
 			}
 
@@ -179,6 +179,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			{children}
 		</AuthContext.Provider>
 	);
+}
+
+async function getResponseErrorMessage(response: Response): Promise<string> {
+	const body = await response.text().catch(() => "");
+	if (!body.trim()) {
+		return "Request failed";
+	}
+
+	try {
+		const data: unknown = JSON.parse(body);
+		if (data && typeof data === "object") {
+			if (
+				"error" in data &&
+				typeof data.error === "string" &&
+				data.error.trim()
+			) {
+				return data.error;
+			}
+			if (
+				"message" in data &&
+				typeof data.message === "string" &&
+				data.message.trim()
+			) {
+				return data.message;
+			}
+		}
+		return "Request failed";
+	} catch {
+		return body;
+	}
 }
 
 async function getCurrentUser(

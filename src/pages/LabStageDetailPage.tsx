@@ -54,7 +54,9 @@ export default function LabStageDetailPage() {
 		};
 	}, [guid, getLab]);
 
-	if (!lab) return <p>Loading…</p>;
+	if (!lab) {
+		return error ? <p className="error-text">{error}</p> : <p>Loading…</p>;
+	}
 
 	const labUrl = `/labs/${guid}`;
 

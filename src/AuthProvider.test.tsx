@@ -1,4 +1,5 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { AuthProvider } from "./AuthProvider";
 import type { User } from "./types";
 import { useAuth } from "./useAuth";
@@ -45,6 +46,35 @@ function renderConsumer() {
 	return render(
 		<AuthProvider>
 			<Consumer />
+		</AuthProvider>,
+	);
+}
+
+function AuthenticatedFetchConsumer() {
+	const { authenticatedFetch, isAuthenticated } = useAuth();
+	const [result, setResult] = useState("idle");
+
+	return (
+		<div>
+			<p>isAuthenticated: {String(isAuthenticated)}</p>
+			<p>result: {result}</p>
+			<button
+				onClick={() => {
+					void authenticatedFetch<{ value: string }>("/private")
+						.then((data) => setResult(data.value))
+						.catch((err: Error) => setResult(err.message));
+				}}
+			>
+				Fetch private
+			</button>
+		</div>
+	);
+}
+
+function renderAuthenticatedFetchConsumer() {
+	return render(
+		<AuthProvider>
+			<AuthenticatedFetchConsumer />
 		</AuthProvider>,
 	);
 }
@@ -186,5 +216,122 @@ describe("AuthContext", () => {
 
 		expect(screen.getByText("isAuthenticated: false")).toBeInTheDocument();
 		expect(localStorage.getItem("accessToken")).toBeNull();
+	});
+
+	it("refreshes a near-expiry token before making an authenticated request", async () => {
+		localStorage.setItem("accessToken", "old-token");
+		localStorage.setItem(
+			"accessTokenExpiresAt",
+			String(Date.now() + 10_000),
+		);
+		localStorage.setItem("user", JSON.stringify(testUser()));
+		const fetchMock = vi.fn().mockImplementation((url) => {
+			if (url === "/api/refresh") {
+				return Promise.resolve({
+					ok: true,
+					json: async () => ({
+						accessToken: "fresh-token",
+						expiresIn: 3600,
+					}),
+				});
+			}
+			return Promise.resolve({
+				ok: true,
+				json: async () => ({ value: "completed" }),
+			});
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		renderAuthenticatedFetchConsumer();
+		await act(async () => {
+			screen.getByRole("button", { name: "Fetch private" }).click();
+		});
+
+		expect(screen.getByText("result: completed")).toBeInTheDocument();
+		expect(fetchMock).toHaveBeenNthCalledWith(1, "/api/refresh", {
+			method: "POST",
+		});
+		expect(fetchMock).toHaveBeenNthCalledWith(
+			2,
+			"/private",
+			expect.objectContaining({
+				headers: expect.objectContaining({
+					Authorization: "Bearer fresh-token",
+				}),
+			}),
+		);
+		expect(localStorage.getItem("accessToken")).toBe("fresh-token");
+	});
+
+	it("clears the session when token refresh fails", async () => {
+		localStorage.setItem("accessToken", "old-token");
+		localStorage.setItem(
+			"accessTokenExpiresAt",
+			String(Date.now() + 10_000),
+		);
+		localStorage.setItem("user", JSON.stringify(testUser()));
+		const fetchMock = vi.fn().mockResolvedValue({ ok: false });
+		vi.stubGlobal("fetch", fetchMock);
+
+		renderAuthenticatedFetchConsumer();
+		await act(async () => {
+			screen.getByRole("button", { name: "Fetch private" }).click();
+		});
+
+		expect(screen.getByText("result: Session expired")).toBeInTheDocument();
+		expect(screen.getByText("isAuthenticated: false")).toBeInTheDocument();
+		expect(localStorage.getItem("accessToken")).toBeNull();
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("clears the session when an authenticated request returns 401", async () => {
+		localStorage.setItem("accessToken", "valid-token");
+		localStorage.setItem(
+			"accessTokenExpiresAt",
+			String(Date.now() + 60_000),
+		);
+		localStorage.setItem("user", JSON.stringify(testUser()));
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ status: 401 }));
+
+		renderAuthenticatedFetchConsumer();
+		await act(async () => {
+			screen.getByRole("button", { name: "Fetch private" }).click();
+		});
+
+		expect(screen.getByText("result: Session expired")).toBeInTheDocument();
+		expect(screen.getByText("isAuthenticated: false")).toBeInTheDocument();
+		expect(localStorage.getItem("accessToken")).toBeNull();
+	});
+
+	it("shows the API error message instead of the raw JSON response", async () => {
+		localStorage.setItem("accessToken", "valid-token");
+		localStorage.setItem(
+			"accessTokenExpiresAt",
+			String(Date.now() + 60_000),
+		);
+		localStorage.setItem("user", JSON.stringify(testUser()));
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue({
+				ok: false,
+				status: 502,
+				text: async () =>
+					JSON.stringify({
+						error: "Service temporarily unavailable",
+					}),
+			}),
+		);
+
+		renderAuthenticatedFetchConsumer();
+		await act(async () => {
+			screen.getByRole("button", { name: "Fetch private" }).click();
+		});
+
+		expect(
+			screen.getByText(
+				"result: Request to /private failed (502): Service temporarily unavailable",
+			),
+		).toBeInTheDocument();
+		expect(screen.queryByText(/\{"error"/)).not.toBeInTheDocument();
 	});
 });
