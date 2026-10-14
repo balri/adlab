@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import handler from "./user.js";
-import { getUser } from "./_lib/groundspeak.js";
-import type { User } from "../src/types.js";
+import handler from "../../api/user.js";
+import { getUser } from "../../api/_lib/groundspeak.js";
+import type { User } from "../../src/types.js";
 
-vi.mock("./_lib/groundspeak.js", () => ({
+vi.mock("../../api/_lib/groundspeak.js", () => ({
 	getUser: vi.fn(),
 }));
 

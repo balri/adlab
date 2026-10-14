@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { calculateAnswer, checkAnswer, hashAnswer } from "./answer.js";
-import type { LabStage } from "../../src/types.js";
+import {
+	calculateAnswer,
+	checkAnswer,
+	hashAnswer,
+} from "../../../api/_lib/answer.js";
+import type { LabStage } from "../../../src/types.js";
 
 const makeStage = (overrides: Partial<LabStage> = {}): LabStage =>
 	({

@@ -1,24 +1,24 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { calculateAnswer, checkAnswer } from "../_lib/answer.js";
+import { calculateAnswer, checkAnswer } from "../../../api/_lib/answer.js";
 import {
 	getNumAnswers,
 	getStoredAnswers,
 	upsertAnswer,
-} from "../_lib/database.js";
-import { getAdventure } from "../_lib/groundspeak.js";
-import handler from "./[guid].js";
+} from "../../../api/_lib/database.js";
+import { getAdventure } from "../../../api/_lib/groundspeak.js";
+import handler from "../../../api/labs/[guid].js";
 
-vi.mock("../_lib/answer.js", () => ({
+vi.mock("../../../api/_lib/answer.js", () => ({
 	calculateAnswer: vi.fn(),
 	checkAnswer: vi.fn(),
 }));
-vi.mock("../_lib/database.js", () => ({
+vi.mock("../../../api/_lib/database.js", () => ({
 	getNumAnswers: vi.fn(),
 	getStoredAnswers: vi.fn(),
 	upsertAnswer: vi.fn(),
 }));
-vi.mock("../_lib/groundspeak.js", () => ({
+vi.mock("../../../api/_lib/groundspeak.js", () => ({
 	getAdventure: vi.fn(),
 }));
 

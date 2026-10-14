@@ -1,13 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { checkAnswer } from "../_lib/answer.js";
-import { upsertAnswer } from "../_lib/database.js";
-import handler from "./check.js";
+import { checkAnswer } from "../../../api/_lib/answer.js";
+import { upsertAnswer } from "../../../api/_lib/database.js";
+import handler from "../../../api/labs/check.js";
 
-vi.mock("../_lib/answer.js", () => ({
+vi.mock("../../../api/_lib/answer.js", () => ({
 	checkAnswer: vi.fn(),
 }));
-vi.mock("../_lib/database.js", () => ({
+vi.mock("../../../api/_lib/database.js", () => ({
 	upsertAnswer: vi.fn(),
 }));
 

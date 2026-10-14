@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import handler from "./refresh.js";
+import handler from "../../api/login.js";
 
 function makeResponse() {
 	return {
@@ -10,14 +10,14 @@ function makeResponse() {
 	} as unknown as VercelResponse;
 }
 
-function makeRequest(method = "POST", refreshToken?: string) {
+function makeRequest(method = "POST") {
 	return {
 		method,
-		cookies: refreshToken ? { "__Secure-refreshToken": refreshToken } : {},
+		body: { username: "alice", password: "secret" },
 	} as unknown as VercelRequest;
 }
 
-describe("POST /api/refresh", () => {
+describe("POST /api/login", () => {
 	afterEach(() => {
 		vi.unstubAllGlobals();
 		vi.unstubAllEnvs();
@@ -32,60 +32,54 @@ describe("POST /api/refresh", () => {
 		expect(res.json).toHaveBeenCalledWith({ error: "Method not allowed" });
 	});
 
-	it("requires a refresh-token cookie", async () => {
-		const res = makeResponse();
-
-		await handler(makeRequest(), res);
-
-		expect(res.status).toHaveBeenCalledWith(401);
-		expect(res.json).toHaveBeenCalledWith({ error: "No refresh token" });
-	});
-
-	it("returns new tokens and rotates the secure refresh cookie", async () => {
+	it("returns tokens and sets a secure HttpOnly refresh cookie", async () => {
 		vi.stubEnv("GEOCACHING_CONSUMER_KEY", "consumer-key");
 		const fetchMock = vi.fn().mockResolvedValue({
 			ok: true,
 			json: async () => ({
-				access_token: "new-access-token",
-				refresh_token: "new-refresh-token",
-				expires_in: 1800,
+				accessToken: "access-token",
+				refreshToken: "refresh token",
+				expiresIn: 3600,
 			}),
 		});
 		vi.stubGlobal("fetch", fetchMock);
 		const res = makeResponse();
 
-		await handler(makeRequest("POST", "current-refresh-token"), res);
+		await handler(makeRequest(), res);
 
 		expect(fetchMock).toHaveBeenCalledWith(
-			"https://labs-api.geocaching.com/Api/Accounts/RefreshAccessToken?consumerKey=consumer-key",
+			"https://api.groundspeak.com/adventuresmobile/v1/public/accounts/login",
 			expect.objectContaining({
 				method: "POST",
-				body: JSON.stringify({ RefreshToken: "current-refresh-token" }),
+				body: JSON.stringify({ Username: "alice", Password: "secret" }),
+				headers: expect.objectContaining({
+					"X-Consumer-Key": "consumer-key",
+				}),
 			}),
 		);
 		expect(res.setHeader).toHaveBeenCalledWith(
 			"Set-Cookie",
 			expect.stringContaining(
-				"__Secure-refreshToken=new-refresh-token; HttpOnly; Secure; SameSite=Strict; Path=/api/refresh",
+				"__Secure-refreshToken=refresh%20token; HttpOnly; Secure; SameSite=Strict; Path=/api/refresh",
 			),
 		);
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.json).toHaveBeenCalledWith({
-			accessToken: "new-access-token",
-			expiresIn: 1800,
+			accessToken: "access-token",
+			expiresIn: 3600,
 		});
 	});
 
-	it("returns 401 when the upstream refresh fails", async () => {
+	it("returns 401 when the upstream login fails", async () => {
 		vi.stubEnv("GEOCACHING_CONSUMER_KEY", "consumer-key");
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 		const res = makeResponse();
 
-		await handler(makeRequest("POST", "expired-refresh-token"), res);
+		await handler(makeRequest(), res);
 
 		expect(res.status).toHaveBeenCalledWith(401);
 		expect(res.json).toHaveBeenCalledWith({
-			error: "Failed to refresh token",
+			error: "Invalid username or password",
 		});
 	});
 });

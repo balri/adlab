@@ -4,18 +4,18 @@ import {
 	getAdventure,
 	searchAdventures,
 	submitAnswer,
-} from "../_lib/groundspeak.js";
-import { getNumAnswers, getStoredAnswers } from "../_lib/database.js";
-import detailHandler from "./[guid].js";
-import searchHandler from "./search.js";
-import submitHandler from "./submit.js";
+} from "../../../api/_lib/groundspeak.js";
+import { getNumAnswers, getStoredAnswers } from "../../../api/_lib/database.js";
+import detailHandler from "../../../api/labs/[guid].js";
+import searchHandler from "../../../api/labs/search.js";
+import submitHandler from "../../../api/labs/submit.js";
 
-vi.mock("../_lib/groundspeak.js", () => ({
+vi.mock("../../../api/_lib/groundspeak.js", () => ({
 	getAdventure: vi.fn(),
 	searchAdventures: vi.fn(),
 	submitAnswer: vi.fn(),
 }));
-vi.mock("../_lib/database.js", () => ({
+vi.mock("../../../api/_lib/database.js", () => ({
 	getNumAnswers: vi.fn(),
 	getStoredAnswers: vi.fn(),
 	upsertAnswer: vi.fn(),
