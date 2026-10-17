@@ -5,10 +5,11 @@ import { distanceBetween } from "../utils/distanceBetween";
 interface Props {
 	lab: LabSummary | LabDetail;
 	searchCentre: LatLng | null;
+	showReviews?: boolean;
 }
 
 export default function LabMeta(props: Props) {
-	const { lab, searchCentre } = props;
+	const { lab, searchCentre, showReviews = false } = props;
 
 	let distance;
 	if (searchCentre) {
@@ -30,7 +31,13 @@ export default function LabMeta(props: Props) {
 			)}
 			{lab.stagesTotalCount && <span>{lab.stagesTotalCount} stages</span>}
 			{distance && <span>{distance.toFixed(2)} km</span>}
-			<Link to={`/labs/${lab.adventureGuid}/reviews`}>Reviews</Link>
+			{showReviews &&
+				"reviewsTotalCount" in lab &&
+				lab.reviewsTotalCount > 0 && (
+					<Link to={`/labs/${lab.adventureGuid}/reviews`}>
+						Reviews ({lab.reviewsTotalCount})
+					</Link>
+				)}
 		</div>
 	);
 }

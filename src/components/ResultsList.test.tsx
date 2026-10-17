@@ -54,6 +54,9 @@ describe("ResultsList", () => {
 			),
 		).toBeInTheDocument();
 		expect(screen.getByText("3 stages")).toBeInTheDocument();
+		expect(
+			screen.queryByRole("link", { name: "Reviews" }),
+		).not.toBeInTheDocument();
 	});
 
 	it("renders one item per lab", () => {

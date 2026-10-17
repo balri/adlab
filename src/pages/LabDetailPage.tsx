@@ -94,7 +94,7 @@ export default function LabDetailPage() {
 					</p>
 				)}
 			</div>
-			<LabMeta lab={lab} searchCentre={searchCentre} />
+			<LabMeta lab={lab} searchCentre={searchCentre} showReviews />
 			<div className="lab-detail-content">
 				{lab.keyImageUrl && <img src={lab.keyImageUrl} width="300" />}
 				<div>

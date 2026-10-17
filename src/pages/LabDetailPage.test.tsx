@@ -51,7 +51,7 @@ const lab: LabDetail = {
 	],
 	journalsTotalCount: 0,
 	ownerUsername: "adventurer",
-	reviewsTotalCount: 0,
+	reviewsTotalCount: 5,
 	recommendedCount: 0,
 	completionCount: 0,
 };
@@ -93,6 +93,9 @@ describe("LabDetailPage", () => {
 		);
 		expect(screen.getByText("by adventurer")).toBeInTheDocument();
 		expect(
+			screen.getByRole("link", { name: "Reviews (5)" }),
+		).toHaveAttribute("href", "/labs/guid-1/reviews");
+		expect(
 			screen.getByText(
 				(_, element) =>
 					element?.tagName === "SPAN" &&
@@ -104,6 +107,18 @@ describe("LabDetailPage", () => {
 			"href",
 			"/labs/guid-1/stage/stage-1",
 		);
+	});
+
+	it("hides the reviews link when there are no reviews", async () => {
+		mockGetLab.mockResolvedValue({ ...lab, reviewsTotalCount: 0 });
+		renderPage();
+
+		await waitFor(() =>
+			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+		);
+		expect(
+			screen.queryByRole("link", { name: /Reviews/ }),
+		).not.toBeInTheDocument();
 	});
 
 	it("shows an error message when the fetch fails", async () => {
