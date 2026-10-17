@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { LabDetail, LabSummary, LatLng } from "../types";
 import { distanceBetween } from "../utils/distanceBetween";
 
@@ -29,6 +30,7 @@ export default function LabMeta(props: Props) {
 			)}
 			{lab.stagesTotalCount && <span>{lab.stagesTotalCount} stages</span>}
 			{distance && <span>{distance.toFixed(2)} km</span>}
+			<Link to={`/labs/${lab.adventureGuid}/reviews`}>Reviews</Link>
 		</div>
 	);
 }

@@ -3,6 +3,7 @@ import {
 	CheckParams,
 	CheckResponse,
 	LabDetail,
+	LabReviewsPage,
 	LabSummary,
 	SearchParams,
 	SubmitParams,
@@ -37,6 +38,24 @@ export function useApi() {
 			async (guid: string, signal?: AbortSignal): Promise<LabDetail> => {
 				return await authenticatedFetch<LabDetail>(
 					`/api/labs/${encodeURIComponent(guid)}`,
+					signal,
+				);
+			},
+			[authenticatedFetch],
+		),
+		getReviews: useCallback(
+			async (
+				guid: string,
+				skip: number,
+				take: number,
+				signal?: AbortSignal,
+			): Promise<LabReviewsPage> => {
+				const query = new URLSearchParams({
+					skip: String(skip),
+					take: String(take),
+				});
+				return await authenticatedFetch<LabReviewsPage>(
+					`/api/labs/${encodeURIComponent(guid)}/reviews?${query}`,
 					signal,
 				);
 			},

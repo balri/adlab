@@ -50,6 +50,7 @@ describe("SearchPage", () => {
 		vi.clearAllMocks();
 		vi.mocked(useApi).mockReturnValue({
 			getLab: vi.fn(),
+			getReviews: vi.fn(),
 			searchLabs: mockSearchLabs,
 			checkAnswer: vi.fn(),
 			submitAnswer: vi.fn(),

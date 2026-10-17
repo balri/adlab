@@ -5,6 +5,7 @@ import LabStageDetailPage from "./pages/LabStageDetailPage";
 import RequireAuth from "./components/RequireAuth";
 import LoginPage from "./pages/LoginPage";
 import Header from "./components/Header";
+import LabReviews from "./pages/LabReviews";
 
 export default function App() {
 	useLocation();
@@ -21,6 +22,10 @@ export default function App() {
 						<Route
 							path="/labs/:guid/stage/:stageId"
 							element={<LabStageDetailPage />}
+						/>
+						<Route
+							path="/labs/:guid/reviews"
+							element={<LabReviews />}
 						/>
 					</Route>
 				</Routes>

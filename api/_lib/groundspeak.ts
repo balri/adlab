@@ -1,4 +1,9 @@
-import { LabDetail, LabSummary, User } from "../../src/types.js";
+import {
+	LabDetail,
+	LabReviewsPage,
+	LabSummary,
+	User,
+} from "../../src/types.js";
 
 export const API_BASE_URL = "https://api.groundspeak.com/adventuresmobile/v1";
 export const LABS_API_BASE_URL = "https://labs-api.geocaching.com/Api";
@@ -19,10 +24,13 @@ async function request(
 	const res = await fetch(`${API_BASE_URL}${path}`, {
 		...init,
 		headers: {
-			"Content-Type": "application/json",
+			Accept: "application/json",
 			"User-Agent": "Adventures/1.56.0 (4936) (android/32)",
 			"X-Consumer-Key": consumerKey(),
 			Authorization: `Bearer ${accessToken}`,
+			...(init?.body !== undefined
+				? { "Content-Type": "application/json" }
+				: {}),
 			...init?.headers,
 		},
 	});
@@ -123,4 +131,53 @@ export async function submitAnswer(body: AnswerRequest, accessToken: string) {
 		method: "POST",
 		body: JSON.stringify(body),
 	})) as unknown as AnswerResponse;
+}
+
+export async function getReviews(
+	guid: string,
+	accessToken: string,
+	skip = 0,
+	take = 20,
+): Promise<LabReviewsPage> {
+	const query = new URLSearchParams({
+		skip: String(skip),
+		take: String(take),
+	});
+	const response = await request(
+		`/public/adventures/${encodeURIComponent(guid)}/reviews/search?${query}`,
+		accessToken,
+		{
+			method: "POST",
+		},
+	);
+
+	if (Array.isArray(response)) {
+		return {
+			totalCount: response.length,
+			items: response,
+		} as LabReviewsPage;
+	}
+
+	if (
+		response &&
+		typeof response === "object" &&
+		"items" in response &&
+		Array.isArray(response.items)
+	) {
+		const pagedResponse = response as {
+			totalCount?: unknown;
+			items: Array<LabReviewsPage["items"][number]>;
+		};
+		return {
+			totalCount:
+				typeof pagedResponse.totalCount === "number"
+					? pagedResponse.totalCount
+					: pagedResponse.items.length,
+			items: pagedResponse.items,
+		} as LabReviewsPage;
+	}
+
+	throw new Error(
+		"Unexpected Groundspeak reviews response: expected an array or an object with an items array",
+	);
 }

@@ -71,6 +71,7 @@ describe("SubmitAnswer", () => {
 		localStorage.clear();
 		vi.mocked(useApi).mockReturnValue({
 			getLab: vi.fn(),
+			getReviews: vi.fn(),
 			searchLabs: vi.fn(),
 			checkAnswer: vi.fn(),
 			submitAnswer: vi.fn(),
@@ -127,6 +128,7 @@ describe("SubmitAnswer", () => {
 		vi.spyOn(window, "confirm").mockReturnValue(true);
 		vi.mocked(useApi).mockReturnValue({
 			getLab: mockGetLab,
+			getReviews: vi.fn(),
 			searchLabs: vi.fn(),
 			checkAnswer: vi.fn(),
 			submitAnswer: mockSubmitAnswer,

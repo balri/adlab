@@ -222,6 +222,126 @@ body {
 	padding: 0.75rem 1rem;
 }
 
+.lab-review-count {
+	font-size: 0.85rem;
+	opacity: 0.75;
+}
+
+.lab-review-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.lab-review-author,
+.lab-review-meta {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+}
+
+.lab-review-avatar {
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.lab-review-meta {
+	flex-wrap: wrap;
+	font-size: 0.85rem;
+	opacity: 0.8;
+}
+
+.lab-review-rating-recommended {
+	color: #e5b93f;
+	opacity: 1;
+}
+
+.lab-review-text {
+	margin-bottom: 0;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.lab-review-images {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.lab-review-images button {
+	appearance: none;
+	display: block;
+	min-width: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	border-radius: 4px;
+	overflow: hidden;
+	cursor: zoom-in;
+}
+
+.lab-review-images button:focus-visible {
+	outline: 2px solid currentcolor;
+	outline-offset: 2px;
+}
+
+.lab-review-image {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+}
+
+.lab-review-photo-dialog {
+	position: relative;
+	width: fit-content;
+	max-width: calc(100vw - 2rem);
+	max-height: calc(100vh - 2rem);
+	margin: auto;
+	padding: 2.75rem 1rem 1rem;
+	border: 1px solid rgb(255 255 255 / 30%);
+	border-radius: 6px;
+	background: #151515;
+	color: #fff;
+}
+
+.lab-review-photo-dialog::backdrop {
+	background: rgb(0 0 0 / 82%);
+}
+
+.lab-review-photo-dialog img {
+	display: block;
+	max-width: calc(100vw - 4rem);
+	max-height: calc(100vh - 6rem);
+	object-fit: contain;
+}
+
+.lab-review-photo-close {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.75rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid rgb(255 255 255 / 30%);
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.lab-review-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
 @media (width <=600px) {
 	.results-list-item {
 		padding: 0.75rem;

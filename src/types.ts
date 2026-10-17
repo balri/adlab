@@ -179,3 +179,32 @@ export interface FormState {
 	statuses: CompletionStatus[];
 	excludeOwned: boolean;
 }
+
+export interface LabReview {
+	id: string;
+	reviewText: string;
+	rating: number;
+	createdUtc: string;
+	createdDate: string;
+	playerPublicGuid: string;
+	playerAvatarUrl: string;
+	playerUsername: string;
+	playerGeocacheFindCount: number;
+	playerCompletedAdventureCount: number;
+	recommended: boolean;
+	adventureCompletedDateUtc: string;
+	adventureCompletedDate: string;
+	images: Array<LabReviewImage>;
+	playerTags: Array<unknown>;
+	isCreator: boolean;
+}
+
+export interface LabReviewImage {
+	id: number;
+	url: string;
+}
+
+export interface LabReviewsPage {
+	totalCount: number;
+	items: Array<LabReview>;
+}
