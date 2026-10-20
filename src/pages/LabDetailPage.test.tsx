@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LabDetailPage from "./LabDetailPage";
 import type { LabDetail } from "../types";
@@ -107,6 +107,106 @@ describe("LabDetailPage", () => {
 			"href",
 			"/labs/guid-1/stage/stage-1",
 		);
+	});
+
+	it("enables bulk submission only when every stage has a confirmed answer", async () => {
+		const confirmedLab = {
+			...lab,
+			ratingsTotalCount: 10,
+			stageSummaries: [{ ...lab.stageSummaries[0], correctAnswer: "42" }],
+		};
+		localStorage.setItem("userCanAnswer", "true");
+		mockGetLab.mockResolvedValue(confirmedLab);
+		renderPage();
+
+		await waitFor(() =>
+			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+		);
+		expect(
+			screen.getByRole("button", { name: "Submit All Answers" }),
+		).toBeEnabled();
+	});
+
+	it("hides bulk submission when any stage is unconfirmed", async () => {
+		localStorage.setItem("userCanAnswer", "true");
+		mockGetLab.mockResolvedValue(lab);
+		renderPage();
+
+		await waitFor(() =>
+			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+		);
+		expect(
+			screen.queryByRole("button", { name: "Submit All Answers" }),
+		).not.toBeInTheDocument();
+	});
+
+	it("hides bulk submission when the user is not allowed to answer", async () => {
+		localStorage.setItem("userCanAnswer", "false");
+		mockGetLab.mockResolvedValue({
+			...lab,
+			ratingsTotalCount: 10,
+			stageSummaries: [{ ...lab.stageSummaries[0], correctAnswer: "42" }],
+		});
+		renderPage();
+
+		await waitFor(() =>
+			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+		);
+		expect(
+			screen.queryByRole("button", { name: "Submit All Answers" }),
+		).not.toBeInTheDocument();
+	});
+
+	it("submits each confirmed stage answer", async () => {
+		const confirmedLab = {
+			...lab,
+			ratingsTotalCount: 10,
+			stagesTotalCount: 2,
+			stageSummaries: [
+				{ ...lab.stageSummaries[0], correctAnswer: "42" },
+				{
+					...lab.stageSummaries[0],
+					id: "stage-2",
+					title: "Stage Two",
+					correctAnswer: "north",
+				},
+			],
+		};
+		const mockSubmitAnswer = vi
+			.fn()
+			.mockResolvedValue({ result: "Success" });
+		localStorage.setItem("userCanAnswer", "true");
+		vi.spyOn(window, "confirm").mockReturnValue(true);
+		mockGetLab.mockResolvedValue(confirmedLab);
+		vi.mocked(useApi).mockReturnValue({
+			getLab: mockGetLab,
+			getReviews: vi.fn(),
+			searchLabs: vi.fn(),
+			checkAnswer: vi.fn(),
+			submitAnswer: mockSubmitAnswer,
+		});
+		renderPage();
+
+		await waitFor(() =>
+			expect(screen.getByText("Riverside Ramble")).toBeInTheDocument(),
+		);
+		fireEvent.click(
+			screen.getByRole("button", { name: "Submit All Answers" }),
+		);
+
+		await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalledTimes(2));
+		expect(mockSubmitAnswer).toHaveBeenNthCalledWith(1, {
+			adventureGuid: "guid-1",
+			stageGuid: "stage-1",
+			answer: "42",
+			challengeType: "text",
+		});
+		expect(mockSubmitAnswer).toHaveBeenNthCalledWith(2, {
+			adventureGuid: "guid-1",
+			stageGuid: "stage-2",
+			answer: "north",
+			challengeType: "text",
+		});
 	});
 
 	it("hides the reviews link when there are no reviews", async () => {

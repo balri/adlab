@@ -12,9 +12,10 @@ import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
-	const { getLab } = useApi();
+	const { getLab, submitAnswer } = useApi();
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [submittingAll, setSubmittingAll] = useState(false);
 	const [searchCentre, setSearchCentre] = useState<LatLng | null>(() => {
 		const { latitude, longitude } = loadForm();
 		return {
@@ -71,6 +72,58 @@ export default function LabDetailPage() {
 	if (error) return <p className="error-text">{error}</p>;
 	if (!lab) return <p>Loading…</p>;
 
+	const currentLab = lab;
+	const hasConfirmedAnswers =
+		currentLab.stageSummaries.length > 0 &&
+		currentLab.stageSummaries.length === currentLab.stagesTotalCount &&
+		currentLab.stageSummaries.every((stage) =>
+			Boolean(stage.correctAnswer),
+		);
+	const canSubmitAll =
+		hasConfirmedAnswers &&
+		currentLab.stageSummaries.some((stage) => !stage.isComplete) &&
+		currentLab.ratingsTotalCount >= 10 &&
+		localStorage.getItem("userCanAnswer") === "true";
+
+	async function handleSubmitAllAnswers() {
+		if (
+			!canSubmitAll ||
+			!confirm("Are you sure you want to submit all answers?")
+		) {
+			return;
+		}
+
+		setSubmittingAll(true);
+		try {
+			for (const stage of currentLab.stageSummaries) {
+				if (stage.isComplete) continue;
+
+				const response = await submitAnswer({
+					adventureGuid: currentLab.adventureGuid,
+					stageGuid: stage.id,
+					answer: stage.correctAnswer!,
+					challengeType: stage.challengeType || "",
+				});
+				if (response.result !== "Success") {
+					setError(`Could not submit the answer for ${stage.title}`);
+					return;
+				}
+			}
+
+			const refreshedLab = await getLab(currentLab.adventureGuid);
+			sessionStorage.setItem(
+				`lab_${currentLab.adventureGuid}`,
+				JSON.stringify(refreshedLab),
+			);
+			updateStoredSearchResult(refreshedLab);
+			setLab(refreshedLab);
+		} catch (err) {
+			setError((err as Error).message);
+		} finally {
+			setSubmittingAll(false);
+		}
+	}
+
 	return (
 		<div className="lab-detail">
 			<p>
@@ -104,6 +157,15 @@ export default function LabDetailPage() {
 			<h2>Stages ({lab.stageSummaries.length})</h2>
 			{lab.stageSummaries.length > 0 && searchCentre !== null && (
 				<LabMap lab={lab} searchCentre={searchCentre} />
+			)}
+			{canSubmitAll && (
+				<button
+					type="button"
+					onClick={handleSubmitAllAnswers}
+					disabled={submittingAll}
+				>
+					{submittingAll ? "Submitting…" : "Submit All Answers"}
+				</button>
 			)}
 			<ul className="results-list">
 				{lab.stageSummaries.map((stage) => (
