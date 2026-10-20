@@ -25,7 +25,14 @@ export default function LabMeta(props: Props) {
 		<div className="results-list-meta">
 			{ownerUsername && <span>by {ownerUsername}</span>}
 			{lab.ratingsAverage !== null && (
-				<span>
+				<span
+					className={
+						lab.isHighlyRecommended
+							? "lab-review-rating-recommended"
+							: undefined
+					}
+					title={lab.isHighlyRecommended ? "Recommended" : ""}
+				>
 					★ {lab.ratingsAverage.toFixed(1)} ({lab.ratingsTotalCount})
 				</span>
 			)}

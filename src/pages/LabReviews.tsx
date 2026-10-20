@@ -214,6 +214,11 @@ export default function LabReviews() {
 												: ""
 										}`}
 										aria-label={`${review.recommended ? "Recommended rating" : "Rating"}: ${review.rating} out of 5`}
+										title={
+											review.recommended
+												? "Recommended"
+												: ""
+										}
 									>
 										★ {review.rating}/5
 									</span>

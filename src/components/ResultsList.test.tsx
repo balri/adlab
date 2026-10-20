@@ -52,11 +52,23 @@ describe("ResultsList", () => {
 					element?.tagName === "SPAN" &&
 					element.textContent === "★ 4.5 (10)",
 			),
-		).toBeInTheDocument();
+		).not.toHaveClass("lab-review-rating-recommended");
 		expect(screen.getByText("3 stages")).toBeInTheDocument();
 		expect(
 			screen.queryByRole("link", { name: "Reviews" }),
 		).not.toBeInTheDocument();
+	});
+
+	it("highlights ratings for highly recommended labs", () => {
+		renderResults([lab({ isHighlyRecommended: true })]);
+
+		expect(
+			screen.getByText(
+				(_, element) =>
+					element?.tagName === "SPAN" &&
+					element.textContent === "★ 4.5 (10)",
+			),
+		).toHaveClass("lab-review-rating-recommended");
 	});
 
 	it("renders one item per lab", () => {
