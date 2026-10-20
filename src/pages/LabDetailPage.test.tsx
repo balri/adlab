@@ -109,6 +109,42 @@ describe("LabDetailPage", () => {
 		);
 	});
 
+	it("shows the correct answer beside its submit button", async () => {
+		localStorage.setItem("userCanAnswer", "true");
+		mockGetLab.mockResolvedValue({
+			...lab,
+			ratingsTotalCount: 10,
+			stageSummaries: [{ ...lab.stageSummaries[0], correctAnswer: "42" }],
+		});
+		renderPage();
+
+		const answer = await screen.findByText("42");
+		const submitButton = screen.getByRole("button", {
+			name: "Send Answer",
+		});
+
+		expect(answer).toHaveClass("success-text");
+		expect(answer.parentElement).toContainElement(submitButton);
+	});
+
+	it("hides the correct answer when stage submission is unavailable", async () => {
+		localStorage.setItem("userCanAnswer", "false");
+		mockGetLab.mockResolvedValue({
+			...lab,
+			ratingsTotalCount: 10,
+			stageSummaries: [{ ...lab.stageSummaries[0], correctAnswer: "42" }],
+		});
+		renderPage();
+
+		await waitFor(() =>
+			expect(screen.getByText("Stage One")).toBeInTheDocument(),
+		);
+		expect(screen.queryByText("42")).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: "Send Answer" }),
+		).not.toBeInTheDocument();
+	});
+
 	it("enables bulk submission only when every stage has a confirmed answer", async () => {
 		const confirmedLab = {
 			...lab,

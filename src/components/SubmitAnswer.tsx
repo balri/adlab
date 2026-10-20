@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LabDetail, LabStage } from "../types";
 import { useApi } from "../useApi";
+import { canSubmitAnswer } from "../utils/canSubmitAnswer";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
 interface SubmitAnswerProps {
@@ -10,8 +11,6 @@ interface SubmitAnswerProps {
 	onError: (err: string) => void;
 }
 
-const minRatingsTotalCount = 10;
-
 export default function SubmitAnswer({
 	lab,
 	stage,
@@ -20,14 +19,9 @@ export default function SubmitAnswer({
 }: SubmitAnswerProps) {
 	const { getLab, submitAnswer } = useApi();
 	const [loading, setLoading] = useState<boolean>(false);
+	const canAnswer = canSubmitAnswer(lab, stage);
 
-	const canAnswer =
-		lab.ratingsTotalCount >= minRatingsTotalCount &&
-		localStorage.getItem("userCanAnswer") == "true";
-
-	if (!stage.correctAnswer || stage.isComplete || !canAnswer) {
-		return null;
-	}
+	if (!canAnswer) return null;
 
 	async function reloadLab() {
 		if (!lab.adventureGuid) return;

@@ -8,6 +8,7 @@ import { distanceBetween } from "../utils/distanceBetween";
 import LabMeta from "../components/LabMeta";
 import LabMap from "../components/LabMap";
 import SubmitAnswer from "../components/SubmitAnswer";
+import { canSubmitAllAnswers, canSubmitAnswer } from "../utils/canSubmitAnswer";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
 export default function LabDetailPage() {
@@ -73,17 +74,7 @@ export default function LabDetailPage() {
 	if (!lab) return <p>Loading…</p>;
 
 	const currentLab = lab;
-	const hasConfirmedAnswers =
-		currentLab.stageSummaries.length > 0 &&
-		currentLab.stageSummaries.length === currentLab.stagesTotalCount &&
-		currentLab.stageSummaries.every((stage) =>
-			Boolean(stage.correctAnswer),
-		);
-	const canSubmitAll =
-		hasConfirmedAnswers &&
-		currentLab.stageSummaries.some((stage) => !stage.isComplete) &&
-		currentLab.ratingsTotalCount >= 10 &&
-		localStorage.getItem("userCanAnswer") === "true";
+	const canSubmitAll = canSubmitAllAnswers(currentLab);
 
 	async function handleSubmitAllAnswers() {
 		if (
@@ -187,12 +178,19 @@ export default function LabDetailPage() {
 								</span>
 							</div>
 						)}
-						<SubmitAnswer
-							lab={lab}
-							stage={stage}
-							onSuccess={setLab}
-							onError={setError}
-						/>
+						<div className="stage-answer-submit">
+							{canSubmitAnswer(lab, stage) && (
+								<span className="success-text">
+									{stage.correctAnswer}
+								</span>
+							)}
+							<SubmitAnswer
+								lab={lab}
+								stage={stage}
+								onSuccess={setLab}
+								onError={setError}
+							/>
+						</div>
 					</li>
 				))}
 			</ul>

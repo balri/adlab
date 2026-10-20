@@ -137,4 +137,26 @@ describe("LabStageDetailPage", () => {
 		expect(screen.getByText("Find the fountain")).toBeInTheDocument();
 		expect(mockGetLab).not.toHaveBeenCalled();
 	});
+
+	it("shows the correct answer instead of the answer form beside submit", async () => {
+		localStorage.setItem("userCanAnswer", "true");
+		mockGetLab.mockResolvedValue({
+			...lab,
+			ratingsTotalCount: 10,
+			stageSummaries: [
+				{ ...lab.stageSummaries[0], correctAnswer: "1902" },
+			],
+		});
+		renderPage();
+
+		const answer = await screen.findByText("1902");
+		const submitButton = screen.getByRole("button", {
+			name: "Send Answer",
+		});
+
+		expect(answer).toHaveClass("success-text");
+		expect(answer.parentElement).toContainElement(submitButton);
+		expect(screen.queryByRole("button", { name: "Check" })).toBeNull();
+		expect(screen.queryByRole("textbox")).toBeNull();
+	});
 });

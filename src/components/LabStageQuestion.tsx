@@ -42,47 +42,9 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 			<h2>Question</h2>
 			<p>{stage.question}</p>
 
-			{stage.correctAnswer && (
-				<p className="success-text">
-					"{stage.correctAnswer}" is the correct answer
-				</p>
-			)}
-			<form className="search-form" onSubmit={handleSubmit}>
+			{stage.correctAnswer ? (
 				<div className="search-form-row">
-					{stage.challengeType === "SingleChoice" && (
-						<input
-							type="text"
-							value={form.answer || stage.correctAnswer}
-							onChange={(e) =>
-								updateForm("answer", e.target.value)
-							}
-							disabled={!!stage.correctAnswer}
-						/>
-					)}
-
-					{stage.challengeType === "MultiChoice" && (
-						<select
-							value={form.answer || stage.correctAnswer}
-							onChange={(e) =>
-								updateForm("answer", e.target.value)
-							}
-							disabled={!!stage.correctAnswer}
-						>
-							<option value=""></option>
-
-							{stage.multiChoiceOptions?.map((option) => (
-								<option key={option.text} value={option.text}>
-									{option.text}
-								</option>
-							))}
-						</select>
-					)}
-
-					<input
-						type="submit"
-						value="Check"
-						disabled={!!stage.correctAnswer || loading}
-					/>
+					<span className="success-text">{stage.correctAnswer}</span>
 					<SubmitAnswer
 						lab={lab}
 						stage={stage}
@@ -90,7 +52,43 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 						onError={onError}
 					/>
 				</div>
-			</form>
+			) : (
+				<form className="search-form" onSubmit={handleSubmit}>
+					<div className="search-form-row">
+						{stage.challengeType === "SingleChoice" && (
+							<input
+								type="text"
+								value={form.answer}
+								onChange={(e) =>
+									updateForm("answer", e.target.value)
+								}
+							/>
+						)}
+
+						{stage.challengeType === "MultiChoice" && (
+							<select
+								value={form.answer}
+								onChange={(e) =>
+									updateForm("answer", e.target.value)
+								}
+							>
+								<option value=""></option>
+
+								{stage.multiChoiceOptions?.map((option) => (
+									<option
+										key={option.text}
+										value={option.text}
+									>
+										{option.text}
+									</option>
+								))}
+							</select>
+						)}
+
+						<input type="submit" value="Check" disabled={loading} />
+					</div>
+				</form>
+			)}
 		</>
 	);
 }
