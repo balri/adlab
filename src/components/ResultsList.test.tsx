@@ -18,7 +18,7 @@ function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 		ratingsAverage: 4.5,
 		ratingsTotalCount: 10,
 		isHighlyRecommended: false,
-		location: { latitude: 0, longitude: 0 },
+		location: { latitude: -27.20575, longitude: 153.0761166667 },
 		stagesTotalCount: 3,
 		adventureType: "",
 		completionStatus: "NotStarted",
@@ -54,6 +54,12 @@ describe("ResultsList", () => {
 			),
 		).not.toHaveClass("lab-review-rating-recommended");
 		expect(screen.getByText("3 stages")).toBeInTheDocument();
+		expect(
+			screen.getByRole("link", { name: "S27 12.345 E153 04.567" }),
+		).toHaveAttribute(
+			"href",
+			"https://www.google.com/maps/search/?api=1&query=-27.20575,153.0761166667",
+		);
 		expect(
 			screen.queryByRole("link", { name: "Reviews" }),
 		).not.toBeInTheDocument();

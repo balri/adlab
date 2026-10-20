@@ -4,6 +4,7 @@ import { type LabDetail } from "../types";
 import LabStageJournal from "../components/LabStageJournal";
 import LabStageQuestion from "../components/LabStageQuestion";
 import StatusChips from "../components/StatusChips";
+import CoordinateLink from "../components/CoordinateLink";
 import { useApi } from "../useApi";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
@@ -114,6 +115,9 @@ export default function LabStageDetailPage() {
 				{stage.title}
 				<StatusChips lab={lab} stage={stage} />
 			</h1>
+			<p className="stage-coordinate">
+				<CoordinateLink location={stage.location} />
+			</p>
 			{error && <p className="error-text">{error}</p>}
 			<div className="lab-detail-content">
 				{stage.keyImageUrl && <img src={stage.keyImageUrl} />}

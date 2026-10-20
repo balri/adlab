@@ -10,6 +10,7 @@ import LabMap from "../components/LabMap";
 import SubmitAnswer from "../components/SubmitAnswer";
 import { canSubmitAllAnswers, canSubmitAnswer } from "../utils/canSubmitAnswer";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
+import CoordinateLink from "../components/CoordinateLink";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -165,8 +166,9 @@ export default function LabDetailPage() {
 							{stage.title}
 						</Link>
 						<StatusChips lab={lab} stage={stage} />
-						{searchCentre && (
-							<div className="results-list-meta">
+						<div className="results-list-meta">
+							<CoordinateLink location={stage.location} />
+							{searchCentre && (
 								<span>
 									{(
 										distanceBetween(
@@ -176,8 +178,8 @@ export default function LabDetailPage() {
 									).toFixed(2)}{" "}
 									km
 								</span>
-							</div>
-						)}
+							)}
+						</div>
 						<div className="stage-answer-submit">
 							{canSubmitAnswer(lab, stage) && (
 								<span className="success-text">

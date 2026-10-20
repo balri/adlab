@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { LabDetail, LabSummary, LatLng } from "../types";
 import { distanceBetween } from "../utils/distanceBetween";
+import CoordinateLink from "./CoordinateLink";
 
 interface Props {
 	lab: LabSummary | LabDetail;
@@ -37,6 +38,7 @@ export default function LabMeta(props: Props) {
 				</span>
 			)}
 			{lab.stagesTotalCount && <span>{lab.stagesTotalCount} stages</span>}
+			<CoordinateLink location={lab.location} />
 			{distance && <span>{distance.toFixed(2)} km</span>}
 			{showReviews &&
 				"reviewsTotalCount" in lab &&

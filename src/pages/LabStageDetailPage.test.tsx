@@ -37,7 +37,7 @@ const lab: LabDetail = {
 			keyImageUrl: "",
 			isComplete: false,
 			description: "Look near the fountain.",
-			location: { latitude: 0, longitude: 0 },
+			location: { latitude: -27.20575, longitude: 153.0761166667 },
 			geofencingRadius: 50,
 			challengeType: "text",
 			question: "What year was it built?",
@@ -97,6 +97,12 @@ describe("LabStageDetailPage", () => {
 		);
 		expect(screen.getByText("Look near the fountain.")).toBeInTheDocument();
 		expect(screen.getByText("What year was it built?")).toBeInTheDocument();
+		expect(
+			screen.getByRole("link", { name: "S27 12.345 E153 04.567" }),
+		).toHaveAttribute(
+			"href",
+			"https://www.google.com/maps/search/?api=1&query=-27.20575,153.0761166667",
+		);
 		expect(
 			screen.getByRole("link", { name: /Back to Riverside Ramble/ }),
 		).toHaveAttribute("href", "/labs/guid-1");

@@ -25,7 +25,7 @@ const lab: LabDetail = {
 	ratingsAverage: 4.2,
 	ratingsTotalCount: 8,
 	isHighlyRecommended: false,
-	location: { latitude: 0, longitude: 0 },
+	location: { latitude: -27.20575, longitude: 153.0761166667 },
 	stagesTotalCount: 1,
 	adventureType: "",
 	completionStatus: "NotStarted",
@@ -37,7 +37,7 @@ const lab: LabDetail = {
 			keyImageUrl: "",
 			isComplete: false,
 			description: "",
-			location: { latitude: 0, longitude: 0 },
+			location: { latitude: -27.20575, longitude: 153.0761166667 },
 			geofencingRadius: 10,
 			challengeType: "text",
 			question: "",
@@ -55,7 +55,6 @@ const lab: LabDetail = {
 	recommendedCount: 0,
 	completionCount: 0,
 };
-
 function renderPage(guid = "guid-1") {
 	return render(
 		<MemoryRouter initialEntries={[`/labs/${guid}`]}>
@@ -103,6 +102,9 @@ describe("LabDetailPage", () => {
 			),
 		).toBeInTheDocument();
 		expect(screen.getByText("Stages (1)")).toBeInTheDocument();
+		expect(
+			screen.getAllByRole("link", { name: "S27 12.345 E153 04.567" }),
+		).toHaveLength(2);
 		expect(screen.getByRole("link", { name: "Stage One" })).toHaveAttribute(
 			"href",
 			"/labs/guid-1/stage/stage-1",
