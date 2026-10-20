@@ -33,6 +33,7 @@ export default function CoordinateLink({ location }: Props) {
 			href={mapUrl}
 			target="_blank"
 			rel="noopener noreferrer"
+			className="coordinate-link"
 			title="Open in Google Maps"
 		>
 			{coordinates}

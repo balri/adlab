@@ -358,11 +358,17 @@ body {
 
 .results-list-meta {
 	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
 	gap: 1rem;
 	font-size: 0.85rem;
 	opacity: 0.75;
 	margin-top: 0.5rem;
 	margin-bottom: 20px;
+}
+
+.coordinate-link {
+	white-space: nowrap;
 }
 
 .stage-coordinate {
