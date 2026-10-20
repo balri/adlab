@@ -247,6 +247,58 @@ describe("LabDetailPage", () => {
 		});
 	});
 
+	it("disables individual submit buttons during bulk submission", async () => {
+		const confirmedLab = {
+			...lab,
+			ratingsTotalCount: 10,
+			stageSummaries: [{ ...lab.stageSummaries[0], correctAnswer: "42" }],
+		};
+		let resolveSubmission!: (response: {
+			result: string;
+			journalMessage: string;
+			adventureComplete: boolean;
+			completedAdventureProperties: unknown;
+		}) => void;
+		const mockSubmitAnswer = vi.fn(
+			() =>
+				new Promise<{
+					result: string;
+					journalMessage: string;
+					adventureComplete: boolean;
+					completedAdventureProperties: unknown;
+				}>((resolve) => {
+					resolveSubmission = resolve;
+				}),
+		);
+		localStorage.setItem("userCanAnswer", "true");
+		vi.spyOn(window, "confirm").mockReturnValue(true);
+		mockGetLab.mockResolvedValue(confirmedLab);
+		vi.mocked(useApi).mockReturnValue({
+			getLab: mockGetLab,
+			getReviews: vi.fn(),
+			searchLabs: vi.fn(),
+			checkAnswer: vi.fn(),
+			submitAnswer: mockSubmitAnswer,
+		});
+		renderPage();
+
+		const individualButton = await screen.findByRole("button", {
+			name: "Send Answer",
+		});
+		fireEvent.click(
+			screen.getByRole("button", { name: "Submit All Answers" }),
+		);
+
+		await waitFor(() => expect(individualButton).toBeDisabled());
+		resolveSubmission({
+			result: "Success",
+			journalMessage: "",
+			adventureComplete: false,
+			completedAdventureProperties: {},
+		});
+		await waitFor(() => expect(individualButton).toBeEnabled());
+	});
+
 	it("hides the reviews link when there are no reviews", async () => {
 		mockGetLab.mockResolvedValue({ ...lab, reviewsTotalCount: 0 });
 		renderPage();

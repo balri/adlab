@@ -7,6 +7,7 @@ import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 interface SubmitAnswerProps {
 	lab: LabDetail;
 	stage: LabStage;
+	disabled?: boolean;
 	onSuccess: (lab: LabDetail) => void;
 	onError: (err: string) => void;
 }
@@ -14,6 +15,7 @@ interface SubmitAnswerProps {
 export default function SubmitAnswer({
 	lab,
 	stage,
+	disabled = false,
 	onSuccess,
 	onError,
 }: SubmitAnswerProps) {
@@ -72,7 +74,11 @@ export default function SubmitAnswer({
 
 	return (
 		<>
-			<button type="button" onClick={handleSendAnswer} disabled={loading}>
+			<button
+				type="button"
+				onClick={handleSendAnswer}
+				disabled={loading || disabled}
+			>
 				{loading ? "Sending…" : "Send Answer"}
 			</button>
 		</>

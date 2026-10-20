@@ -189,6 +189,7 @@ export default function LabDetailPage() {
 							<SubmitAnswer
 								lab={lab}
 								stage={stage}
+								disabled={submittingAll}
 								onSuccess={setLab}
 								onError={setError}
 							/>
