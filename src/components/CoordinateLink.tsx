@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { LatLng } from "../types";
 
 interface Props {
@@ -26,17 +27,51 @@ function formatCoordinates(location: LatLng) {
 
 export default function CoordinateLink({ location }: Props) {
 	const coordinates = formatCoordinates(location);
-	const mapUrl = `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`;
+	const coordinatePair = `${location.latitude},${location.longitude}`;
+	const isAppleDevice =
+		/iphone|ipad|ipod/i.test(navigator.userAgent) ||
+		(navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+	const mapUrl = isAppleDevice
+		? `https://maps.apple.com/?ll=${coordinatePair}&q=${coordinatePair}`
+		: `https://www.google.com/maps/search/?api=1&query=${coordinatePair}`;
+	const [copyStatus, setCopyStatus] = useState("Copy");
+
+	useEffect(() => {
+		if (copyStatus !== "Copied") return;
+
+		const timeoutId = window.setTimeout(() => setCopyStatus("Copy"), 1500);
+		return () => window.clearTimeout(timeoutId);
+	}, [copyStatus]);
+
+	async function copyCoordinates() {
+		try {
+			await navigator.clipboard.writeText(coordinates);
+			setCopyStatus("Copied");
+		} catch {
+			setCopyStatus("Copy failed");
+		}
+	}
 
 	return (
-		<a
-			href={mapUrl}
-			target="_blank"
-			rel="noopener noreferrer"
-			className="coordinate-link"
-			title="Open in Google Maps"
-		>
-			{coordinates}
-		</a>
+		<span className="coordinate-actions">
+			<a
+				href={mapUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				className="coordinate-link"
+				title="Open in Maps"
+			>
+				Navigate
+			</a>
+			<button
+				type="button"
+				className="coordinate-copy"
+				aria-label="Copy coordinates"
+				title={`Copy coordinates`}
+				onClick={copyCoordinates}
+			>
+				{copyStatus}
+			</button>
+		</span>
 	);
 }

@@ -368,7 +368,50 @@ body {
 }
 
 .coordinate-link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 1.5rem;
+	border: 1px solid rgb(128 128 128 / 35%);
+	border-radius: 4px;
+	padding: 0.1rem 0.4rem;
+	background: rgb(128 128 128 / 10%);
+	font-weight: 600;
+	text-decoration: none;
 	white-space: nowrap;
+}
+
+.coordinate-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.coordinate-copy {
+	min-height: 1.5rem;
+	min-width: 3.25rem;
+	font: inherit;
+	color: inherit;
+	background: rgb(128 128 128 / 5%);
+	border: 1px solid rgb(128 128 128 / 25%);
+	border-radius: 4px;
+	padding: 0.1rem 0.4rem;
+	cursor: pointer;
+}
+
+.coordinate-link:hover,
+.coordinate-copy:hover {
+	border-color: rgb(128 128 128 / 60%);
+	background: rgb(128 128 128 / 20%);
+}
+
+.coordinate-link:focus-visible,
+.coordinate-copy:focus-visible {
+	outline: 2px solid currentcolor;
+	outline-offset: 2px;
+}
+
+.coordinate-copy:active {
+	background: rgb(128 128 128 / 25%);
 }
 
 .stage-coordinate {

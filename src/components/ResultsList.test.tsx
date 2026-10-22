@@ -54,9 +54,7 @@ describe("ResultsList", () => {
 			),
 		).not.toHaveClass("lab-review-rating-recommended");
 		expect(screen.getByText("3 stages")).toBeInTheDocument();
-		expect(
-			screen.getByRole("link", { name: "S27 12.345 E153 04.567" }),
-		).toHaveAttribute(
+		expect(screen.getByRole("link", { name: "Navigate" })).toHaveAttribute(
 			"href",
 			"https://www.google.com/maps/search/?api=1&query=-27.20575,153.0761166667",
 		);

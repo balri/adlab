@@ -102,9 +102,9 @@ describe("LabDetailPage", () => {
 			),
 		).toBeInTheDocument();
 		expect(screen.getByText("Stages (1)")).toBeInTheDocument();
-		expect(
-			screen.getAllByRole("link", { name: "S27 12.345 E153 04.567" }),
-		).toHaveLength(2);
+		expect(screen.getAllByRole("link", { name: "Navigate" })).toHaveLength(
+			2,
+		);
 		expect(screen.getByRole("link", { name: "Stage One" })).toHaveAttribute(
 			"href",
 			"/labs/guid-1/stage/stage-1",
