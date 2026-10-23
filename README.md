@@ -1,73 +1,70 @@
 # Adventure Lab Finder
 
-A React + TypeScript frontend with a Vercel serverless backend for browsing
-Geocaching Adventure Labs, built against the unofficial API documented at
-[adv-lab/geocaching-adventure-labs-doc](https://github.com/adv-lab/geocaching-adventure-labs-doc).
+A React + TypeScript app for finding Geocaching Adventure Labs, viewing their
+stages and reviews, and checking answers. The Vercel serverless API proxies
+requests to Groundspeak.
 
-**Scope:** browse only — search nearby labs and view their details/stages.
-Answer checking is intentionally out of scope: the upstream hash-check
-algorithm salts with the _logged-in user's_ account GUID
-(`md5(publicGuid + answer)`), so solving stages requires a real Geocaching
-login even if the app never submits progress. That's a bigger scope than
-"browse," so it's left for a future iteration.
-
-This is an unofficial, reverse-engineered API — review Geocaching's Terms of
-Service before deploying this beyond local/personal use.
+This app uses unofficial, reverse-engineered endpoints. Review Geocaching's
+Terms of Service before deploying or using it.
 
 ## Architecture
 
-- `src/` — Vite + React + TypeScript SPA. Calls its own backend at `/api/*`,
-  never the Groundspeak API directly.
-- `api/` — Vercel serverless functions (Node runtime) that proxy to
-  `https://api.groundspeak.com/adventuresmobile/v1`, attaching the
-  `X-Consumer-Key` header server-side so it never reaches the browser bundle.
-    - `GET /api/labs/search?lat=&lng=&radius=&take=`
-    - `GET /api/labs/:guid`
+- `src/` — Vite + React + TypeScript single-page app.
+- `api/` — Vercel serverless functions. Upstream requests are made server-side;
+  the consumer key is not included in the browser bundle.
+- `api/_lib/answer.ts` — checks answer hashes and attempts to calculate answers
+  from common question types and stage text. Calculation is heuristic and may
+  not find every answer.
+- `api/_lib/database.ts` — stores calculated answers in Neon Postgres.
 
-### ⚠️ Response schema is unverified
+API routes:
 
-The upstream doc shows request body shapes (PascalCase, e.g. `Origin`,
-`RadiusInMeters`) but does **not** show example JSON for the search/detail
-_responses_. `api/_lib/normalize.ts` defensively tries both PascalCase and
-camelCase field names, but it hasn't been checked against a live response.
-Before relying on this:
-
-1. Set `GEOCACHING_CONSUMER_KEY` (see below) and run a real search.
-2. Log the raw response in `api/_lib/groundspeak.ts` or inspect it via the
-   Vercel dev console.
-3. Adjust the field names in `api/_lib/normalize.ts` to match.
+- `POST /api/login`, `POST /api/refresh`, `GET /api/user`
+- `GET /api/labs/search?lat=&lng=&radius=&take=&statuses=&excludeOwned=`
+- `GET /api/labs/:guid`
+- `GET /api/labs/:guid/reviews?skip=&take=`
+- `POST /api/labs/check`
 
 ## Setup
 
+Create a `.env.local` file with these server-side variables:
+
+```dotenv
+GEOCACHING_CONSUMER_KEY=your-consumer-key
+DATABASE_URL=your-neon-postgres-connection-string
+```
+
+`GEOCACHING_CONSUMER_KEY` and `DATABASE_URL` are required. The database must
+have the `stage_answers` table used by `api/_lib/database.ts`.
+
 ```bash
 npm install
-cp .env.example .env
 ```
 
 ## Run locally
 
-This needs both the Vite dev server (frontend) and Vercel's dev server
-(serverless functions). Easiest is to use the Vercel CLI for everything:
+Run the Vercel development server, which serves the frontend and API routes:
 
 ```bash
-npm install -g vercel
-vercel dev
+npx vercel dev
 ```
 
-Alternatively, run Vite standalone (`npm run dev`) against `vercel dev`
-running on port 3000 — `vite.config.ts` already proxies `/api` there.
+To run Vite separately, start `npx vercel dev` on port 3000 and run
+`npm run dev` in another terminal. Vite proxies `/api` requests to that server.
 
 ## Deploy
 
 ```bash
-vercel
+npx vercel
 ```
 
-Set `GEOCACHING_CONSUMER_KEY` as an environment variable in the Vercel
-project settings (Project → Settings → Environment Variables).
+Configure `GEOCACHING_CONSUMER_KEY` and `DATABASE_URL` in the Vercel project's
+environment settings.
 
-## Type checking
+## Checks
 
 ```bash
 npm run typecheck
+npm run lint
+npm run test:run
 ```

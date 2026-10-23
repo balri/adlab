@@ -174,8 +174,8 @@ export interface FormState {
 	location: string;
 	latitude: string;
 	longitude: string;
-	radius: number;
-	take: number;
+	radius: number | "";
+	take: number | "";
 	statuses: CompletionStatus[];
 	excludeOwned: boolean;
 }

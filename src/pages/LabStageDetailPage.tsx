@@ -67,15 +67,19 @@ export default function LabStageDetailPage() {
 	const updateCorrectAnswer = (correctAnswer: string) => {
 		setLab((currentLab) => {
 			if (!currentLab) return currentLab;
+			const stageSummaries = currentLab.stageSummaries.map((s) =>
+				s.id === stageId ? { ...s, correctAnswer } : s,
+			);
 
 			const updatedLab: LabDetail = {
 				...currentLab,
-				stageSummaries: currentLab.stageSummaries.map((s) =>
-					s.id === stageId ? { ...s, correctAnswer } : s,
-				),
+				numAnswers: stageSummaries.filter((s) => s.correctAnswer)
+					.length,
+				stageSummaries,
 			};
 
 			sessionStorage.setItem(`lab_${guid}`, JSON.stringify(updatedLab));
+			updateStoredSearchResult(updatedLab);
 
 			return updatedLab;
 		});

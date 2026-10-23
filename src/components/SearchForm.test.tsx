@@ -39,8 +39,8 @@ describe("SearchForm", () => {
 		fireEvent.change(screen.getByLabelText("Location"), {
 			target: { value: "10, 20" },
 		});
-		fireEvent.change(screen.getByLabelText("Radius (m)"), {
-			target: { value: "5000" },
+		fireEvent.change(screen.getByLabelText("Radius (km)"), {
+			target: { value: "5" },
 		});
 		fireEvent.change(screen.getByLabelText("Max results"), {
 			target: { value: "10" },
@@ -59,6 +59,34 @@ describe("SearchForm", () => {
 				excludeOwned: false,
 			});
 		});
+	});
+
+	it("allows clearing and replacing radius and max results", async () => {
+		const user = userEvent.setup();
+
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
+
+		expandOptions();
+
+		const radius = screen.getByLabelText("Radius (km)");
+		const maxResults = screen.getByLabelText("Max results");
+
+		await user.clear(radius);
+		expect(radius).toHaveValue(null);
+		await user.type(radius, "5");
+		await user.clear(maxResults);
+		expect(maxResults).toHaveValue(null);
+		await user.type(maxResults, "10");
+
+		expect(radius).toHaveValue(5);
+		expect(maxResults).toHaveValue(10);
 	});
 
 	it("does not search when location is left empty", () => {
@@ -191,7 +219,7 @@ describe("SearchForm", () => {
 		expect(screen.getByLabelText("Location")).toHaveValue(
 			"-27.4698, 153.0251",
 		);
-		expect(screen.getByLabelText("Radius (m)")).toHaveValue(5000);
+		expect(screen.getByLabelText("Radius (km)")).toHaveValue(5);
 		expect(screen.getByLabelText("Max results")).toHaveValue(25);
 	});
 
@@ -234,7 +262,9 @@ describe("SearchForm", () => {
 		expect(screen.getByLabelText("Location")).toHaveValue(
 			`${DEFAULT_LATITUDE}, ${DEFAULT_LONGITUDE}`,
 		);
-		expect(screen.getByLabelText("Radius (m)")).toHaveValue(DEFAULT_RADIUS);
+		expect(screen.getByLabelText("Radius (km)")).toHaveValue(
+			DEFAULT_RADIUS / 1000,
+		);
 		expect(screen.getByLabelText("Max results")).toHaveValue(DEFAULT_TAKE);
 	});
 
@@ -249,17 +279,17 @@ describe("SearchForm", () => {
 		);
 
 		expect(screen.getByLabelText("Location")).toBeInTheDocument();
-		expect(screen.queryByLabelText("Radius (m)")).not.toBeInTheDocument();
+		expect(screen.queryByLabelText("Radius (km)")).not.toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
 
 		expect(screen.getByLabelText("Location")).toBeInTheDocument();
-		expect(screen.getByLabelText("Radius (m)")).toBeInTheDocument();
+		expect(screen.getByLabelText("Radius (km)")).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
 
 		expect(screen.getByLabelText("Location")).toBeInTheDocument();
-		expect(screen.queryByLabelText("Radius (m)")).not.toBeInTheDocument();
+		expect(screen.queryByLabelText("Radius (km)")).not.toBeInTheDocument();
 	});
 
 	it("centres on coordinates entered in the location field", async () => {

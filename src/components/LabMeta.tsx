@@ -32,7 +32,7 @@ export default function LabMeta(props: Props) {
 							? "lab-review-rating-recommended"
 							: undefined
 					}
-					title={lab.isHighlyRecommended ? "Recommended" : ""}
+					title={lab.isHighlyRecommended ? "Highly Recommended" : ""}
 				>
 					★ {lab.ratingsAverage.toFixed(1)} ({lab.ratingsTotalCount})
 				</span>

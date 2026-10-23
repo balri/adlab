@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LabStageDetailPage from "./LabStageDetailPage";
 import type { LabDetail } from "../types";
@@ -10,6 +11,7 @@ vi.mock("../useApi", () => ({
 }));
 
 const mockGetLab = vi.fn();
+const mockCheckAnswer = vi.fn();
 
 const lab: LabDetail = {
 	adventureGuid: "guid-1",
@@ -77,7 +79,7 @@ describe("LabStageDetailPage", () => {
 			getLab: mockGetLab,
 			getReviews: vi.fn(),
 			searchLabs: vi.fn(),
-			checkAnswer: vi.fn(),
+			checkAnswer: mockCheckAnswer,
 			submitAnswer: vi.fn(),
 		});
 	});
@@ -162,5 +164,37 @@ describe("LabStageDetailPage", () => {
 		expect(answer.parentElement).toContainElement(submitButton);
 		expect(screen.queryByRole("button", { name: "Check" })).toBeNull();
 		expect(screen.queryByRole("textbox")).toBeNull();
+	});
+
+	it("calculates the lab answer count from confirmed stages", async () => {
+		const user = userEvent.setup();
+		const labWithQuestion = {
+			...lab,
+			numAnswers: 2,
+			stageSummaries: [
+				{ ...lab.stageSummaries[0], challengeType: "SingleChoice" },
+			],
+		};
+		mockGetLab.mockResolvedValue(labWithQuestion);
+		mockCheckAnswer.mockResolvedValue({ success: true });
+		sessionStorage.setItem(
+			"searchResults",
+			JSON.stringify([{ adventureGuid: "guid-1", numAnswers: 2 }]),
+		);
+		renderPage();
+
+		await user.type(await screen.findByRole("textbox"), "1902");
+		await user.click(screen.getByRole("button", { name: "Check" }));
+
+		await waitFor(() => {
+			const storedLab = JSON.parse(
+				sessionStorage.getItem("lab_guid-1")!,
+			) as LabDetail;
+			expect(storedLab.numAnswers).toBe(1);
+			expect(storedLab.stageSummaries[0].correctAnswer).toBe("1902");
+		});
+		expect(
+			JSON.parse(sessionStorage.getItem("searchResults")!)[0].numAnswers,
+		).toBe(1);
 	});
 });

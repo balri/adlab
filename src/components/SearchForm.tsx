@@ -207,8 +207,8 @@ export default function SearchForm({
 			onSearch({
 				latitude: centre.latitude,
 				longitude: centre.longitude,
-				radiusInMeters: form.radius,
-				take: form.take,
+				radiusInMeters: Number(form.radius),
+				take: Number(form.take),
 				statuses: form.statuses,
 				excludeOwned: form.excludeOwned,
 			});
@@ -276,15 +276,23 @@ export default function SearchForm({
 				<>
 					<div className="search-form-row">
 						<label>
-							Radius (m)
+							Radius (km)
 							<input
 								type="number"
-								min={100}
-								max={100000}
-								step={100}
-								value={form.radius}
+								min={1}
+								max={100}
+								step={1}
+								required
+								value={
+									form.radius === "" ? "" : form.radius / 1000
+								}
 								onChange={(e) =>
-									updateForm("radius", Number(e.target.value))
+									updateForm(
+										"radius",
+										e.target.value === ""
+											? ""
+											: Number(e.target.value) * 1000,
+									)
 								}
 							/>
 						</label>
@@ -295,9 +303,15 @@ export default function SearchForm({
 								type="number"
 								min={1}
 								max={100}
+								required
 								value={form.take}
 								onChange={(e) =>
-									updateForm("take", Number(e.target.value))
+									updateForm(
+										"take",
+										e.target.value === ""
+											? ""
+											: Number(e.target.value),
+									)
 								}
 							/>
 						</label>
