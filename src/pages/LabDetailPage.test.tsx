@@ -27,7 +27,7 @@ const lab: LabDetail = {
 	isHighlyRecommended: false,
 	location: { latitude: -27.20575, longitude: 153.0761166667 },
 	stagesTotalCount: 1,
-	adventureType: "",
+	adventureType: "Nonsequential",
 	completionStatus: "NotStarted",
 	adventureThemes: [],
 	stageSummaries: [
@@ -102,12 +102,27 @@ describe("LabDetailPage", () => {
 			),
 		).toBeInTheDocument();
 		expect(screen.getByText("Stages (1)")).toBeInTheDocument();
+		expect(document.querySelector(".results-list")?.tagName).toBe("UL");
 		expect(screen.getAllByRole("link", { name: "Navigate" })).toHaveLength(
 			2,
 		);
 		expect(screen.getByRole("link", { name: "Stage One" })).toHaveAttribute(
 			"href",
 			"/labs/guid-1/stage/stage-1",
+		);
+	});
+
+	it("numbers stages for sequential labs", async () => {
+		mockGetLab.mockResolvedValue({ ...lab, adventureType: "Sequential" });
+		const { container } = renderPage();
+
+		await waitFor(() =>
+			expect(container.querySelector(".results-list")?.tagName).toBe(
+				"OL",
+			),
+		);
+		expect(container.querySelector(".results-list")).toHaveClass(
+			"numbered",
 		);
 	});
 
@@ -193,6 +208,74 @@ describe("LabDetailPage", () => {
 		expect(
 			screen.queryByRole("button", { name: "Submit All Answers" }),
 		).not.toBeInTheDocument();
+	});
+
+	it("gates sequential stage submission until prior stages are complete", async () => {
+		const sequentialLab = {
+			...lab,
+			adventureType: "Sequential" as const,
+			ratingsTotalCount: 10,
+			stagesTotalCount: 2,
+			stageSummaries: [
+				{ ...lab.stageSummaries[0], correctAnswer: "42" },
+				{
+					...lab.stageSummaries[0],
+					id: "stage-2",
+					title: "Stage Two",
+					correctAnswer: "north",
+				},
+			],
+		};
+		localStorage.setItem("userCanAnswer", "true");
+		mockGetLab.mockResolvedValue(sequentialLab);
+		renderPage();
+
+		const firstStage = await screen.findByRole("link", {
+			name: "Stage One",
+		});
+		const secondStage = screen.getByRole("link", { name: "Stage Two" });
+		expect(firstStage.closest("li")).toContainElement(
+			screen.getByRole("button", { name: "Send Answer" }),
+		);
+		expect(secondStage.closest("li")).not.toContainElement(
+			screen.getByRole("button", { name: "Send Answer" }),
+		);
+		expect(
+			screen.queryByRole("button", { name: "Submit All Answers" }),
+		).not.toBeInTheDocument();
+		expect(screen.queryByText("north")).not.toBeInTheDocument();
+	});
+
+	it("allows a sequential stage after all prior stages are complete", async () => {
+		const sequentialLab = {
+			...lab,
+			adventureType: "Sequential" as const,
+			ratingsTotalCount: 10,
+			stagesTotalCount: 2,
+			stageSummaries: [
+				{
+					...lab.stageSummaries[0],
+					isComplete: true,
+					correctAnswer: "42",
+				},
+				{
+					...lab.stageSummaries[0],
+					id: "stage-2",
+					title: "Stage Two",
+					correctAnswer: "north",
+				},
+			],
+		};
+		localStorage.setItem("userCanAnswer", "true");
+		mockGetLab.mockResolvedValue(sequentialLab);
+		renderPage();
+
+		const secondStage = await screen.findByRole("link", {
+			name: "Stage Two",
+		});
+		expect(secondStage.closest("li")).toContainElement(
+			screen.getByRole("button", { name: "Send Answer" }),
+		);
 	});
 
 	it("submits each confirmed stage answer", async () => {

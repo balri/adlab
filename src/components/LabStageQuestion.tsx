@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LabDetail, LabStage } from "../types";
 import SubmitAnswer from "./SubmitAnswer";
+import { canSubmitStageInSequence } from "../utils/canSubmitAnswer";
 
 interface LabStageQuestionParams {
 	loading: boolean;
@@ -45,12 +46,14 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 			{stage.correctAnswer ? (
 				<div className="search-form-row">
 					<span className="success-text">{stage.correctAnswer}</span>
-					<SubmitAnswer
-						lab={lab}
-						stage={stage}
-						onSuccess={onSuccess}
-						onError={onError}
-					/>
+					{canSubmitStageInSequence(lab, stage) && (
+						<SubmitAnswer
+							lab={lab}
+							stage={stage}
+							onSuccess={onSuccess}
+							onError={onError}
+						/>
+					)}
 				</div>
 			) : (
 				<form className="search-form" onSubmit={handleSubmit}>

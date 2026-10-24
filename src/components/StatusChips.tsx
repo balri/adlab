@@ -13,6 +13,9 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 		if (lab.ownedByUser) {
 			statuses.push("Owned");
 		}
+		if (!stage && lab.adventureType === "Sequential") {
+			statuses.push("Sequential");
+		}
 	}
 	if (stage) {
 		if (stage.isComplete) {
@@ -38,8 +41,11 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			{statuses.includes("Owned") && (
 				<span className="status-chip owned">Owned</span>
 			)}
+			{statuses.includes("Sequential") && (
+				<span className="status-chip sequential">Sequential</span>
+			)}
 			{statuses.includes("CorrectAnswer") && (
-				<span className="status-chip correct">Confirmed Answer</span>
+				<span className="status-chip correct">Has Answer</span>
 			)}
 			{!stage && !!lab?.numAnswers && lab.numAnswers > 0 && (
 				<span className="status-chip correct">

@@ -24,7 +24,7 @@ function makeLab(ratingsTotalCount: number): LabDetail {
 		isHighlyRecommended: false,
 		location: { latitude: 0, longitude: 0 },
 		stagesTotalCount: 1,
-		adventureType: "",
+		adventureType: "Nonsequential",
 		completionStatus: "NotStarted",
 		adventureThemes: [],
 		stageSummaries: [],

@@ -19,7 +19,7 @@ function makeLab(overrides: Partial<LabSummary> = {}): LabSummary {
 		isHighlyRecommended: false,
 		location: { latitude: 0, longitude: 0 },
 		stagesTotalCount: 1,
-		adventureType: "",
+		adventureType: "Nonsequential",
 		completionStatus: "NotStarted",
 		adventureThemes: [],
 		...overrides,
@@ -33,6 +33,15 @@ describe("StatusChips", () => {
 		render(<StatusChips lab={makeLab({ ownedByUser: true })} />);
 
 		expect(screen.getByText("Owned")).toBeInTheDocument();
+	});
+
+	it("uses the sequential chip class for sequential labs", () => {
+		render(<StatusChips lab={makeLab({ adventureType: "Sequential" })} />);
+
+		expect(screen.getByText("Sequential")).toHaveClass(
+			"status-chip",
+			"sequential",
+		);
 	});
 
 	it("does not infer ownership from a locally stored user GUID", () => {
@@ -66,7 +75,7 @@ describe("StatusChips", () => {
 			/>,
 		);
 
-		expect(screen.getByText("Confirmed Answer")).toBeInTheDocument();
+		expect(screen.getByText("Has Answer")).toBeInTheDocument();
 		expect(screen.queryByText(/answers\*/)).not.toBeInTheDocument();
 	});
 });

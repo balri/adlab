@@ -29,7 +29,7 @@ function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 		isHighlyRecommended: false,
 		location: { latitude: -27.4, longitude: 153.0 },
 		stagesTotalCount: 2,
-		adventureType: "",
+		adventureType: "Nonsequential",
 		completionStatus: "NotStarted",
 		adventureThemes: [],
 		...overrides,

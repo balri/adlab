@@ -14,6 +14,8 @@ export interface LatLng {
 
 export type CompletionStatus = "NotStarted" | "InProgress" | "Completed";
 
+type AdventureType = "Nonsequential" | "Sequential";
+
 export interface LabSummary {
 	adventureGuid: string;
 	title: string;
@@ -33,7 +35,7 @@ export interface LabSummary {
 	location: LatLng;
 	stagesTotalCount: number;
 	// isTest: boolean;
-	adventureType: string;
+	adventureType: AdventureType;
 	completionStatus: CompletionStatus;
 	adventureThemes: Array<string>;
 	// adventureCredit: AdventureCredit;

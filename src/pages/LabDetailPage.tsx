@@ -8,7 +8,11 @@ import { distanceBetween } from "../utils/distanceBetween";
 import LabMeta from "../components/LabMeta";
 import LabMap from "../components/LabMap";
 import SubmitAnswer from "../components/SubmitAnswer";
-import { canSubmitAllAnswers, canSubmitAnswer } from "../utils/canSubmitAnswer";
+import {
+	canSubmitAllAnswers,
+	canSubmitAnswer,
+	canSubmitStageInSequence,
+} from "../utils/canSubmitAnswer";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 import CoordinateLink from "../components/CoordinateLink";
 
@@ -75,7 +79,9 @@ export default function LabDetailPage() {
 	if (!lab) return <p>Loading…</p>;
 
 	const currentLab = lab;
-	const canSubmitAll = canSubmitAllAnswers(currentLab);
+	const canSubmitAll =
+		lab.adventureType !== "Sequential" && canSubmitAllAnswers(currentLab);
+	const StageList = lab.adventureType === "Sequential" ? "ol" : "ul";
 
 	async function handleSubmitAllAnswers() {
 		if (
@@ -159,44 +165,53 @@ export default function LabDetailPage() {
 					{submittingAll ? "Submitting…" : "Submit All Answers"}
 				</button>
 			)}
-			<ul className="results-list">
-				{lab.stageSummaries.map((stage) => (
-					<li key={stage.id} className="results-list-item">
-						<Link to={`/labs/${guid}/stage/${stage.id}`}>
-							{stage.title}
-						</Link>
-						<StatusChips lab={lab} stage={stage} />
-						<div className="results-list-meta">
-							<CoordinateLink location={stage.location} />
-							{searchCentre && (
-								<span>
-									{(
-										distanceBetween(
-											stage.location,
-											searchCentre,
-										) / 1000
-									).toFixed(2)}{" "}
-									km
-								</span>
-							)}
-						</div>
-						<div className="stage-answer-submit">
-							{canSubmitAnswer(lab, stage) && (
-								<span className="success-text">
-									{stage.correctAnswer}
-								</span>
-							)}
-							<SubmitAnswer
-								lab={lab}
-								stage={stage}
-								disabled={submittingAll}
-								onSuccess={setLab}
-								onError={setError}
-							/>
-						</div>
-					</li>
-				))}
-			</ul>
+			<StageList
+				className={`results-list${lab.adventureType === "Sequential" ? " numbered" : ""}`}
+			>
+				{lab.stageSummaries.map((stage) => {
+					const canSubmitStage = canSubmitStageInSequence(lab, stage);
+
+					return (
+						<li key={stage.id} className="results-list-item">
+							<Link to={`/labs/${guid}/stage/${stage.id}`}>
+								{stage.title}
+							</Link>
+							<StatusChips lab={lab} stage={stage} />
+							<div className="results-list-meta">
+								<CoordinateLink location={stage.location} />
+								{searchCentre && (
+									<span>
+										{(
+											distanceBetween(
+												stage.location,
+												searchCentre,
+											) / 1000
+										).toFixed(2)}{" "}
+										km
+									</span>
+								)}
+							</div>
+							<div className="stage-answer-submit">
+								{canSubmitStage &&
+									canSubmitAnswer(lab, stage) && (
+										<span className="success-text">
+											{stage.correctAnswer}
+										</span>
+									)}
+								{canSubmitStage && (
+									<SubmitAnswer
+										lab={lab}
+										stage={stage}
+										disabled={submittingAll}
+										onSuccess={setLab}
+										onError={setError}
+									/>
+								)}
+							</div>
+						</li>
+					);
+				})}
+			</StageList>
 		</div>
 	);
 }

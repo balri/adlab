@@ -31,7 +31,7 @@ const lab: LabDetail = {
 	isHighlyRecommended: false,
 	location: { latitude: 0, longitude: 0 },
 	stagesTotalCount: 0,
-	adventureType: "",
+	adventureType: "Nonsequential",
 	completionStatus: "NotStarted",
 	adventureThemes: [],
 	stageSummaries: [],
