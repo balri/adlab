@@ -15,6 +15,7 @@ import {
 } from "../utils/canSubmitAnswer";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 import CoordinateLink from "../components/CoordinateLink";
+import BackLink from "../components/BackLink";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -125,7 +126,7 @@ export default function LabDetailPage() {
 	return (
 		<div className="lab-detail">
 			<p>
-				<Link to="/">&larr; Back to search</Link>
+				<BackLink to="/">&larr; Back to search</BackLink>
 			</p>
 			<div className="lab-detail-header">
 				<h1>

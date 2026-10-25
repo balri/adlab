@@ -1,5 +1,6 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useApi } from "../useApi";
+import BackLink from "../components/BackLink";
 import { useEffect, useRef, useState } from "react";
 import { LabDetail, LabReviewsPage } from "../types";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
@@ -168,7 +169,7 @@ export default function LabReviews() {
 	return (
 		<div className="lab-reviews">
 			<p>
-				<Link to={labUrl}>&larr; Back to {lab.title}</Link>
+				<BackLink to={labUrl}>&larr; Back to {lab.title}</BackLink>
 			</p>
 			<h1>{lab.title} reviews</h1>
 			<p className="lab-review-count">{totalCount} total</p>

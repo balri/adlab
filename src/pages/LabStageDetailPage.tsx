@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { type LabDetail } from "../types";
 import LabStageJournal from "../components/LabStageJournal";
 import LabStageQuestion from "../components/LabStageQuestion";
 import StatusChips from "../components/StatusChips";
 import CoordinateLink from "../components/CoordinateLink";
+import BackLink from "../components/BackLink";
 import { useApi } from "../useApi";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
@@ -113,7 +114,7 @@ export default function LabStageDetailPage() {
 	return (
 		<div className="lab-stage-detail">
 			<p>
-				<Link to={labUrl}>&larr; Back to {lab.title}</Link>
+				<BackLink to={labUrl}>&larr; Back to {lab.title}</BackLink>
 			</p>
 			<h1>
 				{stage.title}

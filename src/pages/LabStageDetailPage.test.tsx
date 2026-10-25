@@ -108,6 +108,38 @@ describe("LabStageDetailPage", () => {
 		).toHaveAttribute("href", "/labs/guid-1");
 	});
 
+	it("uses browser history when the stage was opened from within the app", async () => {
+		mockGetLab.mockResolvedValue(lab);
+		const user = userEvent.setup();
+		render(
+			<MemoryRouter
+				initialEntries={[
+					{ pathname: "/previous", key: "previous" },
+					{
+						pathname: "/labs/guid-1/stage/stage-1",
+						key: "stage",
+					},
+				]}
+				initialIndex={1}
+			>
+				<Routes>
+					<Route path="/previous" element={<p>Previous page</p>} />
+					<Route
+						path="/labs/:guid/stage/:stageId"
+						element={<LabStageDetailPage />}
+					/>
+				</Routes>
+			</MemoryRouter>,
+		);
+
+		await user.click(
+			await screen.findByRole("link", {
+				name: /Back to Riverside Ramble/,
+			}),
+		);
+		expect(await screen.findByText("Previous page")).toBeInTheDocument();
+	});
+
 	it("shows an error message when the fetch fails", async () => {
 		mockGetLab.mockRejectedValue(new Error("Lab not found"));
 		renderPage();
