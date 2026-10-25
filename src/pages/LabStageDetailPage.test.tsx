@@ -101,7 +101,7 @@ describe("LabStageDetailPage", () => {
 		expect(screen.getByText("What year was it built?")).toBeInTheDocument();
 		expect(screen.getByRole("link", { name: "Navigate" })).toHaveAttribute(
 			"href",
-			"https://www.google.com/maps/search/?api=1&query=-27.20575,153.0761166667",
+			"https://www.google.com/maps/search/?api=1&query=-27.20575%2C153.0761166667",
 		);
 		expect(
 			screen.getByRole("link", { name: /Back to Riverside Ramble/ }),

@@ -38,7 +38,7 @@ export default function LabMeta(props: Props) {
 				</span>
 			)}
 			{lab.stagesTotalCount && <span>{lab.stagesTotalCount} stages</span>}
-			<CoordinateLink location={lab.location} />
+			<CoordinateLink location={lab.location} name={lab.title} />
 			{distance && <span>{distance.toFixed(2)} km</span>}
 			{showReviews &&
 				"reviewsTotalCount" in lab &&

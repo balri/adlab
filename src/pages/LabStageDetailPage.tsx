@@ -120,7 +120,7 @@ export default function LabStageDetailPage() {
 				<StatusChips lab={lab} stage={stage} />
 			</h1>
 			<p className="stage-coordinate">
-				<CoordinateLink location={stage.location} />
+				<CoordinateLink location={stage.location} name={stage.title} />
 			</p>
 			{error && <p className="error-text">{error}</p>}
 			<div className="lab-detail-content">

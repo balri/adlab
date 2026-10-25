@@ -10,7 +10,7 @@ describe("CoordinateLink", () => {
 		vi.restoreAllMocks();
 	});
 
-	it("navigates to Google Maps and copies formatted coordinates", async () => {
+	it("opens a labeled Google Maps location on Android and copies coordinates", async () => {
 		const writeText = vi.fn().mockResolvedValue(undefined);
 		vi.useFakeTimers();
 		Object.defineProperty(navigator, "clipboard", {
@@ -19,11 +19,15 @@ describe("CoordinateLink", () => {
 		});
 		vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Android");
 
-		render(<CoordinateLink location={location} />);
+		render(<CoordinateLink location={location} name="Riverside Ramble" />);
 
 		expect(screen.getByRole("link", { name: "Navigate" })).toHaveAttribute(
 			"href",
-			"https://www.google.com/maps/search/?api=1&query=-27.20575,153.0761166667",
+			"geo:0,0?q=-27.20575,153.0761166667(Riverside+Ramble)",
+		);
+		expect(screen.getByRole("link", { name: "Navigate" })).toHaveAttribute(
+			"title",
+			"Open Riverside Ramble in Maps",
 		);
 		fireEvent.click(
 			screen.getByRole("button", { name: "Copy coordinates" }),
@@ -43,11 +47,11 @@ describe("CoordinateLink", () => {
 	it("uses Apple Maps on iOS", () => {
 		vi.spyOn(navigator, "userAgent", "get").mockReturnValue("iPhone");
 
-		render(<CoordinateLink location={location} />);
+		render(<CoordinateLink location={location} name="Riverside Ramble" />);
 
 		expect(screen.getByRole("link", { name: "Navigate" })).toHaveAttribute(
 			"href",
-			"https://maps.apple.com/?ll=-27.20575,153.0761166667&q=-27.20575,153.0761166667",
+			"https://maps.apple.com/?ll=-27.20575,153.0761166667&q=Riverside%20Ramble",
 		);
 	});
 });

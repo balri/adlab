@@ -178,7 +178,10 @@ export default function LabDetailPage() {
 							</Link>
 							<StatusChips lab={lab} stage={stage} />
 							<div className="results-list-meta">
-								<CoordinateLink location={stage.location} />
+								<CoordinateLink
+									location={stage.location}
+									name={stage.title}
+								/>
 								{searchCentre && (
 									<span>
 										{(

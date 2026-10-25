@@ -3,6 +3,7 @@ import type { LatLng } from "../types";
 
 interface Props {
 	location: LatLng;
+	name?: string;
 }
 
 function formatCoordinate(
@@ -25,15 +26,22 @@ function formatCoordinates(location: LatLng) {
 	return `${formatCoordinate(location.latitude, 2, "N", "S")} ${formatCoordinate(location.longitude, 3, "E", "W")}`;
 }
 
-export default function CoordinateLink({ location }: Props) {
+export default function CoordinateLink({ location, name }: Props) {
 	const coordinates = formatCoordinates(location);
 	const coordinatePair = `${location.latitude},${location.longitude}`;
+	const mapName = name?.trim();
 	const isAppleDevice =
 		/iphone|ipad|ipod/i.test(navigator.userAgent) ||
 		(navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+	const isAndroidDevice = /android/i.test(navigator.userAgent);
+	const androidQuery = mapName
+		? `${coordinatePair}(${encodeURIComponent(mapName).replace(/%20/g, "+")})`
+		: coordinatePair;
 	const mapUrl = isAppleDevice
-		? `https://maps.apple.com/?ll=${coordinatePair}&q=${coordinatePair}`
-		: `https://www.google.com/maps/search/?api=1&query=${coordinatePair}`;
+		? `https://maps.apple.com/?ll=${coordinatePair}&q=${encodeURIComponent(mapName || coordinatePair)}`
+		: isAndroidDevice
+			? `geo:0,0?q=${androidQuery}`
+			: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinatePair)}`;
 	const [copyStatus, setCopyStatus] = useState("Copy");
 
 	useEffect(() => {
@@ -59,7 +67,7 @@ export default function CoordinateLink({ location }: Props) {
 				target="_blank"
 				rel="noopener noreferrer"
 				className="coordinate-link"
-				title="Open in Maps"
+				title={mapName ? `Open ${mapName} in Maps` : "Open in Maps"}
 			>
 				Navigate
 			</a>
