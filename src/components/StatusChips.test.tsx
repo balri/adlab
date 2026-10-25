@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import type { LabSummary } from "../types";
+import type { LabDetail, LabSummary } from "../types";
 import StatusChips from "./StatusChips";
 
 function makeLab(overrides: Partial<LabSummary> = {}): LabSummary {
@@ -59,6 +59,22 @@ describe("StatusChips", () => {
 		);
 
 		expect(screen.getByText("3 of 5 answers*")).toBeInTheDocument();
+	});
+
+	it("omits the asterisk from the answer count for a lab detail", () => {
+		const labDetail = {
+			...makeLab({ numAnswers: 3, stagesTotalCount: 5 }),
+			stageSummaries: [],
+			journalsTotalCount: 0,
+			ownerUsername: "owner",
+			reviewsTotalCount: 0,
+			recommendedCount: 0,
+			completionCount: 0,
+		} satisfies LabDetail;
+		render(<StatusChips lab={labDetail} />);
+
+		expect(screen.getByText("3 of 5 answers")).toBeInTheDocument();
+		expect(screen.queryByText("3 of 5 answers*")).not.toBeInTheDocument();
 	});
 
 	it("does not show the answer count when there are no answers", () => {

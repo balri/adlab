@@ -6,6 +6,7 @@ interface StatusChipsParams {
 }
 export default function StatusChips({ lab, stage }: StatusChipsParams) {
 	const statuses = [];
+	const isLabSummary = lab !== undefined && !("stageSummaries" in lab);
 	if (lab) {
 		if (!stage) {
 			statuses.push(lab.completionStatus);
@@ -49,7 +50,8 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			)}
 			{!stage && !!lab?.numAnswers && lab.numAnswers > 0 && (
 				<span className="status-chip correct">
-					{lab.numAnswers} of {lab.stagesTotalCount} answers*
+					{lab.numAnswers} of {lab.stagesTotalCount} answers
+					{isLabSummary && "*"}
 				</span>
 			)}
 		</span>
