@@ -12,7 +12,6 @@ interface Props {
 	radius: number;
 	labs: LabSummary[];
 	searchCentre: LatLng | null;
-	onRecentre: (centre: LatLng) => void;
 	onUserMapMove: (centre: LatLng) => void;
 }
 
@@ -21,21 +20,18 @@ function RecentreOnChange({
 	searchCentre,
 	radius,
 	labs,
-	onRecentre,
 	onUserMapMove,
 }: {
 	centre: LatLng;
 	searchCentre: LatLng | null;
 	radius: number;
 	labs: LabSummary[];
-	onRecentre: (centre: LatLng) => void;
 	onUserMapMove: (centre: LatLng) => void;
 }) {
 	const map = useMap();
 
 	const previousCentre = useRef<LatLng | null>(null);
 	const previousRadius = useRef<number | null>(null);
-	const userMoved = useRef(false);
 	const userInteractionPending = useRef(false);
 
 	useEffect(() => {
@@ -77,9 +73,7 @@ function RecentreOnChange({
 			};
 		};
 		const handleMoveEnd = () => {
-			userMoved.current = true;
 			const mapCentre = centreFromMap();
-			onRecentre(mapCentre);
 
 			if (userInteractionPending.current) {
 				userInteractionPending.current = false;
@@ -126,14 +120,11 @@ function RecentreOnChange({
 			container.removeEventListener("keydown", handleKeyDown);
 			window.clearTimeout(userInteractionTimeout);
 		};
-	}, [map, onRecentre, onUserMapMove]);
+	}, [map, onUserMapMove]);
 
 	// Use My Location / other external search-centre change.
 	useEffect(() => {
-		if (!searchCentre || userMoved.current) {
-			userMoved.current = false;
-			return;
-		}
+		if (!searchCentre) return;
 
 		if (
 			searchCentre.latitude === centre.latitude &&
@@ -162,7 +153,6 @@ export default function SearchMap({
 	radius,
 	labs,
 	searchCentre,
-	onRecentre,
 	onUserMapMove,
 }: Props) {
 	const zoomLevel = radiusToZoom(radius, centre.latitude, mapWidth);
@@ -182,7 +172,6 @@ export default function SearchMap({
 				radius={radius}
 				labs={labs}
 				searchCentre={searchCentre}
-				onRecentre={onRecentre}
 				onUserMapMove={onUserMapMove}
 			/>
 			{labs.map((lab) => (

@@ -65,6 +65,10 @@ export default function SearchPage() {
 	async function handleSearch(params: SearchParams) {
 		setLoading(true);
 		setError(null);
+		setSearchCentre({
+			latitude: params.latitude,
+			longitude: params.longitude,
+		});
 		try {
 			const results = await searchLabs(params);
 			if (results.length === 0) {
@@ -75,7 +79,6 @@ export default function SearchPage() {
 			setLabs(results);
 			const resultsCentre = getCentre(results);
 			if (resultsCentre) {
-				setSearchCentre(resultsCentre);
 				setCentreAndRadius(results, setCentre, setRadius);
 			}
 		} catch (err) {
@@ -93,7 +96,6 @@ export default function SearchPage() {
 					radius={radius}
 					labs={labs}
 					searchCentre={searchCentre}
-					onRecentre={setSearchCentre}
 					onUserMapMove={setMapInteractionCentre}
 				/>
 			)}

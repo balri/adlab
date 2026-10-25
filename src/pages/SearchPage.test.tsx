@@ -4,6 +4,7 @@ import SearchPage from "./SearchPage";
 import type { LabSummary } from "../types";
 import { useApi } from "../useApi";
 import { DEFAULT_LATITUDE, DEFAULT_LONGITUDE } from "../utils/loadForm";
+import { distanceBetween } from "../utils/distanceBetween";
 
 vi.mock("../useApi", () => ({
 	useApi: vi.fn(),
@@ -165,6 +166,23 @@ describe("SearchPage", () => {
 			lab(),
 		]);
 		expect(sessionStorage.getItem("searchCentre")).not.toBeNull();
+	});
+
+	it("calculates result distance from the submitted search centre", async () => {
+		mockSearchLabs.mockResolvedValue([lab()]);
+		renderPage();
+
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+		const expectedDistance = (
+			distanceBetween(lab().location, {
+				latitude: DEFAULT_LATITUDE,
+				longitude: DEFAULT_LONGITUDE,
+			}) / 1000
+		).toFixed(2);
+		expect(
+			await screen.findByText(`${expectedDistance} km`),
+		).toBeInTheDocument();
 	});
 
 	it("restores results from sessionStorage on mount without searching", () => {
