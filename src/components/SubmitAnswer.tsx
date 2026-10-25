@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { LabDetail, LabStage } from "../types";
+import { useEffect, useState } from "react";
+import { LabDetail, LabStage, LatLng } from "../types";
 import { useApi } from "../useApi";
 import { canSubmitAnswer } from "../utils/canSubmitAnswer";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
@@ -21,7 +21,37 @@ export default function SubmitAnswer({
 }: SubmitAnswerProps) {
 	const { getLab, submitAnswer } = useApi();
 	const [loading, setLoading] = useState<boolean>(false);
-	const canAnswer = canSubmitAnswer(lab, stage);
+	const [userLocation, setUserLocation] = useState<LatLng | null>(null);
+	const needsNearbyCheck =
+		lab.ratingsTotalCount < 10 &&
+		Boolean(stage.correctAnswer) &&
+		!stage.isComplete &&
+		localStorage.getItem("userCanAnswer") === "true";
+
+	useEffect(() => {
+		if (!needsNearbyCheck || !navigator.geolocation) return;
+
+		let active = true;
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				if (!active) return;
+				setUserLocation({
+					latitude: position.coords.latitude,
+					longitude: position.coords.longitude,
+				});
+			},
+			() => {
+				if (active) setUserLocation(null);
+			},
+			{ enableHighAccuracy: true, maximumAge: 30_000, timeout: 10_000 },
+		);
+
+		return () => {
+			active = false;
+		};
+	}, [needsNearbyCheck, stage.location.latitude, stage.location.longitude]);
+
+	const canAnswer = canSubmitAnswer(lab, stage, userLocation);
 
 	if (!canAnswer) return null;
 

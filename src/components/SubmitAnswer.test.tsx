@@ -66,9 +66,26 @@ function renderSubmitAnswer(ratingsTotalCount: number) {
 	);
 }
 
+function mockGeolocation(latitude: number, longitude: number) {
+	Object.defineProperty(navigator, "geolocation", {
+		configurable: true,
+		value: {
+			getCurrentPosition: vi.fn((success: PositionCallback) => {
+				success({
+					coords: { latitude, longitude },
+				} as GeolocationPosition);
+			}),
+		},
+	});
+}
+
 describe("SubmitAnswer", () => {
 	beforeEach(() => {
 		localStorage.clear();
+		Object.defineProperty(navigator, "geolocation", {
+			configurable: true,
+			value: undefined,
+		});
 		vi.mocked(useApi).mockReturnValue({
 			getLab: vi.fn(),
 			getReviews: vi.fn(),
@@ -94,6 +111,35 @@ describe("SubmitAnswer", () => {
 		expect(
 			screen.getByRole("button", { name: "Send Answer" }),
 		).toBeInTheDocument();
+	});
+
+	it("offers submission below ten ratings when the user is within 500m", async () => {
+		localStorage.setItem("userCanAnswer", "true");
+		mockGeolocation(0, 1.004);
+		render(
+			<SubmitAnswer
+				lab={makeLab(9)}
+				stage={{ ...stage, location: { latitude: 0, longitude: 1 } }}
+				onSuccess={() => {}}
+				onError={() => {}}
+			/>,
+		);
+
+		expect(
+			await screen.findByRole("button", { name: "Send Answer" }),
+		).toBeInTheDocument();
+	});
+
+	it("does not offer submission below ten ratings when the user is over 500m away", async () => {
+		localStorage.setItem("userCanAnswer", "true");
+		mockGeolocation(0, 0.01);
+		renderSubmitAnswer(9);
+
+		await waitFor(() =>
+			expect(
+				screen.queryByRole("button", { name: "Send Answer" }),
+			).not.toBeInTheDocument(),
+		);
 	});
 
 	it("does not offer submission when the user is not allowed to answer", () => {

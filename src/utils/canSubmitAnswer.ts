@@ -1,19 +1,33 @@
-import type { LabDetail, LabStage } from "../types";
+import type { LabDetail, LabStage, LatLng } from "../types";
+import { distanceBetween } from "./distanceBetween";
 
 const minRatingsTotalCount = 10;
+const nearbyAnswerDistanceMetres = 500;
 
-function canUserSubmitAnswers(lab: LabDetail) {
+function canUserSubmitAnswers(
+	lab: LabDetail,
+	userLocation: LatLng | null = null,
+	nearbyStageLocation?: LatLng,
+) {
 	return (
-		lab.ratingsTotalCount >= minRatingsTotalCount &&
-		localStorage.getItem("userCanAnswer") === "true"
+		localStorage.getItem("userCanAnswer") === "true" &&
+		(lab.ratingsTotalCount >= minRatingsTotalCount ||
+			(userLocation !== null &&
+				nearbyStageLocation !== undefined &&
+				distanceBetween(userLocation, nearbyStageLocation) <=
+					nearbyAnswerDistanceMetres))
 	);
 }
 
-export function canSubmitAnswer(lab: LabDetail, stage: LabStage) {
+export function canSubmitAnswer(
+	lab: LabDetail,
+	stage: LabStage,
+	userLocation: LatLng | null = null,
+) {
 	return (
 		Boolean(stage.correctAnswer) &&
 		!stage.isComplete &&
-		canUserSubmitAnswers(lab)
+		canUserSubmitAnswers(lab, userLocation, stage.location)
 	);
 }
 
