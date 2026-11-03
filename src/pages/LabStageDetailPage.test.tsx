@@ -198,6 +198,27 @@ describe("LabStageDetailPage", () => {
 		expect(screen.queryByRole("textbox")).toBeNull();
 	});
 
+	it("shows an incorrect-answer message in the answer form", async () => {
+		const user = userEvent.setup();
+		mockGetLab.mockResolvedValue({
+			...lab,
+			stageSummaries: [
+				{ ...lab.stageSummaries[0], challengeType: "SingleChoice" },
+			],
+		});
+		mockCheckAnswer.mockResolvedValue({
+			success: false,
+			error: "Incorrect answer",
+		});
+		renderPage();
+
+		await user.type(await screen.findByRole("textbox"), "wrong");
+		await user.click(screen.getByRole("button", { name: "Check" }));
+
+		const error = await screen.findByText("Incorrect answer");
+		expect(error.closest("form")).toBeInTheDocument();
+	});
+
 	it("hides submission for a sequential stage until prior stages are complete", async () => {
 		localStorage.setItem("userCanAnswer", "true");
 		mockGetLab.mockResolvedValue({

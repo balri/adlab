@@ -123,7 +123,6 @@ export default function LabStageDetailPage() {
 			<p className="stage-coordinate">
 				<CoordinateLink location={stage.location} name={stage.title} />
 			</p>
-			{error && <p className="error-text">{error}</p>}
 			<div className="lab-detail-content">
 				{stage.keyImageUrl && <img src={stage.keyImageUrl} />}
 				<div>
@@ -134,6 +133,7 @@ export default function LabStageDetailPage() {
 			</div>
 			<LabStageQuestion
 				loading={loading}
+				error={error}
 				lab={lab}
 				stage={stage}
 				onCheck={handleCheckAnswer}

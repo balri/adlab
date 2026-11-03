@@ -5,6 +5,7 @@ import { canSubmitStageInSequence } from "../utils/canSubmitAnswer";
 
 interface LabStageQuestionParams {
 	loading: boolean;
+	error: string | null;
 	lab: LabDetail;
 	stage: LabStage;
 	onCheck: (answer: string) => void;
@@ -20,7 +21,7 @@ const DEFAULT_FORM: FormState = { answer: "" };
 
 export default function LabStageQuestion(params: LabStageQuestionParams) {
 	const [form, setForm] = useState<FormState>(DEFAULT_FORM);
-	const { loading, stage, onCheck, lab, onSuccess, onError } = params;
+	const { loading, error, stage, onCheck, lab, onSuccess, onError } = params;
 
 	function updateForm<K extends keyof FormState>(
 		field: K,
@@ -44,17 +45,22 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 			<p>{stage.question}</p>
 
 			{stage.correctAnswer ? (
-				<div className="search-form-row">
-					<span className="success-text">{stage.correctAnswer}</span>
-					{canSubmitStageInSequence(lab, stage) && (
-						<SubmitAnswer
-							lab={lab}
-							stage={stage}
-							onSuccess={onSuccess}
-							onError={onError}
-						/>
-					)}
-				</div>
+				<>
+					<div className="search-form-row">
+						<span className="success-text">
+							{stage.correctAnswer}
+						</span>
+						{canSubmitStageInSequence(lab, stage) && (
+							<SubmitAnswer
+								lab={lab}
+								stage={stage}
+								onSuccess={onSuccess}
+								onError={onError}
+							/>
+						)}
+					</div>
+					{error && <p className="error-text">{error}</p>}
+				</>
 			) : (
 				<form className="search-form" onSubmit={handleSubmit}>
 					<div className="search-form-row">
@@ -90,6 +96,7 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 
 						<input type="submit" value="Check" disabled={loading} />
 					</div>
+					{error && <p className="error-text">{error}</p>}
 				</form>
 			)}
 		</>
