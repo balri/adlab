@@ -11,6 +11,7 @@ interface Props {
 
 export default function LabMeta(props: Props) {
 	const { lab, searchCentre, showReviews = false } = props;
+	const publishedDate = formatPublishedDate(lab.publishedUtc);
 
 	let distance;
 	if (searchCentre) {
@@ -25,6 +26,9 @@ export default function LabMeta(props: Props) {
 	return (
 		<div className="results-list-meta">
 			{ownerUsername && <span>by {ownerUsername}</span>}
+			{publishedDate && (
+				<time dateTime={lab.publishedUtc}>{publishedDate}</time>
+			)}
 			{lab.ratingsAverage !== null && (
 				<span
 					className={
@@ -49,4 +53,15 @@ export default function LabMeta(props: Props) {
 				)}
 		</div>
 	);
+}
+
+function formatPublishedDate(publishedUtc: string): string | null {
+	const date = new Date(publishedUtc);
+	if (!publishedUtc || Number.isNaN(date.getTime())) return null;
+
+	return new Intl.DateTimeFormat(undefined, {
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	}).format(date);
 }

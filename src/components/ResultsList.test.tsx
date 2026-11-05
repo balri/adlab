@@ -75,6 +75,23 @@ describe("ResultsList", () => {
 		).toHaveClass("lab-review-rating-recommended");
 	});
 
+	it("shows the published date in lab metadata", () => {
+		const publishedUtc = "2026-10-17T12:00:00Z";
+		renderResults([lab({ publishedUtc })]);
+
+		const expectedDate = new Intl.DateTimeFormat(undefined, {
+			month: "long",
+			day: "numeric",
+			year: "numeric",
+		}).format(new Date(publishedUtc));
+		const publishedDate = screen.getByText(expectedDate);
+		expect(publishedDate.tagName).toBe("TIME");
+		expect(publishedDate).toHaveAttribute(
+			"datetime",
+			"2026-10-17T12:00:00Z",
+		);
+	});
+
 	it("renders one item per lab", () => {
 		renderResults([
 			lab({ adventureGuid: "guid-1", title: "Lab One" }),
