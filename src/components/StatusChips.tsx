@@ -1,4 +1,4 @@
-import { LabStage, LabSummary } from "../types";
+import { LabDetail, LabStage, LabSummary } from "../types";
 
 interface StatusChipsParams {
 	lab?: LabSummary;
@@ -6,7 +6,20 @@ interface StatusChipsParams {
 }
 export default function StatusChips({ lab, stage }: StatusChipsParams) {
 	const statuses = [];
-	const isLabSummary = lab !== undefined && !("stageSummaries" in lab);
+	const isLabDetail = (candidate: LabSummary): candidate is LabDetail =>
+		"stageSummaries" in candidate;
+	const isLabSummary = lab !== undefined && !isLabDetail(lab);
+	const hasMultipleChoiceStageChip = stage?.challengeType === "MultiChoice";
+	const hasAllMultipleChoiceLabChip =
+		!stage &&
+		lab !== undefined &&
+		isLabDetail(lab) &&
+		lab.stageSummaries.length > 0 &&
+		lab.stageSummaries.every(
+			(stageSummary) => stageSummary.challengeType === "MultiChoice",
+		);
+	const hasMultipleChoiceChip =
+		hasMultipleChoiceStageChip || hasAllMultipleChoiceLabChip;
 	if (lab) {
 		if (!stage) {
 			statuses.push(lab.completionStatus);
@@ -45,15 +58,24 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			{statuses.includes("Sequential") && (
 				<span className="status-chip sequential">Sequential</span>
 			)}
-			{statuses.includes("CorrectAnswer") && (
+			{statuses.includes("CorrectAnswer") && !hasMultipleChoiceChip && (
 				<span className="status-chip correct">Has Answer</span>
 			)}
-			{!stage && !!lab?.numAnswers && lab.numAnswers > 0 && (
-				<span className="status-chip correct">
-					{lab.numAnswers} of {lab.stagesTotalCount} answers
-					{isLabSummary && "*"}
-				</span>
+			{hasMultipleChoiceStageChip && (
+				<span className="status-chip correct">Multi Choice</span>
 			)}
+			{hasAllMultipleChoiceLabChip && (
+				<span className="status-chip correct">All Multi Choice</span>
+			)}
+			{!stage &&
+				!hasMultipleChoiceChip &&
+				!!lab?.numAnswers &&
+				lab.numAnswers > 0 && (
+					<span className="status-chip correct">
+						{lab.numAnswers} of {lab.stagesTotalCount} answers
+						{isLabSummary && "*"}
+					</span>
+				)}
 		</span>
 	);
 }

@@ -26,6 +26,23 @@ function makeLab(overrides: Partial<LabSummary> = {}): LabSummary {
 	};
 }
 
+function makeLabDetail(
+	challengeTypes: string[],
+	overrides: Partial<LabSummary> = {},
+): LabDetail {
+	return {
+		...makeLab({ stagesTotalCount: challengeTypes.length, ...overrides }),
+		stageSummaries: challengeTypes.map(
+			(challengeType) => ({ challengeType }) as never,
+		),
+		journalsTotalCount: 0,
+		ownerUsername: "owner",
+		reviewsTotalCount: 0,
+		recommendedCount: 0,
+		completionCount: 0,
+	};
+}
+
 describe("StatusChips", () => {
 	beforeEach(() => localStorage.clear());
 
@@ -93,5 +110,56 @@ describe("StatusChips", () => {
 
 		expect(screen.getByText("Has Answer")).toBeInTheDocument();
 		expect(screen.queryByText(/answers\*/)).not.toBeInTheDocument();
+	});
+
+	it("shows a multi choice chip for multi choice stages", () => {
+		render(
+			<StatusChips
+				lab={makeLab({ numAnswers: 1 })}
+				stage={
+					{
+						challengeType: "MultiChoice",
+						isComplete: false,
+						correctAnswer: "A",
+					} as never
+				}
+			/>,
+		);
+
+		expect(screen.getByText("Multi Choice")).toHaveClass(
+			"status-chip",
+			"correct",
+		);
+		expect(screen.queryByText("Has Answer")).not.toBeInTheDocument();
+		expect(screen.queryByText(/answers/)).not.toBeInTheDocument();
+	});
+
+	it("shows a lab multi choice chip only when all stages are multi choice", () => {
+		const { rerender } = render(
+			<StatusChips
+				lab={makeLabDetail(["MultiChoice", "MultiChoice"], {
+					numAnswers: 2,
+				})}
+			/>,
+		);
+
+		expect(screen.getByText("All Multi Choice")).toHaveClass(
+			"status-chip",
+			"correct",
+		);
+		expect(screen.queryByText("2 of 2 answers")).not.toBeInTheDocument();
+
+		rerender(
+			<StatusChips
+				lab={makeLabDetail(["MultiChoice", "SingleChoice"], {
+					numAnswers: 2,
+				})}
+			/>,
+		);
+		expect(screen.queryByText("All Multi Choice")).not.toBeInTheDocument();
+		expect(screen.getByText("2 of 2 answers")).toBeInTheDocument();
+
+		rerender(<StatusChips lab={makeLabDetail([])} />);
+		expect(screen.queryByText("All Multi Choice")).not.toBeInTheDocument();
 	});
 });
