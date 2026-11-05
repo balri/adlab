@@ -67,6 +67,7 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 						{stage.challengeType === "SingleChoice" && (
 							<input
 								type="text"
+								autoCapitalize="words"
 								value={form.answer}
 								onChange={(e) =>
 									updateForm("answer", e.target.value)

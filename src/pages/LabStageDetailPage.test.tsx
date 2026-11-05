@@ -212,7 +212,9 @@ describe("LabStageDetailPage", () => {
 		});
 		renderPage();
 
-		await user.type(await screen.findByRole("textbox"), "wrong");
+		const answerInput = await screen.findByRole("textbox");
+		expect(answerInput).toHaveAttribute("autocapitalize", "words");
+		await user.type(answerInput, "wrong");
 		await user.click(screen.getByRole("button", { name: "Check" }));
 
 		const error = await screen.findByText("Incorrect answer");
