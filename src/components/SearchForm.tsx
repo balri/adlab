@@ -6,6 +6,7 @@ import type {
 	SearchParams,
 } from "../types";
 import { FORM_STORAGE_KEY, loadForm } from "../utils/loadForm";
+import { blurFocusedFormControl } from "../utils/blurFocusedFormControl";
 
 interface Props {
 	onSearch: (params: SearchParams) => void;
@@ -196,8 +197,9 @@ export default function SearchForm({
 		}
 	}
 
-	async function handleSubmit(e: React.FormEvent) {
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		blurFocusedFormControl(e.currentTarget);
 		setGeoError(null);
 		setResolvingLocation(true);
 		setSearching(true);
@@ -223,45 +225,63 @@ export default function SearchForm({
 	return (
 		<form className="search-form" onSubmit={handleSubmit}>
 			<div className="search-form-actions">
-				<button
-					type="button"
-					className="location-button"
-					aria-label="Use my location"
-					title="Use my location"
-					onClick={useMyLocation}
+				<div
+					className="search-location-controls"
+					role="group"
+					aria-label="Location and map centering"
 				>
-					<svg
-						aria-hidden="true"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
+					<button
+						type="button"
+						className="location-button"
+						aria-label="Use my location"
+						title="Use my location"
+						onClick={useMyLocation}
 					>
-						<circle cx="12" cy="12" r="4" />
-						<path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
-					</svg>
-				</button>
-				<div className="location-field">
-					<input
-						type="text"
-						aria-label="Location"
-						value={form.location}
-						placeholder="Coordinates or place name"
-						onChange={(e) => updateForm("location", e.target.value)}
-						required
-					/>
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+						>
+							<circle cx="12" cy="12" r="4" />
+							<path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+						</svg>
+					</button>
+					<div className="location-field">
+						<input
+							type="text"
+							aria-label="Location"
+							value={form.location}
+							placeholder="Coordinates or place name"
+							onChange={(e) =>
+								updateForm("location", e.target.value)
+							}
+							required
+						/>
+					</div>
+					<button
+						type="button"
+						className="location-centre-button"
+						disabled={resolvingLocation}
+						onClick={() => void centreOnLocation()}
+					>
+						{resolvingLocation ? "Locating…" : "Centre map"}
+					</button>
 				</div>
-				<button
-					type="button"
-					disabled={resolvingLocation}
-					onClick={() => void centreOnLocation()}
+				<div
+					className="map-centre-controls"
+					role="group"
+					aria-label="Map centre search"
 				>
-					{resolvingLocation ? "Locating…" : "Centre"}
-				</button>
-				<button type="submit" disabled={loading || resolvingLocation}>
-					{loading || searching ? "Searching…" : "Search"}
-				</button>
+					<button
+						type="submit"
+						disabled={loading || resolvingLocation}
+					>
+						{loading || searching ? "Searching…" : "Search"}
+					</button>
+				</div>
 			</div>
 			<button
 				type="button"

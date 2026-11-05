@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../useAuth";
+import { blurFocusedFormControl } from "../utils/blurFocusedFormControl";
 
 export default function LoginPage() {
 	const { login } = useAuth();
@@ -16,6 +17,7 @@ export default function LoginPage() {
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		blurFocusedFormControl(e.currentTarget);
 
 		setError("");
 		setLoading(true);

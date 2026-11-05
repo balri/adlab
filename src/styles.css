@@ -85,6 +85,20 @@ body {
 }
 
 @media (width <=600px) {
+	.app input:not([type="checkbox"], [type="submit"], [type="button"]),
+	.app select,
+	.app textarea {
+		font-size: 16px;
+	}
+
+	.app button,
+	.app input:not([type="checkbox"]),
+	.app select,
+	.app .coordinate-link,
+	.app .btn {
+		min-height: 44px;
+	}
+
 	.search-form-row {
 		flex-direction: column;
 		align-items: stretch;
@@ -118,7 +132,7 @@ body {
 	gap: 0.25rem;
 }
 
-.search-form-actions .location-field {
+.search-location-controls .location-field {
 	flex: 0 1 18rem;
 	max-width: 18rem;
 	min-width: 0;
@@ -147,8 +161,60 @@ body {
 .search-form-actions {
 	display: flex;
 	flex-wrap: nowrap;
-	align-items: flex-end;
+	align-items: stretch;
 	gap: 0.75rem;
+}
+
+.search-location-controls {
+	display: flex;
+	flex: 0 1 auto;
+	min-width: 0;
+	align-items: stretch;
+	gap: 0.75rem;
+	padding: 0.5rem;
+	border: 1px solid rgb(128 128 128 / 30%);
+	border-radius: 6px;
+}
+
+.map-centre-controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@media (width <=600px) {
+	.search-form-actions {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.search-location-controls {
+		display: grid;
+		grid-template-columns: 2.75rem minmax(0, 1fr);
+		align-items: stretch;
+	}
+
+	.search-location-controls .location-button {
+		grid-column: 1;
+	}
+
+	.search-location-controls .location-field {
+		grid-column: 2;
+		width: 100%;
+		max-width: none;
+	}
+
+	.search-location-controls .location-centre-button {
+		grid-column: 1 / -1;
+	}
+
+	.map-centre-controls {
+		align-items: stretch;
+	}
+
+	.map-centre-controls > button {
+		width: 100%;
+	}
 }
 
 .location-button {
@@ -543,6 +609,26 @@ body {
 	padding: 0.5rem 0.6rem;
 	border: 1px solid rgb(128 128 128 / 30%);
 	border-radius: 6px;
+}
+
+@media (width >600px) {
+	.app .search-location-controls .location-button,
+	.app .search-location-controls .location-centre-button,
+	.app .search-location-controls .location-field input,
+	.app .map-centre-controls > button {
+		height: 1.5rem;
+		min-height: 1.5rem;
+	}
+
+	.app .search-location-controls .location-button {
+		width: 1.5rem;
+		flex: 0 0 1.5rem;
+	}
+
+	.app .search-location-controls .location-centre-button {
+		flex-shrink: 0;
+		white-space: nowrap;
+	}
 }
 
 .login-info {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LabDetail, LabStage } from "../types";
 import SubmitAnswer from "./SubmitAnswer";
 import { canSubmitStageInSequence } from "../utils/canSubmitAnswer";
+import { blurFocusedFormControl } from "../utils/blurFocusedFormControl";
 
 interface LabStageQuestionParams {
 	loading: boolean;
@@ -33,8 +34,9 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 		}));
 	}
 
-	function handleSubmit(e: React.FormEvent) {
+	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		blurFocusedFormControl(e.currentTarget);
 
 		onCheck(form.answer);
 	}

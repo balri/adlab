@@ -215,10 +215,11 @@ describe("LabStageDetailPage", () => {
 		const answerInput = await screen.findByRole("textbox");
 		expect(answerInput).toHaveAttribute("autocapitalize", "words");
 		await user.type(answerInput, "wrong");
-		await user.click(screen.getByRole("button", { name: "Check" }));
+		await user.keyboard("{Enter}");
 
 		const error = await screen.findByText("Incorrect answer");
 		expect(error.closest("form")).toBeInTheDocument();
+		expect(answerInput).not.toHaveFocus();
 	});
 
 	it("hides submission for a sequential stage until prior stages are complete", async () => {

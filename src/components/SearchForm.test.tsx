@@ -306,10 +306,23 @@ describe("SearchForm", () => {
 			/>,
 		);
 		expandOptions();
-		fireEvent.change(screen.getByLabelText("Location"), {
+		const locationInput = screen.getByLabelText("Location");
+		fireEvent.change(locationInput, {
 			target: { value: "51.5, -0.12" },
 		});
-		fireEvent.click(screen.getByRole("button", { name: "Centre" }));
+		const centreMapButton = screen.getByRole("button", {
+			name: "Centre map",
+		});
+		expect(
+			screen.getByRole("group", {
+				name: "Location and map centering",
+			}),
+		).toContainElement(centreMapButton);
+		const searchButton = screen.getByRole("button", { name: "Search" });
+		expect(
+			screen.getByRole("group", { name: "Map centre search" }),
+		).toContainElement(searchButton);
+		fireEvent.click(centreMapButton);
 
 		await waitFor(() => {
 			expect(onSearchCentreChange).toHaveBeenCalledWith({
@@ -380,7 +393,7 @@ describe("SearchForm", () => {
 		fireEvent.change(screen.getByLabelText("Location"), {
 			target: { value: "London" },
 		});
-		fireEvent.click(screen.getByRole("button", { name: "Centre" }));
+		fireEvent.click(screen.getByRole("button", { name: "Centre map" }));
 
 		await waitFor(() => {
 			expect(onSearchCentreChange).toHaveBeenCalledWith({
