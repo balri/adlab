@@ -268,6 +268,26 @@ describe("SearchForm", () => {
 		expect(screen.getByLabelText("Max results")).toHaveValue(DEFAULT_TAKE);
 	});
 
+	it("capitalizes and selects all location text on focus", () => {
+		render(
+			<SearchForm
+				onSearch={() => {}}
+				loading={false}
+				searchCentre={null}
+				onSearchCentreChange={() => {}}
+			/>,
+		);
+
+		const locationInput = screen.getByLabelText("Location");
+		expect(locationInput).toHaveAttribute("autocapitalize", "words");
+		locationInput.focus();
+		expect(locationInput).toHaveFocus();
+		expect((locationInput as HTMLInputElement).selectionStart).toBe(0);
+		expect((locationInput as HTMLInputElement).selectionEnd).toBe(
+			(locationInput as HTMLInputElement).value.length,
+		);
+	});
+
 	it("expands and collapses the search options", () => {
 		render(
 			<SearchForm

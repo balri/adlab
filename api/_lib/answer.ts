@@ -12,6 +12,7 @@ const POSSIBLE_NUMBER_QUESTIONS = [
 	"number",
 	"numeral",
 	"digit",
+	"how far",
 ];
 
 const POSSIBLE_COLOURS = [

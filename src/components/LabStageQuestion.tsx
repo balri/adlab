@@ -70,6 +70,7 @@ export default function LabStageQuestion(params: LabStageQuestionParams) {
 							<input
 								type="text"
 								autoCapitalize="words"
+								onFocus={(e) => e.currentTarget.select()}
 								value={form.answer}
 								onChange={(e) =>
 									updateForm("answer", e.target.value)

@@ -253,8 +253,10 @@ export default function SearchForm({
 						<input
 							type="text"
 							aria-label="Location"
+							autoCapitalize="words"
 							value={form.location}
 							placeholder="Coordinates or place name"
+							onFocus={(e) => e.currentTarget.select()}
 							onChange={(e) =>
 								updateForm("location", e.target.value)
 							}
