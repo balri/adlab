@@ -7,7 +7,13 @@ import LabMeta from "./LabMeta";
 import SortControls, { type SortOption } from "./SortControls";
 
 type LabSortField =
-	"name" | "date" | "rating" | "answers" | "distance" | "status";
+	| "name"
+	| "date"
+	| "rating"
+	| "ratingsCount"
+	| "answers"
+	| "distance"
+	| "status";
 
 const completionStatusOrder: Record<CompletionStatus, number> = {
 	NotStarted: 0,
@@ -19,6 +25,7 @@ const sortOptions: SortOption<LabSortField>[] = [
 	{ value: "name", label: "Name" },
 	{ value: "date", label: "Date" },
 	{ value: "rating", label: "Rating" },
+	{ value: "ratingsCount", label: "Number of ratings" },
 	{ value: "answers", label: "Number of answers" },
 	{ value: "distance", label: "Distance" },
 	{ value: "status", label: "Status" },
@@ -74,6 +81,9 @@ export default function ResultsList({ labs, searchCentre }: Props) {
 			}
 			case "rating":
 				comparison = a.ratingsAverage - b.ratingsAverage;
+				break;
+			case "ratingsCount":
+				comparison = a.ratingsTotalCount - b.ratingsTotalCount;
 				break;
 			case "answers":
 				comparison = (a.numAnswers ?? 0) - (b.numAnswers ?? 0);

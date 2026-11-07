@@ -117,6 +117,7 @@ describe("ResultsList", () => {
 			title: "Alpha",
 			publishedUtc: "2025-01-01T00:00:00Z",
 			ratingsAverage: 3.3,
+			ratingsTotalCount: 20,
 			numAnswers: 5,
 			location: { latitude: -26.5, longitude: 153 },
 		});
@@ -125,6 +126,7 @@ describe("ResultsList", () => {
 			title: "Beta",
 			publishedUtc: "2024-01-01T00:00:00Z",
 			ratingsAverage: 4.7,
+			ratingsTotalCount: 5,
 			numAnswers: 1,
 			location: { latitude: -27.5, longitude: 153 },
 		});
@@ -144,6 +146,7 @@ describe("ResultsList", () => {
 			{ field: "name", ascending: ["Alpha", "Beta"] },
 			{ field: "date", ascending: ["Beta", "Alpha"] },
 			{ field: "rating", ascending: ["Alpha", "Beta"] },
+			{ field: "ratingsCount", ascending: ["Beta", "Alpha"] },
 			{ field: "answers", ascending: ["Beta", "Alpha"] },
 			{ field: "distance", ascending: ["Beta", "Alpha"] },
 		];
