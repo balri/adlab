@@ -11,6 +11,10 @@ import {
 } from "../utils/loadForm";
 import SearchMap from "../components/SearchMap";
 import { getCentre, getRadius } from "../utils/mapUtils";
+import {
+	loadStoredUserLocation,
+	storeUserLocation,
+} from "../utils/storedUserLocation";
 
 function setCentreAndRadius(
 	labs: LabSummary[],
@@ -45,6 +49,12 @@ export default function SearchPage() {
 			longitude: Number(longitude),
 		} as LatLng;
 	});
+	const [userLocation, setUserLocation] = useState<LatLng | null>(
+		loadStoredUserLocation,
+	);
+	const [userLocationTrackingEnabled, setUserLocationTrackingEnabled] =
+		useState(() => loadStoredUserLocation() !== null);
+	const distanceCentre = userLocation ?? searchCentre;
 	const [mapInteractionCentre, setMapInteractionCentre] =
 		useState<LatLng | null>(null);
 	const [centre, setCentre] = useState<LatLng | null>(() => {
@@ -61,6 +71,31 @@ export default function SearchPage() {
 		sessionStorage.setItem("searchCentre", JSON.stringify(centre));
 		sessionStorage.setItem("searchRadius", JSON.stringify(radius));
 	}, [labs, centre, radius]);
+
+	useEffect(() => {
+		const geolocation = navigator.geolocation;
+		if (
+			!userLocationTrackingEnabled ||
+			!geolocation ||
+			typeof geolocation.watchPosition !== "function"
+		)
+			return;
+
+		const watchId = geolocation.watchPosition(
+			(position) => {
+				const location = {
+					latitude: position.coords.latitude,
+					longitude: position.coords.longitude,
+				};
+				storeUserLocation(location);
+				setUserLocation(location);
+			},
+			undefined,
+			{ enableHighAccuracy: true, maximumAge: 10_000 },
+		);
+
+		return () => geolocation.clearWatch(watchId);
+	}, [userLocationTrackingEnabled]);
 
 	async function handleSearch(params: SearchParams) {
 		setLoading(true);
@@ -88,6 +123,12 @@ export default function SearchPage() {
 		}
 	}
 
+	function handleUserLocationChange(location: LatLng) {
+		storeUserLocation(location);
+		setUserLocation(location);
+		setUserLocationTrackingEnabled(true);
+	}
+
 	return (
 		<div className="search-page">
 			{searchCentre && (
@@ -96,6 +137,7 @@ export default function SearchPage() {
 					radius={radius}
 					labs={labs}
 					searchCentre={searchCentre}
+					distanceCentre={distanceCentre}
 					onUserMapMove={setMapInteractionCentre}
 				/>
 			)}
@@ -104,12 +146,13 @@ export default function SearchPage() {
 				loading={loading}
 				searchCentre={searchCentre}
 				onSearchCentreChange={setSearchCentre}
+				onUserLocationChange={handleUserLocationChange}
 				mapInteractionCentre={mapInteractionCentre}
 			/>
 			{error && <p className="error-text">{error}</p>}
 			{!!labs.length && (
 				<div className="search-results">
-					<ResultsList labs={labs} searchCentre={searchCentre} />
+					<ResultsList labs={labs} searchCentre={distanceCentre} />
 					{labs.some((lab) => (lab.numAnswers ?? 0) > 0) && (
 						<p className="answer-count-disclaimer">
 							* Answer counts are a guideline only; actual counts

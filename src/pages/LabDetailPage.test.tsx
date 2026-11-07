@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+	act,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LabDetailPage from "./LabDetailPage";
 import type { LabDetail } from "../types";
@@ -142,6 +148,87 @@ describe("LabDetailPage", () => {
 
 		expect(answer).toHaveClass("success-text");
 		expect(answer.parentElement).toContainElement(submitButton);
+	});
+
+	it("shows the correct answer for a nearby user below ten ratings", async () => {
+		localStorage.setItem("userCanAnswer", "true");
+		Object.defineProperty(navigator, "geolocation", {
+			configurable: true,
+			value: {
+				watchPosition: vi.fn((success: PositionCallback) => {
+					success({
+						coords: {
+							latitude: lab.stageSummaries[0].location.latitude,
+							longitude: lab.stageSummaries[0].location.longitude,
+						},
+					} as GeolocationPosition);
+					return 1;
+				}),
+				clearWatch: vi.fn(),
+			},
+		});
+		mockGetLab.mockResolvedValue({
+			...lab,
+			stageSummaries: [{ ...lab.stageSummaries[0], correctAnswer: "42" }],
+		});
+		renderPage();
+
+		const answer = await screen.findByText("42");
+		const submitButton = screen.getByRole("button", {
+			name: "Send Answer",
+		});
+
+		expect(answer.parentElement).toContainElement(submitButton);
+	});
+
+	it("updates lab and stage distances as the user moves", async () => {
+		let updateLocation: PositionCallback | undefined;
+		const clearWatch = vi.fn();
+		localStorage.setItem("userCanAnswer", "true");
+		localStorage.setItem(
+			"searchForm",
+			JSON.stringify({ latitude: 0, longitude: 0 }),
+		);
+		Object.defineProperty(navigator, "geolocation", {
+			configurable: true,
+			value: {
+				watchPosition: vi.fn((success: PositionCallback) => {
+					updateLocation = success;
+					success({
+						coords: {
+							latitude:
+								lab.stageSummaries[0].location.latitude + 0.001,
+							longitude: lab.stageSummaries[0].location.longitude,
+						},
+					} as GeolocationPosition);
+					return 1;
+				}),
+				clearWatch,
+			},
+		});
+		mockGetLab.mockResolvedValue({
+			...lab,
+			stageSummaries: [{ ...lab.stageSummaries[0], correctAnswer: "42" }],
+		});
+		const { unmount } = renderPage();
+
+		expect(await screen.findAllByText("0.11 km")).toHaveLength(2);
+		act(() => {
+			updateLocation?.({
+				coords: {
+					latitude: lab.stageSummaries[0].location.latitude + 0.002,
+					longitude: lab.stageSummaries[0].location.longitude,
+				},
+			} as GeolocationPosition);
+		});
+		expect(await screen.findAllByText("0.22 km")).toHaveLength(2);
+		expect(screen.queryByText("0.11 km")).not.toBeInTheDocument();
+		expect(JSON.parse(sessionStorage.getItem("userLocation")!)).toEqual({
+			latitude: lab.stageSummaries[0].location.latitude + 0.002,
+			longitude: lab.stageSummaries[0].location.longitude,
+		});
+		unmount();
+		expect(clearWatch).toHaveBeenCalledWith(1);
 	});
 
 	it("hides the correct answer when stage submission is unavailable", async () => {

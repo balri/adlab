@@ -13,6 +13,7 @@ interface Props {
 	loading: boolean;
 	searchCentre: LatLng | null;
 	onSearchCentreChange: (centre: LatLng) => void;
+	onUserLocationChange?: (location: LatLng) => void;
 	mapInteractionCentre?: LatLng | null;
 }
 
@@ -94,6 +95,7 @@ export default function SearchForm({
 	loading,
 	searchCentre,
 	onSearchCentreChange,
+	onUserLocationChange,
 	mapInteractionCentre = null,
 }: Props) {
 	const [form, setForm] = useState<FormState>(loadForm);
@@ -162,14 +164,15 @@ export default function SearchForm({
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				const centre = {
+				const location = {
 					latitude: Number(position.coords.latitude.toFixed(6)),
 					longitude: Number(position.coords.longitude.toFixed(6)),
 				};
 				applyLocationCentre(
-					centre,
-					`${centre.latitude}, ${centre.longitude}`,
+					location,
+					`${location.latitude}, ${location.longitude}`,
 				);
+				onUserLocationChange?.(location);
 			},
 			(err) => setGeoError(err.message),
 		);

@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+	act,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import SearchPage from "./SearchPage";
 import type { LabSummary } from "../types";
@@ -179,6 +185,80 @@ describe("SearchPage", () => {
 				latitude: DEFAULT_LATITUDE,
 				longitude: DEFAULT_LONGITUDE,
 			}) / 1000
+		).toFixed(2);
+		expect(
+			await screen.findByText(`${expectedDistance} km`),
+		).toBeInTheDocument();
+	});
+
+	it("updates result distance as the user moves", async () => {
+		let updateLocation: PositionCallback | undefined;
+		const clearWatch = vi.fn();
+		vi.stubGlobal("navigator", {
+			...navigator,
+			geolocation: {
+				getCurrentPosition: (success: PositionCallback) =>
+					success({
+						coords: { latitude: -27.3, longitude: 153 },
+					} as GeolocationPosition),
+				watchPosition: (success: PositionCallback) => {
+					updateLocation = success;
+					return 1;
+				},
+				clearWatch,
+			},
+		});
+		mockSearchLabs.mockResolvedValue([lab()]);
+		const { unmount } = renderPage();
+
+		fireEvent.click(
+			screen.getByRole("button", { name: "Use my location" }),
+		);
+		fireEvent.change(screen.getByLabelText("Location"), {
+			target: { value: "-27.4, 153.0" },
+		});
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+		const initialDistance = (
+			distanceBetween(lab().location, {
+				latitude: -27.3,
+				longitude: 153,
+			}) / 1000
+		).toFixed(2);
+		expect(
+			await screen.findByText(`${initialDistance} km`),
+		).toBeInTheDocument();
+
+		act(() => {
+			updateLocation?.({
+				coords: { latitude: -27.2, longitude: 153 },
+			} as GeolocationPosition);
+		});
+
+		const updatedDistance = (
+			distanceBetween(lab().location, {
+				latitude: -27.2,
+				longitude: 153,
+			}) / 1000
+		).toFixed(2);
+		expect(
+			await screen.findByText(`${updatedDistance} km`),
+		).toBeInTheDocument();
+		expect(
+			screen.queryByText(`${initialDistance} km`),
+		).not.toBeInTheDocument();
+		unmount();
+		expect(clearWatch).toHaveBeenCalledWith(1);
+	});
+
+	it("restores the known user location for results after returning", async () => {
+		const savedLocation = { latitude: -27.3, longitude: 153 };
+		sessionStorage.setItem("searchResults", JSON.stringify([lab()]));
+		sessionStorage.setItem("userLocation", JSON.stringify(savedLocation));
+		renderPage();
+
+		const expectedDistance = (
+			distanceBetween(lab().location, savedLocation) / 1000
 		).toFixed(2);
 		expect(
 			await screen.findByText(`${expectedDistance} km`),

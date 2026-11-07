@@ -78,6 +78,17 @@ describe("StatusChips", () => {
 		expect(screen.getByText("3 of 5 answers*")).toBeInTheDocument();
 	});
 
+	it("shows Has All Answers when every stage has an answer", () => {
+		render(
+			<StatusChips
+				lab={makeLab({ numAnswers: 5, stagesTotalCount: 5 })}
+			/>,
+		);
+
+		expect(screen.getByText("Has All Answers*")).toBeInTheDocument();
+		expect(screen.queryByText("5 of 5 answers*")).not.toBeInTheDocument();
+	});
+
 	it("omits the asterisk from the answer count for a lab detail", () => {
 		const labDetail = {
 			...makeLab({ numAnswers: 3, stagesTotalCount: 5 }),
@@ -157,7 +168,7 @@ describe("StatusChips", () => {
 			/>,
 		);
 		expect(screen.queryByText("All Multi Choice")).not.toBeInTheDocument();
-		expect(screen.getByText("2 of 2 answers")).toBeInTheDocument();
+		expect(screen.getByText("Has All Answers")).toBeInTheDocument();
 
 		rerender(<StatusChips lab={makeLabDetail([])} />);
 		expect(screen.queryByText("All Multi Choice")).not.toBeInTheDocument();

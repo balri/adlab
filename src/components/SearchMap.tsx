@@ -12,6 +12,7 @@ interface Props {
 	radius: number;
 	labs: LabSummary[];
 	searchCentre: LatLng | null;
+	distanceCentre?: LatLng | null;
 	onUserMapMove: (centre: LatLng) => void;
 }
 
@@ -153,6 +154,7 @@ export default function SearchMap({
 	radius,
 	labs,
 	searchCentre,
+	distanceCentre = searchCentre,
 	onUserMapMove,
 }: Props) {
 	const zoomLevel = radiusToZoom(radius, centre.latitude, mapWidth);
@@ -184,7 +186,7 @@ export default function SearchMap({
 						<Link to={`/labs/${lab.adventureGuid}`}>
 							{lab.title}
 						</Link>
-						<LabMeta lab={lab} searchCentre={searchCentre} />
+						<LabMeta lab={lab} searchCentre={distanceCentre} />
 					</Popup>
 				</Marker>
 			))}

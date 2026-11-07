@@ -7,6 +7,7 @@ import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 interface SubmitAnswerProps {
 	lab: LabDetail;
 	stage: LabStage;
+	userLocation?: LatLng | null;
 	disabled?: boolean;
 	onSuccess: (lab: LabDetail) => void;
 	onError: (err: string) => void;
@@ -15,13 +16,15 @@ interface SubmitAnswerProps {
 export default function SubmitAnswer({
 	lab,
 	stage,
+	userLocation: providedUserLocation,
 	disabled = false,
 	onSuccess,
 	onError,
 }: SubmitAnswerProps) {
 	const { getLab, submitAnswer } = useApi();
 	const [loading, setLoading] = useState<boolean>(false);
-	const [userLocation, setUserLocation] = useState<LatLng | null>(null);
+	const [detectedUserLocation, setDetectedUserLocation] =
+		useState<LatLng | null>(null);
 	const needsNearbyCheck =
 		lab.ratingsTotalCount < 10 &&
 		Boolean(stage.correctAnswer) &&
@@ -29,19 +32,24 @@ export default function SubmitAnswer({
 		localStorage.getItem("userCanAnswer") === "true";
 
 	useEffect(() => {
-		if (!needsNearbyCheck || !navigator.geolocation) return;
+		if (
+			providedUserLocation !== undefined ||
+			!needsNearbyCheck ||
+			!navigator.geolocation
+		)
+			return;
 
 		let active = true;
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
 				if (!active) return;
-				setUserLocation({
+				setDetectedUserLocation({
 					latitude: position.coords.latitude,
 					longitude: position.coords.longitude,
 				});
 			},
 			() => {
-				if (active) setUserLocation(null);
+				if (active) setDetectedUserLocation(null);
 			},
 			{ enableHighAccuracy: true, maximumAge: 30_000, timeout: 10_000 },
 		);
@@ -49,8 +57,17 @@ export default function SubmitAnswer({
 		return () => {
 			active = false;
 		};
-	}, [needsNearbyCheck, stage.location.latitude, stage.location.longitude]);
+	}, [
+		needsNearbyCheck,
+		providedUserLocation,
+		stage.location.latitude,
+		stage.location.longitude,
+	]);
 
+	const userLocation =
+		providedUserLocation === undefined
+			? detectedUserLocation
+			: providedUserLocation;
 	const canAnswer = canSubmitAnswer(lab, stage, userLocation);
 
 	if (!canAnswer) return null;

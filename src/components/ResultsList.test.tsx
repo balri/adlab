@@ -100,4 +100,12 @@ describe("ResultsList", () => {
 
 		expect(screen.getAllByRole("listitem")).toHaveLength(2);
 	});
+
+	it("shows zero distance with two decimal places", () => {
+		renderResults([
+			lab({ location: { latitude: -27.5, longitude: 153.0 } }),
+		]);
+
+		expect(screen.getByText("0.00 km")).toBeInTheDocument();
+	});
 });

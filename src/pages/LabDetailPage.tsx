@@ -16,6 +16,10 @@ import {
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 import CoordinateLink from "../components/CoordinateLink";
 import BackLink from "../components/BackLink";
+import {
+	loadStoredUserLocation,
+	storeUserLocation,
+} from "../utils/storedUserLocation";
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -23,6 +27,9 @@ export default function LabDetailPage() {
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [submittingAll, setSubmittingAll] = useState(false);
+	const [userLocation, setUserLocation] = useState<LatLng | null>(
+		loadStoredUserLocation,
+	);
 	const [searchCentre, setSearchCentre] = useState<LatLng | null>(() => {
 		const { latitude, longitude } = loadForm();
 		return {
@@ -30,6 +37,41 @@ export default function LabDetailPage() {
 			longitude: Number(longitude),
 		} as LatLng;
 	});
+	const needsNearbyCheck = Boolean(
+		lab &&
+		lab.ratingsTotalCount < 10 &&
+		lab.stageSummaries.some(
+			(stage) => Boolean(stage.correctAnswer) && !stage.isComplete,
+		),
+	);
+	const distanceCentre = userLocation ?? searchCentre;
+	const shouldTrackLocation = needsNearbyCheck || userLocation !== null;
+
+	useEffect(() => {
+		const geolocation = navigator.geolocation;
+		if (
+			!guid ||
+			!shouldTrackLocation ||
+			!geolocation ||
+			typeof geolocation.watchPosition !== "function"
+		)
+			return;
+
+		const watchId = geolocation.watchPosition(
+			(position) => {
+				const location = {
+					latitude: position.coords.latitude,
+					longitude: position.coords.longitude,
+				};
+				storeUserLocation(location);
+				setUserLocation(location);
+			},
+			undefined,
+			{ enableHighAccuracy: true, maximumAge: 10_000 },
+		);
+
+		return () => geolocation.clearWatch(watchId);
+	}, [guid, shouldTrackLocation]);
 
 	useEffect(() => {
 		async function loadLab() {
@@ -146,7 +188,7 @@ export default function LabDetailPage() {
 					</p>
 				)}
 			</div>
-			<LabMeta lab={lab} searchCentre={searchCentre} showReviews />
+			<LabMeta lab={lab} searchCentre={distanceCentre} showReviews />
 			<div className="lab-detail-content">
 				{lab.keyImageUrl && <img src={lab.keyImageUrl} width="300" />}
 				<div>
@@ -154,8 +196,8 @@ export default function LabDetailPage() {
 				</div>
 			</div>
 			<h2>Stages ({lab.stageSummaries.length})</h2>
-			{lab.stageSummaries.length > 0 && searchCentre !== null && (
-				<LabMap lab={lab} searchCentre={searchCentre} />
+			{lab.stageSummaries.length > 0 && distanceCentre !== null && (
+				<LabMap lab={lab} searchCentre={distanceCentre} />
 			)}
 			{canSubmitAll && (
 				<button
@@ -183,12 +225,12 @@ export default function LabDetailPage() {
 									location={stage.location}
 									name={stage.title}
 								/>
-								{searchCentre && (
+								{distanceCentre && (
 									<span>
 										{(
 											distanceBetween(
 												stage.location,
-												searchCentre,
+												distanceCentre,
 											) / 1000
 										).toFixed(2)}{" "}
 										km
@@ -197,7 +239,11 @@ export default function LabDetailPage() {
 							</div>
 							<div className="stage-answer-submit">
 								{canSubmitStage &&
-									canSubmitAnswer(lab, stage) && (
+									canSubmitAnswer(
+										lab,
+										stage,
+										userLocation,
+									) && (
 										<span className="success-text">
 											{stage.correctAnswer}
 										</span>
@@ -206,6 +252,7 @@ export default function LabDetailPage() {
 									<SubmitAnswer
 										lab={lab}
 										stage={stage}
+										userLocation={userLocation}
 										disabled={submittingAll}
 										onSuccess={setLab}
 										onError={setError}

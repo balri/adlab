@@ -9,6 +9,10 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 	const isLabDetail = (candidate: LabSummary): candidate is LabDetail =>
 		"stageSummaries" in candidate;
 	const isLabSummary = lab !== undefined && !isLabDetail(lab);
+	const hasAllAnswers =
+		lab !== undefined &&
+		lab.stagesTotalCount > 0 &&
+		(lab.numAnswers ?? 0) >= lab.stagesTotalCount;
 	const hasMultipleChoiceStageChip = stage?.challengeType === "MultiChoice";
 	const hasAllMultipleChoiceLabChip =
 		!stage &&
@@ -72,8 +76,9 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 				!!lab?.numAnswers &&
 				lab.numAnswers > 0 && (
 					<span className="status-chip correct">
-						{lab.numAnswers} of {lab.stagesTotalCount} answers
-						{isLabSummary && "*"}
+						{hasAllAnswers
+							? `Has All Answers${isLabSummary ? "*" : ""}`
+							: `${lab.numAnswers} of ${lab.stagesTotalCount} answers${isLabSummary ? "*" : ""}`}
 					</span>
 				)}
 		</span>
