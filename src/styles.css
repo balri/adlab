@@ -259,6 +259,13 @@ body {
 	text-align: left;
 }
 
+.search-options-toggles {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+}
+
 .error-text {
 	color: #c0392b;
 }

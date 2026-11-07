@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import type {
 	CompletionStatus,
 	FormState,
@@ -15,6 +16,7 @@ interface Props {
 	onSearchCentreChange: (centre: LatLng) => void;
 	onUserLocationChange?: (location: LatLng) => void;
 	mapInteractionCentre?: LatLng | null;
+	sortOptionsToggle?: ReactNode;
 }
 
 function parseCoordinates(location: string): LatLng | null {
@@ -97,6 +99,7 @@ export default function SearchForm({
 	onSearchCentreChange,
 	onUserLocationChange,
 	mapInteractionCentre = null,
+	sortOptionsToggle,
 }: Props) {
 	const [form, setForm] = useState<FormState>(loadForm);
 	const [geoError, setGeoError] = useState<string | null>(null);
@@ -288,14 +291,17 @@ export default function SearchForm({
 					</button>
 				</div>
 			</div>
-			<button
-				type="button"
-				className="search-options-toggle"
-				onClick={() => setExpanded((current) => !current)}
-				aria-expanded={expanded}
-			>
-				Search options {expanded ? "▲" : "▼"}
-			</button>
+			<div className="search-options-toggles">
+				<button
+					type="button"
+					className="search-options-toggle"
+					onClick={() => setExpanded((current) => !current)}
+					aria-expanded={expanded}
+				>
+					Search options {expanded ? "▲" : "▼"}
+				</button>
+				{sortOptionsToggle}
+			</div>
 
 			{expanded && (
 				<>

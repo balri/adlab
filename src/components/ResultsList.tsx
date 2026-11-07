@@ -50,9 +50,16 @@ function loadSortDirection(): "asc" | "desc" {
 interface Props {
 	labs: LabSummary[];
 	searchCentre: LatLng | null;
+	sortOptionsExpanded?: boolean;
+	onSortOptionsExpandedChange?: (expanded: boolean) => void;
 }
 
-export default function ResultsList({ labs, searchCentre }: Props) {
+export default function ResultsList({
+	labs,
+	searchCentre,
+	sortOptionsExpanded,
+	onSortOptionsExpandedChange,
+}: Props) {
 	const [sortField, setSortField] = useState<LabSortField>(loadSortField);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
 		loadSortDirection,
@@ -116,6 +123,9 @@ export default function ResultsList({ labs, searchCentre }: Props) {
 				onValueChange={setSortField}
 				direction={sortDirection}
 				onDirectionChange={setSortDirection}
+				expanded={sortOptionsExpanded}
+				onExpandedChange={onSortOptionsExpandedChange}
+				showToggle={sortOptionsExpanded === undefined}
 			/>
 			<ul className="results-list">
 				{sortedLabs.map((lab) => (

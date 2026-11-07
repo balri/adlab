@@ -38,6 +38,10 @@ function renderResults(labs: LabSummary[]) {
 	);
 }
 
+function openSortOptions() {
+	fireEvent.click(screen.getByRole("button", { name: /Sort options/ }));
+}
+
 describe("ResultsList", () => {
 	beforeEach(() => sessionStorage.clear());
 
@@ -111,6 +115,21 @@ describe("ResultsList", () => {
 		expect(screen.getByText("0.00 km")).toBeInTheDocument();
 	});
 
+	it("hides sort selects until sort options are expanded", () => {
+		renderResults([lab()]);
+
+		expect(
+			screen.queryByRole("combobox", { name: "Sort by" }),
+		).not.toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /Sort options/ }),
+		).toHaveAttribute("aria-expanded", "false");
+
+		openSortOptions();
+
+		expect(screen.getByRole("combobox", { name: "Sort by" })).toBeVisible();
+	});
+
 	it("sorts search results by every available field in both directions", () => {
 		const fartherLab = lab({
 			adventureGuid: "farther",
@@ -131,6 +150,7 @@ describe("ResultsList", () => {
 			location: { latitude: -27.5, longitude: 153 },
 		});
 		renderResults([fartherLab, closerLab]);
+		openSortOptions();
 
 		const sortBy = screen.getByRole("combobox", { name: "Sort by" });
 		const direction = screen.getByRole("combobox", {
@@ -180,6 +200,7 @@ describe("ResultsList", () => {
 			}),
 		];
 		const { unmount } = renderResults(labs);
+		openSortOptions();
 		fireEvent.change(screen.getByRole("combobox", { name: "Sort by" }), {
 			target: { value: "date" },
 		});
@@ -190,6 +211,7 @@ describe("ResultsList", () => {
 		unmount();
 
 		renderResults(labs);
+		openSortOptions();
 
 		expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue(
 			"date",
@@ -225,6 +247,7 @@ describe("ResultsList", () => {
 			}),
 		];
 		renderResults(labs);
+		openSortOptions();
 
 		const sortBy = screen.getByRole("combobox", { name: "Sort by" });
 		const direction = screen.getByRole("combobox", {

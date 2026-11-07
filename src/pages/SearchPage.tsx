@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import SearchForm from "../components/SearchForm";
 import ResultsList from "../components/ResultsList";
+import { SortOptionsToggle } from "../components/SortControls";
 import type { LabSummary, LatLng, SearchParams } from "../types";
 import { useApi } from "../useApi";
 import {
@@ -42,6 +43,7 @@ export default function SearchPage() {
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [sortOptionsExpanded, setSortOptionsExpanded] = useState(false);
 	const [searchCentre, setSearchCentre] = useState<LatLng | null>(() => {
 		const { latitude, longitude } = loadForm();
 		return {
@@ -148,11 +150,26 @@ export default function SearchPage() {
 				onSearchCentreChange={setSearchCentre}
 				onUserLocationChange={handleUserLocationChange}
 				mapInteractionCentre={mapInteractionCentre}
+				sortOptionsToggle={
+					labs.length > 0 && (
+						<SortOptionsToggle
+							expanded={sortOptionsExpanded}
+							onToggle={() =>
+								setSortOptionsExpanded((current) => !current)
+							}
+						/>
+					)
+				}
 			/>
 			{error && <p className="error-text">{error}</p>}
 			{!!labs.length && (
 				<div className="search-results">
-					<ResultsList labs={labs} searchCentre={distanceCentre} />
+					<ResultsList
+						labs={labs}
+						searchCentre={distanceCentre}
+						sortOptionsExpanded={sortOptionsExpanded}
+						onSortOptionsExpandedChange={setSortOptionsExpanded}
+					/>
 					{labs.some((lab) => (lab.numAnswers ?? 0) > 0) && (
 						<p className="answer-count-disclaimer">
 							* Answer counts are a guideline only; actual counts

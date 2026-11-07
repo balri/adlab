@@ -162,6 +162,7 @@ describe("LabDetailPage", () => {
 		});
 		renderPage();
 		await screen.findByRole("link", { name: "Stage C" });
+		fireEvent.click(screen.getByRole("button", { name: /Sort options/ }));
 
 		const stageTitles = () =>
 			Array.from(
@@ -204,6 +205,7 @@ describe("LabDetailPage", () => {
 		mockGetLab.mockResolvedValue({ ...lab, stageSummaries: stages });
 		renderPage();
 		await screen.findByRole("link", { name: "Complete A" });
+		fireEvent.click(screen.getByRole("button", { name: /Sort options/ }));
 
 		const stageTitles = () =>
 			Array.from(

@@ -99,6 +99,27 @@ describe("SearchPage", () => {
 		);
 	});
 
+	it("places collapsed search and sort options alongside each other", async () => {
+		mockSearchLabs.mockResolvedValue([lab()]);
+		renderPage();
+
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+		await screen.findByRole("link", { name: "Test Lab" });
+
+		const searchOptions = screen.getByRole("button", {
+			name: /Search options/,
+		});
+		const sortOptions = screen.getByRole("button", {
+			name: /Sort options/,
+		});
+		expect(searchOptions.parentElement).toBe(sortOptions.parentElement);
+		expect(searchOptions).toHaveAttribute("aria-expanded", "false");
+		expect(sortOptions).toHaveAttribute("aria-expanded", "false");
+
+		fireEvent.click(sortOptions);
+		expect(screen.getByRole("combobox", { name: "Sort by" })).toBeVisible();
+	});
+
 	it("shows the answer-count disclaimer when results have answer counts", async () => {
 		mockSearchLabs.mockResolvedValue([lab({ numAnswers: 2 })]);
 		renderPage();
