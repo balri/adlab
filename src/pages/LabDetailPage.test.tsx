@@ -130,6 +130,104 @@ describe("LabDetailPage", () => {
 		expect(container.querySelector(".results-list")).toHaveClass(
 			"numbered",
 		);
+		expect(
+			screen.queryByRole("combobox", { name: "Sort by" }),
+		).not.toBeInTheDocument();
+	});
+
+	it("sorts stages by name and distance in both directions", async () => {
+		const stages = [
+			{
+				...lab.stageSummaries[0],
+				title: "Stage C",
+				location: { latitude: -27.4, longitude: 153.03 },
+			},
+			{
+				...lab.stageSummaries[0],
+				id: "stage-2",
+				title: "Stage A",
+				location: { latitude: -27.3, longitude: 153.03 },
+			},
+			{
+				...lab.stageSummaries[0],
+				id: "stage-3",
+				title: "Stage B",
+				location: { latitude: -27.2, longitude: 153.03 },
+			},
+		];
+		mockGetLab.mockResolvedValue({
+			...lab,
+			adventureType: "Nonsequential" as const,
+			stageSummaries: stages,
+		});
+		renderPage();
+		await screen.findByRole("link", { name: "Stage C" });
+
+		const stageTitles = () =>
+			Array.from(
+				document.querySelectorAll<HTMLAnchorElement>(
+					".results-list-item > a",
+				),
+			).map((link) => link.textContent);
+		const sortBy = screen.getByRole("combobox", { name: "Sort by" });
+		const direction = screen.getByRole("combobox", {
+			name: "Sort direction",
+		});
+
+		expect(stageTitles()).toEqual(["Stage C", "Stage A", "Stage B"]);
+		fireEvent.change(sortBy, { target: { value: "name" } });
+		expect(stageTitles()).toEqual(["Stage A", "Stage B", "Stage C"]);
+		fireEvent.change(direction, { target: { value: "desc" } });
+		expect(stageTitles()).toEqual(["Stage C", "Stage B", "Stage A"]);
+		fireEvent.change(sortBy, { target: { value: "distance" } });
+		fireEvent.change(direction, { target: { value: "asc" } });
+		expect(stageTitles()).toEqual(["Stage C", "Stage A", "Stage B"]);
+		fireEvent.change(direction, { target: { value: "desc" } });
+		expect(stageTitles()).toEqual(["Stage B", "Stage A", "Stage C"]);
+	});
+
+	it("sorts stages by completion status in both directions", async () => {
+		const stages = [
+			{ ...lab.stageSummaries[0], title: "Complete A", isComplete: true },
+			{
+				...lab.stageSummaries[0],
+				title: "Not Started",
+				isComplete: false,
+			},
+			{
+				...lab.stageSummaries[0],
+				id: "stage-3",
+				title: "Complete B",
+				isComplete: true,
+			},
+		];
+		mockGetLab.mockResolvedValue({ ...lab, stageSummaries: stages });
+		renderPage();
+		await screen.findByRole("link", { name: "Complete A" });
+
+		const stageTitles = () =>
+			Array.from(
+				document.querySelectorAll<HTMLAnchorElement>(
+					".results-list-item > a",
+				),
+			).map((link) => link.textContent);
+		fireEvent.change(screen.getByRole("combobox", { name: "Sort by" }), {
+			target: { value: "status" },
+		});
+		expect(stageTitles()).toEqual([
+			"Not Started",
+			"Complete A",
+			"Complete B",
+		]);
+		fireEvent.change(
+			screen.getByRole("combobox", { name: "Sort direction" }),
+			{ target: { value: "desc" } },
+		);
+		expect(stageTitles()).toEqual([
+			"Complete A",
+			"Complete B",
+			"Not Started",
+		]);
 	});
 
 	it("shows the correct answer beside its submit button", async () => {

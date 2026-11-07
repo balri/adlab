@@ -16,10 +16,20 @@ import {
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 import CoordinateLink from "../components/CoordinateLink";
 import BackLink from "../components/BackLink";
+import SortControls, { type SortOption } from "../components/SortControls";
 import {
 	loadStoredUserLocation,
 	storeUserLocation,
 } from "../utils/storedUserLocation";
+
+type StageSortField = "order" | "name" | "distance" | "status";
+
+const stageSortOptions: SortOption<StageSortField>[] = [
+	{ value: "order", label: "Adventure order" },
+	{ value: "name", label: "Name" },
+	{ value: "distance", label: "Distance" },
+	{ value: "status", label: "Status" },
+];
 
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
@@ -27,6 +37,11 @@ export default function LabDetailPage() {
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [submittingAll, setSubmittingAll] = useState(false);
+	const [stageSortField, setStageSortField] =
+		useState<StageSortField>("order");
+	const [stageSortDirection, setStageSortDirection] = useState<
+		"asc" | "desc"
+	>("asc");
 	const [userLocation, setUserLocation] = useState<LatLng | null>(
 		loadStoredUserLocation,
 	);
@@ -125,6 +140,39 @@ export default function LabDetailPage() {
 	const canSubmitAll =
 		lab.adventureType !== "Sequential" && canSubmitAllAnswers(currentLab);
 	const StageList = lab.adventureType === "Sequential" ? "ol" : "ul";
+	const directionMultiplier = stageSortDirection === "asc" ? 1 : -1;
+	const sortedStages = lab.stageSummaries
+		.map((stage, index) => ({ stage, index }))
+		.sort((a, b) => {
+			if (lab.adventureType === "Sequential") {
+				return a.index - b.index;
+			}
+
+			let comparison = 0;
+			switch (stageSortField) {
+				case "order":
+					comparison = a.index - b.index;
+					break;
+				case "name":
+					comparison = a.stage.title.localeCompare(
+						b.stage.title,
+						undefined,
+						{ sensitivity: "base" },
+					);
+					break;
+				case "distance":
+					comparison = distanceCentre
+						? distanceBetween(a.stage.location, distanceCentre) -
+							distanceBetween(b.stage.location, distanceCentre)
+						: 0;
+					break;
+				case "status":
+					comparison =
+						Number(a.stage.isComplete) - Number(b.stage.isComplete);
+					break;
+			}
+			return comparison * directionMultiplier;
+		});
 
 	async function handleSubmitAllAnswers() {
 		if (
@@ -208,14 +256,27 @@ export default function LabDetailPage() {
 					{submittingAll ? "Submitting…" : "Submit All Answers"}
 				</button>
 			)}
+			{lab.adventureType !== "Sequential" && (
+				<SortControls
+					options={stageSortOptions}
+					value={stageSortField}
+					onValueChange={setStageSortField}
+					direction={stageSortDirection}
+					onDirectionChange={setStageSortDirection}
+				/>
+			)}
 			<StageList
 				className={`results-list${lab.adventureType === "Sequential" ? " numbered" : ""}`}
 			>
-				{lab.stageSummaries.map((stage) => {
+				{sortedStages.map(({ stage, index }) => {
 					const canSubmitStage = canSubmitStageInSequence(lab, stage);
 
 					return (
-						<li key={stage.id} className="results-list-item">
+						<li
+							key={stage.id}
+							value={index + 1}
+							className="results-list-item"
+						>
 							<Link to={`/labs/${guid}/stage/${stage.id}`}>
 								{stage.title}
 							</Link>

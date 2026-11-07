@@ -132,6 +132,26 @@ body {
 	gap: 0.25rem;
 }
 
+.list-sort-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 0.75rem;
+	margin: 0.75rem 0;
+}
+
+.list-sort-controls label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	font-size: 0.85rem;
+}
+
+.list-sort-controls select {
+	font: inherit;
+	min-width: 10rem;
+}
+
 .search-location-controls .location-field {
 	flex: 0 1 18rem;
 	max-width: 18rem;
