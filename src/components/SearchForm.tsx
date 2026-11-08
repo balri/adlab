@@ -14,6 +14,7 @@ interface Props {
 	loading: boolean;
 	searchCentre: LatLng | null;
 	onSearchCentreChange: (centre: LatLng) => void;
+	onCentreMap?: (centre: LatLng) => void;
 	onUserLocationChange?: (location: LatLng) => void;
 	mapInteractionCentre?: LatLng | null;
 	sortOptionsToggle?: ReactNode;
@@ -97,6 +98,7 @@ export default function SearchForm({
 	loading,
 	searchCentre,
 	onSearchCentreChange,
+	onCentreMap,
 	onUserLocationChange,
 	mapInteractionCentre = null,
 	sortOptionsToggle,
@@ -195,7 +197,9 @@ export default function SearchForm({
 		setGeoError(null);
 		setResolvingLocation(true);
 		try {
-			applyLocationCentre(await resolveLocation(form.location));
+			const centre = await resolveLocation(form.location);
+			applyLocationCentre(centre);
+			onCentreMap?.(centre);
 		} catch (err) {
 			setGeoError((err as Error).message);
 		} finally {

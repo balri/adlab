@@ -44,6 +44,7 @@ export default function SearchPage() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [sortOptionsExpanded, setSortOptionsExpanded] = useState(false);
+	const [centreMapRequest, setCentreMapRequest] = useState(0);
 	const [searchCentre, setSearchCentre] = useState<LatLng | null>(() => {
 		const { latitude, longitude } = loadForm();
 		return {
@@ -140,6 +141,7 @@ export default function SearchPage() {
 					labs={labs}
 					searchCentre={searchCentre}
 					distanceCentre={distanceCentre}
+					centreMapRequest={centreMapRequest}
 					onUserMapMove={setMapInteractionCentre}
 				/>
 			)}
@@ -148,6 +150,9 @@ export default function SearchPage() {
 				loading={loading}
 				searchCentre={searchCentre}
 				onSearchCentreChange={setSearchCentre}
+				onCentreMap={() =>
+					setCentreMapRequest((current) => current + 1)
+				}
 				onUserLocationChange={handleUserLocationChange}
 				mapInteractionCentre={mapInteractionCentre}
 				sortOptionsToggle={

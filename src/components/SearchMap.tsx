@@ -12,6 +12,7 @@ interface Props {
 	radius: number;
 	labs: LabSummary[];
 	searchCentre: LatLng | null;
+	centreMapRequest?: number;
 	distanceCentre?: LatLng | null;
 	onUserMapMove: (centre: LatLng) => void;
 }
@@ -19,12 +20,14 @@ interface Props {
 function RecentreOnChange({
 	centre,
 	searchCentre,
+	centreMapRequest,
 	radius,
 	labs,
 	onUserMapMove,
 }: {
 	centre: LatLng;
 	searchCentre: LatLng | null;
+	centreMapRequest: number;
 	radius: number;
 	labs: LabSummary[];
 	onUserMapMove: (centre: LatLng) => void;
@@ -33,6 +36,8 @@ function RecentreOnChange({
 
 	const previousCentre = useRef<LatLng | null>(null);
 	const previousRadius = useRef<number | null>(null);
+	const previousSearchCentre = useRef(searchCentre);
+	const previousCentreMapRequest = useRef(centreMapRequest);
 	const userInteractionPending = useRef(false);
 
 	useEffect(() => {
@@ -126,6 +131,28 @@ function RecentreOnChange({
 	// Use My Location / other external search-centre change.
 	useEffect(() => {
 		if (!searchCentre) return;
+		const searchCentreChanged =
+			previousSearchCentre.current === null ||
+			previousSearchCentre.current.latitude !== searchCentre.latitude ||
+			previousSearchCentre.current.longitude !== searchCentre.longitude;
+		previousSearchCentre.current = searchCentre;
+		const centreMapRequested =
+			previousCentreMapRequest.current !== centreMapRequest;
+		previousCentreMapRequest.current = centreMapRequest;
+		if (!searchCentreChanged && !centreMapRequested) return;
+
+		const isDifferent =
+			searchCentre.latitude !== map.getCenter().lat ||
+			searchCentre.longitude !== map.getCenter().lng;
+		if (centreMapRequested) {
+			if (isDifferent) {
+				map.flyTo(
+					[searchCentre.latitude, searchCentre.longitude],
+					radiusToZoom(radius, centre.latitude, mapWidth),
+				);
+			}
+			return;
+		}
 
 		if (
 			searchCentre.latitude === centre.latitude &&
@@ -134,17 +161,20 @@ function RecentreOnChange({
 			return;
 		}
 
-		const isDifferent =
-			searchCentre.latitude !== map.getCenter().lat ||
-			searchCentre.longitude !== map.getCenter().lng;
-
 		if (isDifferent) {
 			map.flyTo(
 				[searchCentre.latitude, searchCentre.longitude],
 				radiusToZoom(radius, centre.latitude, mapWidth),
 			);
 		}
-	}, [searchCentre, map, centre.latitude, centre.longitude, radius]);
+	}, [
+		searchCentre,
+		centreMapRequest,
+		map,
+		centre.latitude,
+		centre.longitude,
+		radius,
+	]);
 
 	return null;
 }
@@ -154,6 +184,7 @@ export default function SearchMap({
 	radius,
 	labs,
 	searchCentre,
+	centreMapRequest = 0,
 	distanceCentre = searchCentre,
 	onUserMapMove,
 }: Props) {
@@ -174,6 +205,7 @@ export default function SearchMap({
 				radius={radius}
 				labs={labs}
 				searchCentre={searchCentre}
+				centreMapRequest={centreMapRequest}
 				onUserMapMove={onUserMapMove}
 			/>
 			{labs.map((lab) => (

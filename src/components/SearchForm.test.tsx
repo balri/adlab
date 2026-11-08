@@ -316,6 +316,7 @@ describe("SearchForm", () => {
 		const fetchMock = vi.fn();
 		vi.stubGlobal("fetch", fetchMock);
 		const onSearchCentreChange = vi.fn();
+		const onCentreMap = vi.fn();
 
 		render(
 			<SearchForm
@@ -323,6 +324,7 @@ describe("SearchForm", () => {
 				loading={false}
 				searchCentre={null}
 				onSearchCentreChange={onSearchCentreChange}
+				onCentreMap={onCentreMap}
 			/>,
 		);
 		expandOptions();
@@ -349,6 +351,10 @@ describe("SearchForm", () => {
 				latitude: 51.5,
 				longitude: -0.12,
 			});
+		});
+		expect(onCentreMap).toHaveBeenCalledWith({
+			latitude: 51.5,
+			longitude: -0.12,
 		});
 		expect(screen.getByLabelText("Location")).toHaveValue("51.5, -0.12");
 		expect(fetchMock).not.toHaveBeenCalled();
