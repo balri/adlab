@@ -25,6 +25,7 @@ const POSSIBLE_COLOURS = [
 	"pink",
 	"purple",
 	"orange",
+	"brown",
 ];
 
 const MONTHS = [

@@ -9,6 +9,27 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 	const isLabDetail = (candidate: LabSummary): candidate is LabDetail =>
 		"stageSummaries" in candidate;
 	const isLabSummary = lab !== undefined && !isLabDetail(lab);
+	const isInProgressLabDetail =
+		lab !== undefined &&
+		!stage &&
+		isLabDetail(lab) &&
+		lab.completionStatus === "InProgress";
+	const labDetail = lab !== undefined && isLabDetail(lab) ? lab : undefined;
+	const incompleteStages =
+		labDetail?.stageSummaries.filter(
+			(stageSummary) => !stageSummary.isComplete,
+		) ?? [];
+	const answerCount = labDetail
+		? incompleteStages.filter((stageSummary) => stageSummary.correctAnswer)
+				.length
+		: (lab?.numAnswers ?? 0);
+	const answerTotalCount = labDetail
+		? incompleteStages.length
+		: (lab?.stagesTotalCount ?? 0);
+	const completedStageCount = isInProgressLabDetail
+		? lab.stageSummaries.filter((stageSummary) => stageSummary.isComplete)
+				.length
+		: 0;
 	const hasAllAnswers =
 		lab !== undefined &&
 		lab.stagesTotalCount > 0 &&
@@ -50,8 +71,14 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			{statuses.includes("Completed") && (
 				<span className="status-chip complete">Complete</span>
 			)}
-			{statuses.includes("InProgress") && (
+			{statuses.includes("InProgress") && !isInProgressLabDetail && (
 				<span className="status-chip in-progress">In Progress</span>
+			)}
+			{isInProgressLabDetail && (
+				<span className="status-chip in-progress">
+					{completedStageCount} of {lab.stageSummaries.length}{" "}
+					completed
+				</span>
 			)}
 			{statuses.includes("NotStarted") && (
 				<span className="status-chip not-started">Not Started</span>
@@ -71,16 +98,13 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			{hasAllMultipleChoiceLabChip && (
 				<span className="status-chip correct">All Multi Choice</span>
 			)}
-			{!stage &&
-				!hasMultipleChoiceChip &&
-				!!lab?.numAnswers &&
-				lab.numAnswers > 0 && (
-					<span className="status-chip correct">
-						{hasAllAnswers
-							? `Has All Answers${isLabSummary ? "*" : ""}`
-							: `${lab.numAnswers} of ${lab.stagesTotalCount} answers${isLabSummary ? "*" : ""}`}
-					</span>
-				)}
+			{!stage && !hasMultipleChoiceChip && answerCount > 0 && (
+				<span className="status-chip correct">
+					{hasAllAnswers
+						? `Has All Answers${isLabSummary ? "*" : ""}`
+						: `${answerCount} of ${answerTotalCount} answers${isLabSummary ? "*" : ""}`}
+				</span>
+			)}
 		</span>
 	);
 }
