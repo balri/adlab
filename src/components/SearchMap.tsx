@@ -215,7 +215,10 @@ export default function SearchMap({
 					icon={statusMarker({ lab })}
 				>
 					<Popup>
-						<Link to={`/labs/${lab.adventureGuid}`}>
+						<Link
+							to={`/labs/${lab.adventureGuid}`}
+							state={{ inAppNavigation: true }}
+						>
 							{lab.title}
 						</Link>
 						<LabMeta lab={lab} searchCentre={distanceCentre} />

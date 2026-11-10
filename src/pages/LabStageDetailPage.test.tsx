@@ -118,6 +118,7 @@ describe("LabStageDetailPage", () => {
 					{
 						pathname: "/labs/guid-1/stage/stage-1",
 						key: "stage",
+						state: { inAppNavigation: true },
 					},
 				]}
 				initialIndex={1}

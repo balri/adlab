@@ -41,6 +41,7 @@ export default function LabMap({ lab, searchCentre }: Props) {
 					<Popup>
 						<Link
 							to={`/labs/${lab.adventureGuid}/stage/${stage.id}`}
+							state={{ inAppNavigation: true }}
 						>
 							{stage.title}
 						</Link>

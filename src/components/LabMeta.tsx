@@ -47,7 +47,10 @@ export default function LabMeta(props: Props) {
 			{showReviews &&
 				"reviewsTotalCount" in lab &&
 				lab.reviewsTotalCount > 0 && (
-					<Link to={`/labs/${lab.adventureGuid}/reviews`}>
+					<Link
+						to={`/labs/${lab.adventureGuid}/reviews`}
+						state={{ inAppNavigation: true }}
+					>
 						Reviews ({lab.reviewsTotalCount})
 					</Link>
 				)}

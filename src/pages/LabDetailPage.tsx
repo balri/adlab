@@ -277,7 +277,10 @@ export default function LabDetailPage() {
 							value={index + 1}
 							className="results-list-item"
 						>
-							<Link to={`/labs/${guid}/stage/${stage.id}`}>
+							<Link
+								to={`/labs/${guid}/stage/${stage.id}`}
+								state={{ inAppNavigation: true }}
+							>
 								{stage.title}
 							</Link>
 							<StatusChips lab={lab} stage={stage} />

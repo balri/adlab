@@ -9,7 +9,11 @@ interface Props {
 export default function BackLink({ to, children }: Props) {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const hasInAppHistory = location.key !== "default";
+	const hasInAppHistory =
+		typeof location.state === "object" &&
+		location.state !== null &&
+		"inAppNavigation" in location.state &&
+		location.state.inAppNavigation === true;
 
 	function handleClick(event: MouseEvent<HTMLAnchorElement>) {
 		if (

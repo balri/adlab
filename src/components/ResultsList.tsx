@@ -130,7 +130,10 @@ export default function ResultsList({
 			<ul className="results-list">
 				{sortedLabs.map((lab) => (
 					<li key={lab.adventureGuid} className="results-list-item">
-						<Link to={`/labs/${lab.adventureGuid}`}>
+						<Link
+							to={`/labs/${lab.adventureGuid}`}
+							state={{ inAppNavigation: true }}
+						>
 							{lab.title}
 						</Link>
 						<StatusChips lab={lab} />
