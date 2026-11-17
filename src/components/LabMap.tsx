@@ -2,6 +2,7 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { LabDetail, LatLng } from "../types";
 import { Link } from "react-router-dom";
 import { distanceBetween } from "../utils/distanceBetween";
+import { compassDirection } from "../utils/compassDirection";
 import { getBounds, getCentre, statusMarker } from "../utils/mapUtils";
 import FitBounds from "./FitBounds";
 
@@ -29,38 +30,44 @@ export default function LabMap({ lab, searchCentre }: Props) {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
 			<FitBounds bounds={bounds} />
-			{lab.stageSummaries.map((stage) => (
-				<Marker
-					key={stage.id}
-					position={[
-						stage.location.latitude,
-						stage.location.longitude,
-					]}
-					icon={statusMarker({ stage })}
-				>
-					<Popup>
-						<Link
-							to={`/labs/${lab.adventureGuid}/stage/${stage.id}`}
-							state={{ inAppNavigation: true }}
-						>
-							{stage.title}
-						</Link>
-						{searchCentre !== null && (
-							<div className="results-list-meta">
-								<span>
-									{(
-										distanceBetween(
-											stage.location,
-											searchCentre,
-										) / 1000
-									).toFixed(2)}{" "}
-									km
-								</span>
-							</div>
-						)}
-					</Popup>
-				</Marker>
-			))}
+			{lab.stageSummaries.map((stage) => {
+				const direction = searchCentre
+					? compassDirection(searchCentre, stage.location)
+					: null;
+
+				return (
+					<Marker
+						key={stage.id}
+						position={[
+							stage.location.latitude,
+							stage.location.longitude,
+						]}
+						icon={statusMarker({ stage })}
+					>
+						<Popup>
+							<Link
+								to={`/labs/${lab.adventureGuid}/stage/${stage.id}`}
+								state={{ inAppNavigation: true }}
+							>
+								{stage.title}
+							</Link>
+							{searchCentre !== null && (
+								<div className="results-list-meta">
+									<span>
+										{(
+											distanceBetween(
+												stage.location,
+												searchCentre,
+											) / 1000
+										).toFixed(2)}{" "}
+										km{direction && ` ${direction}`}
+									</span>
+								</div>
+							)}
+						</Popup>
+					</Marker>
+				);
+			})}
 		</MapContainer>
 	);
 }

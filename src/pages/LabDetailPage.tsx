@@ -5,6 +5,7 @@ import StatusChips from "../components/StatusChips";
 import { useApi } from "../useApi";
 import { loadForm } from "../utils/loadForm";
 import { distanceBetween } from "../utils/distanceBetween";
+import { compassDirection } from "../utils/compassDirection";
 import LabMeta from "../components/LabMeta";
 import LabMap from "../components/LabMap";
 import SubmitAnswer from "../components/SubmitAnswer";
@@ -270,6 +271,9 @@ export default function LabDetailPage() {
 			>
 				{sortedStages.map(({ stage, index }) => {
 					const canSubmitStage = canSubmitStageInSequence(lab, stage);
+					const direction = distanceCentre
+						? compassDirection(distanceCentre, stage.location)
+						: null;
 
 					return (
 						<li
@@ -297,7 +301,7 @@ export default function LabDetailPage() {
 												distanceCentre,
 											) / 1000
 										).toFixed(2)}{" "}
-										km
+										km{direction && ` ${direction}`}
 									</span>
 								)}
 							</div>

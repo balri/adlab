@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { LabDetail, LabSummary, LatLng } from "../types";
 import { distanceBetween } from "../utils/distanceBetween";
+import { compassDirection } from "../utils/compassDirection";
 import CoordinateLink from "./CoordinateLink";
 
 interface Props {
@@ -12,11 +13,12 @@ interface Props {
 export default function LabMeta(props: Props) {
 	const { lab, searchCentre, showReviews = false } = props;
 	const publishedDate = formatPublishedDate(lab.publishedUtc);
-
-	let distance;
-	if (searchCentre) {
-		distance = distanceBetween(lab.location, searchCentre) / 1000;
-	}
+	const distance = searchCentre
+		? distanceBetween(lab.location, searchCentre) / 1000
+		: undefined;
+	const direction = searchCentre
+		? compassDirection(searchCentre, lab.location)
+		: null;
 
 	let ownerUsername;
 	if ("ownerUsername" in lab && typeof lab.ownerUsername === "string") {
@@ -42,7 +44,11 @@ export default function LabMeta(props: Props) {
 				</span>
 			)}
 			{lab.stagesTotalCount && <span>{lab.stagesTotalCount} stages</span>}
-			{distance !== undefined && <span>{distance.toFixed(2)} km</span>}
+			{distance !== undefined && (
+				<span>
+					{distance.toFixed(2)} km{direction && ` ${direction}`}
+				</span>
+			)}
 			<CoordinateLink location={lab.location} name={lab.title} />
 			{showReviews &&
 				"reviewsTotalCount" in lab &&

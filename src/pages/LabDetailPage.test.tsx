@@ -312,7 +312,7 @@ describe("LabDetailPage", () => {
 		});
 		const { unmount } = renderPage();
 
-		expect(await screen.findAllByText("0.11 km")).toHaveLength(2);
+		expect(await screen.findAllByText(/0\.11 km S/)).toHaveLength(2);
 		act(() => {
 			updateLocation?.({
 				coords: {
@@ -321,8 +321,8 @@ describe("LabDetailPage", () => {
 				},
 			} as GeolocationPosition);
 		});
-		expect(await screen.findAllByText("0.22 km")).toHaveLength(2);
-		expect(screen.queryByText("0.11 km")).not.toBeInTheDocument();
+		expect(await screen.findAllByText(/0\.22 km S/)).toHaveLength(2);
+		expect(screen.queryByText(/0\.11 km S/)).not.toBeInTheDocument();
 		expect(JSON.parse(sessionStorage.getItem("userLocation")!)).toEqual({
 			latitude: lab.stageSummaries[0].location.latitude + 0.002,
 			longitude: lab.stageSummaries[0].location.longitude,

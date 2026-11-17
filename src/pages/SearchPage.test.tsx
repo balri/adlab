@@ -51,6 +51,12 @@ function renderPage() {
 	);
 }
 
+function distanceWithDirection(distance: string): RegExp {
+	return new RegExp(
+		`^${distance.replace(".", "\\.")} km (?:N|NE|E|SE|S|SW|W|NW)$`,
+	);
+}
+
 describe("SearchPage", () => {
 	beforeEach(() => {
 		sessionStorage.clear();
@@ -208,7 +214,7 @@ describe("SearchPage", () => {
 			}) / 1000
 		).toFixed(2);
 		expect(
-			await screen.findByText(`${expectedDistance} km`),
+			await screen.findByText(distanceWithDirection(expectedDistance)),
 		).toBeInTheDocument();
 	});
 
@@ -247,7 +253,7 @@ describe("SearchPage", () => {
 			}) / 1000
 		).toFixed(2);
 		expect(
-			await screen.findByText(`${initialDistance} km`),
+			await screen.findByText(distanceWithDirection(initialDistance)),
 		).toBeInTheDocument();
 
 		act(() => {
@@ -263,10 +269,10 @@ describe("SearchPage", () => {
 			}) / 1000
 		).toFixed(2);
 		expect(
-			await screen.findByText(`${updatedDistance} km`),
+			await screen.findByText(distanceWithDirection(updatedDistance)),
 		).toBeInTheDocument();
 		expect(
-			screen.queryByText(`${initialDistance} km`),
+			screen.queryByText(distanceWithDirection(initialDistance)),
 		).not.toBeInTheDocument();
 		unmount();
 		expect(clearWatch).toHaveBeenCalledWith(1);
@@ -282,7 +288,7 @@ describe("SearchPage", () => {
 			distanceBetween(lab().location, savedLocation) / 1000
 		).toFixed(2);
 		expect(
-			await screen.findByText(`${expectedDistance} km`),
+			await screen.findByText(distanceWithDirection(expectedDistance)),
 		).toBeInTheDocument();
 	});
 
