@@ -18,6 +18,7 @@ interface Props {
 	onUserLocationChange?: (location: LatLng) => void;
 	mapInteractionCentre?: LatLng | null;
 	sortOptionsToggle?: ReactNode;
+	searchResultCount?: ReactNode;
 }
 
 function parseCoordinates(location: string): LatLng | null {
@@ -102,6 +103,7 @@ export default function SearchForm({
 	onUserLocationChange,
 	mapInteractionCentre = null,
 	sortOptionsToggle,
+	searchResultCount,
 }: Props) {
 	const [form, setForm] = useState<FormState>(loadForm);
 	const [geoError, setGeoError] = useState<string | null>(null);
@@ -305,6 +307,7 @@ export default function SearchForm({
 					Search options {expanded ? "▲" : "▼"}
 				</button>
 				{sortOptionsToggle}
+				{searchResultCount}
 			</div>
 
 			{expanded && (

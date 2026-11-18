@@ -280,6 +280,13 @@ body {
 	gap: 1rem;
 }
 
+.search-result-count {
+	margin-left: auto;
+	font-size: 0.9rem;
+	opacity: 0.8;
+	white-space: nowrap;
+}
+
 .answer-count-disclaimer {
 	margin: 0;
 	font-size: 0.85rem;

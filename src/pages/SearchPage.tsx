@@ -37,6 +37,7 @@ export default function SearchPage() {
 		const saved = sessionStorage.getItem("searchResults");
 		return saved ? JSON.parse(saved) : [];
 	});
+	const [hasSearched, setHasSearched] = useState(() => labs.length > 0);
 	const [radius, setRadius] = useState<number>(() => {
 		const saved = sessionStorage.getItem("searchRadius");
 		return saved ? JSON.parse(saved) : DEFAULT_RADIUS;
@@ -109,12 +110,12 @@ export default function SearchPage() {
 		});
 		try {
 			const results = await searchLabs(params);
+			setLabs(results);
+			setHasSearched(true);
 			if (results.length === 0) {
-				setLabs([]);
 				setError("No Adventure Labs found in this area.");
 				return;
 			}
-			setLabs(results);
 			const resultsCentre = getCentre(results);
 			if (resultsCentre) {
 				setCentreAndRadius(results, setCentre, setRadius);
@@ -163,6 +164,17 @@ export default function SearchPage() {
 								setSortOptionsExpanded((current) => !current)
 							}
 						/>
+					)
+				}
+				searchResultCount={
+					hasSearched && (
+						<span
+							className="search-result-count"
+							role="status"
+							aria-label={`${labs.length} search result${labs.length === 1 ? "" : "s"} retrieved`}
+						>
+							{labs.length} result{labs.length === 1 ? "" : "s"}
+						</span>
 					)
 				}
 			/>

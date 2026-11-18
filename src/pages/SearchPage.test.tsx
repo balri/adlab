@@ -86,6 +86,11 @@ describe("SearchPage", () => {
 				screen.getByText("No Adventure Labs found in this area."),
 			).toBeInTheDocument(),
 		);
+		expect(
+			screen.getByRole("status", {
+				name: "0 search results retrieved",
+			}),
+		).toHaveTextContent("0 results");
 	});
 
 	it("shows results and the map once a search resolves", async () => {
@@ -99,10 +104,31 @@ describe("SearchPage", () => {
 				screen.getByRole("link", { name: "Test Lab" }),
 			).toBeInTheDocument(),
 		);
+		expect(
+			screen.getByRole("status", {
+				name: "1 search result retrieved",
+			}),
+		).toHaveTextContent("1 result");
 		fireEvent.click(screen.getByRole("button", { name: /Search options/ }));
 		expect(screen.getByLabelText("Location")).toHaveValue(
 			`${DEFAULT_LATITUDE}, ${DEFAULT_LONGITUDE}`,
 		);
+	});
+
+	it("displays the number of results retrieved", async () => {
+		mockSearchLabs.mockResolvedValue([
+			lab(),
+			lab({ adventureGuid: "guid-2", title: "Another Lab" }),
+		]);
+		renderPage();
+
+		fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+		expect(
+			await screen.findByRole("status", {
+				name: "2 search results retrieved",
+			}),
+		).toHaveTextContent("2 results");
 	});
 
 	it("places collapsed search and sort options alongside each other", async () => {
@@ -118,7 +144,11 @@ describe("SearchPage", () => {
 		const sortOptions = screen.getByRole("button", {
 			name: /Sort options/,
 		});
+		const resultCount = screen.getByRole("status", {
+			name: "1 search result retrieved",
+		});
 		expect(searchOptions.parentElement).toBe(sortOptions.parentElement);
+		expect(resultCount.parentElement).toBe(searchOptions.parentElement);
 		expect(searchOptions).toHaveAttribute("aria-expanded", "false");
 		expect(sortOptions).toHaveAttribute("aria-expanded", "false");
 
@@ -305,6 +335,11 @@ describe("SearchPage", () => {
 		expect(
 			screen.getByRole("link", { name: "Test Lab" }),
 		).toBeInTheDocument();
+		expect(
+			screen.getByRole("status", {
+				name: "1 search result retrieved",
+			}),
+		).toHaveTextContent("1 result");
 		expect(mockSearchLabs).not.toHaveBeenCalled();
 	});
 });
