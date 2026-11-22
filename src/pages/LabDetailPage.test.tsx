@@ -24,6 +24,7 @@ const lab: LabDetail = {
 	smartLink: "",
 	deepLink: "",
 	firebaseDynamicLink: "",
+	medianTimeToComplete: 0,
 	description: "A stroll along the river.",
 	ownerPublicGuid: "",
 	createdUtc: "",
@@ -36,6 +37,8 @@ const lab: LabDetail = {
 	adventureType: "Nonsequential",
 	completionStatus: "NotStarted",
 	adventureThemes: [],
+	completedStagesCount: 0,
+	customAccessCode: "",
 	stageSummaries: [
 		{
 			id: "stage-1",

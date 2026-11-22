@@ -37,6 +37,7 @@ function lab(guid: string, location: LatLng): LabSummary {
 		smartLink: "",
 		deepLink: "",
 		firebaseDynamicLink: "",
+		medianTimeToComplete: 0,
 		description: "",
 		ownerPublicGuid: "",
 		createdUtc: "",

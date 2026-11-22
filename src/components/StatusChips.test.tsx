@@ -23,6 +23,7 @@ function makeLab(overrides: Partial<LabSummary> = {}): LabSummary {
 		completionStatus: "NotStarted",
 		adventureThemes: [],
 		...overrides,
+		medianTimeToComplete: overrides.medianTimeToComplete ?? 0,
 	};
 }
 
@@ -35,6 +36,8 @@ function makeLabDetail(
 		stageSummaries: challengeTypes.map(
 			(challengeType) => ({ challengeType }) as never,
 		),
+		completedStagesCount: 0,
+		customAccessCode: "",
 		journalsTotalCount: 0,
 		ownerUsername: "owner",
 		reviewsTotalCount: 0,

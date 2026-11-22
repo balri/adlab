@@ -40,6 +40,7 @@ function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 		completionStatus: "NotStarted",
 		adventureThemes: [],
 		...overrides,
+		medianTimeToComplete: overrides.medianTimeToComplete ?? 0,
 	};
 }
 
