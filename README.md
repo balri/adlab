@@ -7,6 +7,9 @@ requests to Groundspeak.
 This app uses unofficial, reverse-engineered endpoints. Review Geocaching's
 Terms of Service before deploying or using it.
 
+The API behavior and mobile app parameters are documented at
+[adv-lab/geocaching-adventure-labs-doc](https://github.com/adv-lab/geocaching-adventure-labs-doc).
+
 ## Architecture
 
 - `src/` — Vite + React + TypeScript single-page app.
@@ -30,12 +33,11 @@ API routes:
 Create a `.env.local` file with these server-side variables:
 
 ```dotenv
-GEOCACHING_CONSUMER_KEY=your-consumer-key
 DATABASE_URL=your-neon-postgres-connection-string
 ```
 
-`GEOCACHING_CONSUMER_KEY` and `DATABASE_URL` are required. The database must
-have the `stage_answers` table used by `api/_lib/database.ts`.
+`DATABASE_URL` is required. The database must have the `stage_answers` table
+used by `api/_lib/database.ts`.
 
 ```bash
 npm install
@@ -58,8 +60,7 @@ To run Vite separately, start `npx vercel dev` on port 3000 and run
 npx vercel
 ```
 
-Configure `GEOCACHING_CONSUMER_KEY` and `DATABASE_URL` in the Vercel project's
-environment settings.
+Configure `DATABASE_URL` in the Vercel project's environment settings.
 
 ## Checks
 

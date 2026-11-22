@@ -11,6 +11,7 @@ import searchHandler from "../../../api/labs/search.js";
 import submitHandler from "../../../api/labs/submit.js";
 
 vi.mock("../../../api/_lib/groundspeak.js", () => ({
+	getAdventuresPlatform: vi.fn(() => "android"),
 	getAdventure: vi.fn(),
 	searchAdventures: vi.fn(),
 	submitAnswer: vi.fn(),
@@ -160,6 +161,7 @@ describe("lab handlers use the userGuid cookie", () => {
 				ChallengeType: "Question",
 			},
 			"access-token",
+			"android",
 		);
 		expect(res.status).toHaveBeenCalledWith(200);
 	});

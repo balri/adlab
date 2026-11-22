@@ -23,6 +23,7 @@ export interface LabSummary {
 	smartLink: string;
 	deepLink: string;
 	firebaseDynamicLink: string;
+	medianTimeToComplete: number;
 	description: string;
 	ownerPublicGuid: string;
 	// visibility: string;
@@ -68,12 +69,15 @@ export interface LabStage {
 }
 
 export interface LabDetail extends LabSummary {
+	completedStagesCount: number;
+	customAccessCode: string;
 	stageSummaries: LabStage[];
 	journalsTotalCount: number;
 	ownerUsername: string;
 	reviewsTotalCount: number;
 	recommendedCount: number;
-	completionCount: number;
+	completionCount: number; // Not used, always returns 0
+	stagesTotalCount: number;
 }
 
 export interface LoginParams {

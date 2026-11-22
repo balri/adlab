@@ -1,5 +1,10 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { API_BASE_URL, consumerKey } from "./_lib/groundspeak.js";
+import {
+	API_BASE_URL,
+	adventuresUserAgent,
+	consumerKey,
+	getAdventuresPlatform,
+} from "./_lib/groundspeak.js";
 import { ApiLoginResponse } from "../src/types.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -9,13 +14,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const { username, password } = req.body;
+	const platform = getAdventuresPlatform(req.headers);
 
 	const response = await fetch(`${API_BASE_URL}/public/accounts/login`, {
 		method: "POST",
 		headers: {
-			"User-Agent": "Adventures/1.56.0 (4936) (android/32)",
+			"User-Agent": adventuresUserAgent(platform),
 			"Content-Type": "application/json",
-			"X-Consumer-Key": consumerKey(),
+			"X-Consumer-Key": consumerKey(platform),
 		},
 		body: JSON.stringify({
 			Username: username,

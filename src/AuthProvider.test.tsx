@@ -81,6 +81,7 @@ function renderAuthenticatedFetchConsumer() {
 
 describe("AuthContext", () => {
 	afterEach(() => {
+		vi.restoreAllMocks();
 		vi.unstubAllGlobals();
 		localStorage.clear();
 	});
@@ -178,6 +179,40 @@ describe("AuthContext", () => {
 		expect(localStorage.getItem("userGuid")).toBeNull();
 	});
 
+	it("sends the Apple platform header on Macs", async () => {
+		vi.spyOn(navigator, "userAgent", "get").mockReturnValue(
+			"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+		);
+		vi.spyOn(navigator, "platform", "get").mockReturnValue("MacIntel");
+		const fetchMock = vi.fn().mockImplementation((url) => {
+			if (url === "/api/login") {
+				return Promise.resolve({
+					ok: true,
+					json: async () => ({
+						accessToken: "new-token",
+						expiresIn: 3600,
+					}),
+				});
+			}
+			return Promise.resolve({ ok: true, json: async () => testUser() });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		renderConsumer();
+		await act(async () => {
+			screen.getByRole("button", { name: "Log in" }).click();
+		});
+
+		expect(fetchMock).toHaveBeenCalledWith(
+			"/api/login",
+			expect.objectContaining({
+				headers: expect.objectContaining({
+					"X-Adventures-Platform": "apple",
+				}),
+			}),
+		);
+	});
+
 	it("throws when login fails and does not store a session", async () => {
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 
@@ -248,9 +283,16 @@ describe("AuthContext", () => {
 		});
 
 		expect(screen.getByText("result: completed")).toBeInTheDocument();
-		expect(fetchMock).toHaveBeenNthCalledWith(1, "/api/refresh", {
-			method: "POST",
-		});
+		expect(fetchMock).toHaveBeenNthCalledWith(
+			1,
+			"/api/refresh",
+			expect.objectContaining({
+				method: "POST",
+				headers: expect.objectContaining({
+					"X-Adventures-Platform": "android",
+				}),
+			}),
+		);
 		expect(fetchMock).toHaveBeenNthCalledWith(
 			2,
 			"/private",

@@ -49,6 +49,5 @@ guaranteed to remain stable.
 - `npm run lint` — run ESLint and Stylelint.
 - `npm run build` — type-check and build the frontend.
 
-Set `GEOCACHING_CONSUMER_KEY` and `DATABASE_URL` in the local server
-environment as described in `README.md`. Do not include real values in code,
-tests, or documentation.
+Set `DATABASE_URL` in the local server environment as described in `README.md`.
+Do not include real database credentials in code, tests, or documentation.

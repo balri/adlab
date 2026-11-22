@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { getUser } from "./_lib/groundspeak.js";
+import { getAdventuresPlatform, getUser } from "./_lib/groundspeak.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "GET") {
@@ -14,9 +14,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const accessToken = authHeader.substring(7);
+	const platform = getAdventuresPlatform(req.headers);
 
 	try {
-		const user = await getUser(accessToken);
+		const user = await getUser(accessToken, platform);
 
 		user.CanAnswer = user.PublicGuid == process.env.GEOCACHING_USER_GUID;
 

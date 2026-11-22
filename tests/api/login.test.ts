@@ -33,7 +33,6 @@ describe("POST /api/login", () => {
 	});
 
 	it("returns tokens and sets a secure HttpOnly refresh cookie", async () => {
-		vi.stubEnv("GEOCACHING_CONSUMER_KEY", "consumer-key");
 		const fetchMock = vi.fn().mockResolvedValue({
 			ok: true,
 			json: async () => ({
@@ -53,7 +52,7 @@ describe("POST /api/login", () => {
 				method: "POST",
 				body: JSON.stringify({ Username: "alice", Password: "secret" }),
 				headers: expect.objectContaining({
-					"X-Consumer-Key": "consumer-key",
+					"X-Consumer-Key": "A01A9CA1-29E0-46BD-A270-9D894A527B91",
 				}),
 			}),
 		);
@@ -70,8 +69,38 @@ describe("POST /api/login", () => {
 		});
 	});
 
+	it("uses the Apple platform headers for Apple requests", async () => {
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({
+				accessToken: "access-token",
+				refreshToken: "refresh-token",
+				expiresIn: 3600,
+			}),
+		});
+		vi.stubGlobal("fetch", fetchMock);
+		const res = makeResponse();
+		const req = {
+			...makeRequest(),
+			headers: {
+				"x-adventures-platform": "apple",
+			},
+		} as unknown as VercelRequest;
+
+		await handler(req, res);
+
+		expect(fetchMock).toHaveBeenCalledWith(
+			"https://api.groundspeak.com/adventuresmobile/v1/public/accounts/login",
+			expect.objectContaining({
+				headers: expect.objectContaining({
+					"User-Agent": "Adventures/1.56.0 (4936) (ios/17.0)",
+					"X-Consumer-Key": "1301D998-6435-4804-8CA8-9A5DE607269A",
+				}),
+			}),
+		);
+	});
+
 	it("returns 401 when the upstream login fails", async () => {
-		vi.stubEnv("GEOCACHING_CONSUMER_KEY", "consumer-key");
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 		const res = makeResponse();
 

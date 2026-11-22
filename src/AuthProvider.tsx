@@ -2,6 +2,21 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { LoginParams, LoginResponse, User } from "./types";
 import { AuthContext } from "./AuthContext";
 
+function adventuresPlatformHeader(): "apple" | "android" {
+	const userAgent = navigator.userAgent;
+	const isApple =
+		/iPhone|iPad|iPod|Macintosh|Mac OS X|MacIntel|MacPPC/i.test(
+			userAgent,
+		) ||
+		/Macintosh|MacIntel|MacPPC/i.test(navigator.platform) ||
+		(navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+	return isApple ? "apple" : "android";
+}
+
+function adventuresPlatformHeaders(): HeadersInit {
+	return { "X-Adventures-Platform": adventuresPlatformHeader() };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(() => {
 		const saved = localStorage.getItem("user");
@@ -69,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
+				...adventuresPlatformHeaders(),
 			},
 			body: JSON.stringify(params),
 		});
@@ -98,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const refreshAccessToken = useCallback(async (): Promise<string | null> => {
 		const response = await fetch("/api/refresh", {
 			method: "POST",
+			headers: adventuresPlatformHeaders(),
 		});
 
 		if (!response.ok) {
@@ -144,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${accessToken}`,
+					...adventuresPlatformHeaders(),
 				},
 				signal,
 			});
@@ -218,6 +236,7 @@ async function getCurrentUser(
 	const response = await fetch("/api/user", {
 		headers: {
 			Authorization: `Bearer ${accessToken}`,
+			"X-Adventures-Platform": adventuresPlatformHeader(),
 		},
 		signal,
 	});

@@ -5,6 +5,7 @@ import { getUser } from "../../api/_lib/groundspeak.js";
 import type { User } from "../../src/types.js";
 
 vi.mock("../../api/_lib/groundspeak.js", () => ({
+	getAdventuresPlatform: vi.fn(() => "android"),
 	getUser: vi.fn(),
 }));
 
@@ -38,7 +39,7 @@ describe("GET /api/user", () => {
 
 		await handler(req, res);
 
-		expect(mockGetUser).toHaveBeenCalledWith("access-token");
+		expect(mockGetUser).toHaveBeenCalledWith("access-token", "android");
 		expect(res.setHeader).toHaveBeenCalledWith(
 			"Set-Cookie",
 			expect.stringContaining("userGuid=guid-1"),

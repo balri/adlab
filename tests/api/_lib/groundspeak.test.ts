@@ -1,20 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { getReviews } from "../../../api/_lib/groundspeak.js";
 
-const previousConsumerKey = process.env.GEOCACHING_CONSUMER_KEY;
-
 describe("getReviews", () => {
-	beforeEach(() => {
-		process.env.GEOCACHING_CONSUMER_KEY = "test-consumer-key";
-	});
-
 	afterEach(() => {
 		vi.unstubAllGlobals();
-		if (previousConsumerKey === undefined) {
-			delete process.env.GEOCACHING_CONSUMER_KEY;
-		} else {
-			process.env.GEOCACHING_CONSUMER_KEY = previousConsumerKey;
-		}
 	});
 
 	it("returns reviews and the total count from the paginated response", async () => {

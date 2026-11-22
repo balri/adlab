@@ -1,5 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { searchAdventures } from "../_lib/groundspeak.js";
+import {
+	getAdventuresPlatform,
+	searchAdventures,
+} from "../_lib/groundspeak.js";
 import { LabSummary } from "../../src/types.js";
 import { getNumAnswers } from "../_lib/database.js";
 
@@ -16,6 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const accessToken = authHeader.substring(7);
+	const platform = getAdventuresPlatform(req.headers);
 
 	const lat = Number(req.query.lat);
 	const lng = Number(req.query.lng);
@@ -50,6 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				ExcludeOwned: excludeOwned,
 			},
 			accessToken,
+			platform,
 		);
 
 		const items = await Promise.all(

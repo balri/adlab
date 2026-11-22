@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { getReviews } from "../../_lib/groundspeak.js";
+import { getAdventuresPlatform, getReviews } from "../../_lib/groundspeak.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "GET") {
@@ -14,6 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const accessToken = authHeader.substring(7);
+	const platform = getAdventuresPlatform(req.headers);
 
 	const guid = req.query.guid;
 	if (typeof guid !== "string" || guid.length === 0) {
@@ -33,7 +34,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
-		const reviews = await getReviews(guid, accessToken, skip, take);
+		const reviews = await getReviews(
+			guid,
+			accessToken,
+			skip,
+			take,
+			platform,
+		);
 		res.status(200).json(reviews);
 	} catch (err) {
 		res.status(502).json({ error: (err as Error).message });

@@ -42,7 +42,6 @@ describe("POST /api/refresh", () => {
 	});
 
 	it("returns new tokens and rotates the secure refresh cookie", async () => {
-		vi.stubEnv("GEOCACHING_CONSUMER_KEY", "consumer-key");
 		const fetchMock = vi.fn().mockResolvedValue({
 			ok: true,
 			json: async () => ({
@@ -57,7 +56,7 @@ describe("POST /api/refresh", () => {
 		await handler(makeRequest("POST", "current-refresh-token"), res);
 
 		expect(fetchMock).toHaveBeenCalledWith(
-			"https://labs-api.geocaching.com/Api/Accounts/RefreshAccessToken?consumerKey=consumer-key",
+			"https://labs-api.geocaching.com/Api/Accounts/RefreshAccessToken?consumerKey=A01A9CA1-29E0-46BD-A270-9D894A527B91",
 			expect.objectContaining({
 				method: "POST",
 				body: JSON.stringify({ RefreshToken: "current-refresh-token" }),
@@ -77,7 +76,6 @@ describe("POST /api/refresh", () => {
 	});
 
 	it("returns 401 when the upstream refresh fails", async () => {
-		vi.stubEnv("GEOCACHING_CONSUMER_KEY", "consumer-key");
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 		const res = makeResponse();
 

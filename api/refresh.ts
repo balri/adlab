@@ -1,5 +1,10 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { consumerKey, LABS_API_BASE_URL } from "./_lib/groundspeak.js";
+import {
+	adventuresUserAgent,
+	consumerKey,
+	getAdventuresPlatform,
+	LABS_API_BASE_URL,
+} from "./_lib/groundspeak.js";
 import { ApiRefreshResponse } from "../src/types.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -9,19 +14,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const currentRefreshToken = req.cookies?.["__Secure-refreshToken"];
+	const platform = getAdventuresPlatform(req.headers);
 
 	if (!currentRefreshToken) {
 		return res.status(401).json({ error: "No refresh token" });
 	}
 
 	const response = await fetch(
-		`${LABS_API_BASE_URL}/Accounts/RefreshAccessToken?consumerKey=${consumerKey()}`,
+		`${LABS_API_BASE_URL}/Accounts/RefreshAccessToken?consumerKey=${consumerKey(platform)}`,
 		{
 			method: "POST",
 			headers: {
-				"User-Agent": "Adventures/1.56.0 (4936) (android/32)",
+				"User-Agent": adventuresUserAgent(platform),
 				"Content-Type": "application/json",
-				"X-Consumer-Key": consumerKey(),
+				"X-Consumer-Key": consumerKey(platform),
 			},
 			body: JSON.stringify({
 				RefreshToken: currentRefreshToken,

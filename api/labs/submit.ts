@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { submitAnswer } from "../_lib/groundspeak.js";
+import { getAdventuresPlatform, submitAnswer } from "../_lib/groundspeak.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method != "POST") {
@@ -14,6 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const accessToken = authHeader.substring(7);
+	const platform = getAdventuresPlatform(req.headers);
 
 	const { adventureGuid, stageGuid, answer, challengeType } = req.body;
 	const userGuid = req.cookies.userGuid;
@@ -32,6 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				ChallengeType: challengeType,
 			},
 			accessToken,
+			platform,
 		);
 
 		res.setHeader("Cache-Control", "no-store");

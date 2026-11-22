@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getAdventure } from "../_lib/groundspeak.js";
+import { getAdventure, getAdventuresPlatform } from "../_lib/groundspeak.js";
 import {
 	getNumAnswers,
 	getStoredAnswers,
@@ -21,6 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	const accessToken = authHeader.substring(7);
+	const platform = getAdventuresPlatform(req.headers);
 
 	const guid = req.query.guid;
 	if (typeof guid !== "string" || guid.length === 0) {
@@ -29,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
-		const lab = await getAdventure(guid, accessToken);
+		const lab = await getAdventure(guid, accessToken, platform);
 		const userGuid = req.cookies.userGuid;
 
 		const storedAnswers = await getStoredAnswers(guid);

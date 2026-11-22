@@ -19,6 +19,7 @@ vi.mock("../../../api/_lib/database.js", () => ({
 	upsertAnswer: vi.fn(),
 }));
 vi.mock("../../../api/_lib/groundspeak.js", () => ({
+	getAdventuresPlatform: vi.fn(() => "android"),
 	getAdventure: vi.fn(),
 }));
 
