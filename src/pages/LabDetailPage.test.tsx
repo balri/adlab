@@ -9,6 +9,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LabDetailPage from "./LabDetailPage";
 import type { LabDetail } from "../types";
 import { useApi } from "../useApi";
+import { FavoritesProvider } from "../FavoritesProvider";
+import { toLabSummary } from "../utils/toLabSummary";
 
 vi.mock("../useApi", () => ({
 	useApi: vi.fn(),
@@ -67,9 +69,11 @@ const lab: LabDetail = {
 function renderPage(guid = "guid-1") {
 	return render(
 		<MemoryRouter initialEntries={[`/labs/${guid}`]}>
-			<Routes>
-				<Route path="/labs/:guid" element={<LabDetailPage />} />
-			</Routes>
+			<FavoritesProvider>
+				<Routes>
+					<Route path="/labs/:guid" element={<LabDetailPage />} />
+				</Routes>
+			</FavoritesProvider>
 		</MemoryRouter>,
 	);
 }
@@ -77,6 +81,7 @@ function renderPage(guid = "guid-1") {
 describe("LabDetailPage", () => {
 	beforeEach(() => {
 		sessionStorage.clear();
+		localStorage.clear();
 		vi.clearAllMocks();
 		vi.mocked(useApi).mockReturnValue({
 			getLab: mockGetLab,
@@ -103,6 +108,9 @@ describe("LabDetailPage", () => {
 		expect(
 			screen.getByRole("link", { name: "Reviews (5)" }),
 		).toHaveAttribute("href", "/labs/guid-1/reviews");
+		const titleRow = document.querySelector(".lab-detail-title");
+		expect(titleRow?.children[1]).toHaveClass("favorite-button");
+		expect(titleRow?.children[2]).toHaveClass("status-chips");
 		expect(
 			screen.getByText(
 				(_, element) =>
@@ -120,6 +128,53 @@ describe("LabDetailPage", () => {
 			"/labs/guid-1/stage/stage-1",
 		);
 	});
+
+	it("saves only the lab summary when favouriting from its detail page", async () => {
+		mockGetLab.mockResolvedValue(lab);
+		renderPage();
+
+		await screen.findByText("Riverside Ramble");
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: "Add Riverside Ramble to favourites",
+			}),
+		);
+
+		const storedFavorites = JSON.parse(
+			localStorage.getItem("favoriteLabs")!,
+		);
+		expect(storedFavorites).toHaveLength(1);
+		expect(storedFavorites[0].adventureGuid).toBe("guid-1");
+		expect(storedFavorites[0]).not.toHaveProperty("stageSummaries");
+		expect(storedFavorites[0]).not.toHaveProperty("customAccessCode");
+	});
+
+	it.each(["fetched", "cached"])(
+		"updates an existing favourite when the lab detail is loaded from %s data",
+		async (source) => {
+			const savedFavorite = {
+				...toLabSummary(lab),
+				title: "Old title",
+			};
+			localStorage.setItem(
+				"favoriteLabs",
+				JSON.stringify([savedFavorite]),
+			);
+
+			if (source === "cached") {
+				sessionStorage.setItem("lab_guid-1", JSON.stringify(lab));
+			} else {
+				mockGetLab.mockResolvedValue(lab);
+			}
+
+			renderPage();
+			await screen.findByText("Riverside Ramble");
+
+			expect(JSON.parse(localStorage.getItem("favoriteLabs")!)).toEqual([
+				toLabSummary(lab),
+			]);
+		},
+	);
 
 	it("numbers stages for sequential labs", async () => {
 		mockGetLab.mockResolvedValue({ ...lab, adventureType: "Sequential" });

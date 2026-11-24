@@ -66,6 +66,20 @@ describe("App", () => {
 		);
 	});
 
+	it("shows an authenticated link to the saved favourites page", async () => {
+		renderApp(["/favorites"]);
+
+		expect(
+			await screen.findByRole("heading", {
+				name: "Favourite labs (0)",
+			}),
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("link", { name: "Favourite labs (0)" }),
+		).toHaveAttribute("href", "/favorites");
+		expect(screen.getByText("No favourite labs yet.")).toBeInTheDocument();
+	});
+
 	it("redirects to the login page when not authenticated", () => {
 		localStorage.clear();
 		renderApp(["/"]);

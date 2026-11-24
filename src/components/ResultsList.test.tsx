@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import ResultsList from "./ResultsList";
 import type { LabSummary } from "../types";
+import { FavoritesProvider } from "../FavoritesProvider";
 
 function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 	return {
@@ -31,10 +32,12 @@ function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 function renderResults(labs: LabSummary[]) {
 	return render(
 		<MemoryRouter>
-			<ResultsList
-				labs={labs}
-				searchCentre={{ latitude: -27.5, longitude: 153.0 }}
-			/>
+			<FavoritesProvider>
+				<ResultsList
+					labs={labs}
+					searchCentre={{ latitude: -27.5, longitude: 153.0 }}
+				/>
+			</FavoritesProvider>
 		</MemoryRouter>,
 	);
 }
@@ -44,7 +47,35 @@ function openSortOptions() {
 }
 
 describe("ResultsList", () => {
-	beforeEach(() => sessionStorage.clear());
+	beforeEach(() => {
+		sessionStorage.clear();
+		localStorage.clear();
+	});
+
+	it("toggles a lab favourite and persists it in localStorage", () => {
+		renderResults([lab()]);
+
+		const addButton = screen.getByRole("button", {
+			name: "Add Test Lab to favourites",
+		});
+		fireEvent.click(addButton);
+
+		expect(
+			screen.getByRole("button", {
+				name: "Remove Test Lab from favourites",
+			}),
+		).toHaveAttribute("aria-pressed", "true");
+		expect(JSON.parse(localStorage.getItem("favoriteLabs")!)).toEqual([
+			lab(),
+		]);
+
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: "Remove Test Lab from favourites",
+			}),
+		);
+		expect(localStorage.getItem("favoriteLabs")).toBe("[]");
+	});
 
 	it("renders a link, rating, and stage count for each lab", () => {
 		renderResults([lab()]);
@@ -53,6 +84,11 @@ describe("ResultsList", () => {
 			"href",
 			"/labs/guid-1",
 		);
+		expect(
+			screen.getByRole("button", {
+				name: "Add Test Lab to favourites",
+			}).parentElement,
+		).toContainElement(screen.getByText("Not Started").parentElement);
 		expect(
 			screen.getByText(
 				(_, element) =>
@@ -160,7 +196,7 @@ describe("ResultsList", () => {
 		const resultTitles = () =>
 			Array.from(
 				document.querySelectorAll<HTMLAnchorElement>(
-					".results-list-item > a",
+					".results-list-title-row > a",
 				),
 			).map((link) => link.textContent);
 		const expectations = [
@@ -223,7 +259,7 @@ describe("ResultsList", () => {
 		expect(
 			Array.from(
 				document.querySelectorAll<HTMLAnchorElement>(
-					".results-list-item > a",
+					".results-list-title-row > a",
 				),
 			).map((link) => link.textContent),
 		).toEqual(["Beta", "Alpha"]);
@@ -257,7 +293,7 @@ describe("ResultsList", () => {
 		const resultTitles = () =>
 			Array.from(
 				document.querySelectorAll<HTMLAnchorElement>(
-					".results-list-item > a",
+					".results-list-title-row > a",
 				),
 			).map((link) => link.textContent);
 

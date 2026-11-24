@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../useAuth";
+import { useFavorites } from "../useFavorites";
 
 export default function Header() {
 	const { user, logout } = useAuth();
+	const { favorites } = useFavorites();
 
 	return (
 		<header className="app-header">
@@ -21,7 +23,9 @@ export default function Header() {
 								/>
 								<span>{user.UserName}</span>
 							</div>
-
+							<Link to="/favorites" className="favorites-link">
+								Favourite labs ({favorites.length})
+							</Link>
 							<button
 								type="button"
 								className="logout-link"

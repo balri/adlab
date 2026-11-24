@@ -11,6 +11,7 @@ import type { LabSummary } from "../types";
 import { useApi } from "../useApi";
 import { DEFAULT_LATITUDE, DEFAULT_LONGITUDE } from "../utils/loadForm";
 import { distanceBetween } from "../utils/distanceBetween";
+import { FavoritesProvider } from "../FavoritesProvider";
 
 vi.mock("../useApi", () => ({
 	useApi: vi.fn(),
@@ -47,7 +48,9 @@ function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 function renderPage() {
 	return render(
 		<MemoryRouter>
-			<SearchPage />
+			<FavoritesProvider>
+				<SearchPage />
+			</FavoritesProvider>
 		</MemoryRouter>,
 	);
 }

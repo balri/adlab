@@ -5,6 +5,7 @@ import { distanceBetween } from "../utils/distanceBetween";
 import StatusChips from "./StatusChips";
 import LabMeta from "./LabMeta";
 import SortControls, { type SortOption } from "./SortControls";
+import FavoriteButton from "./FavoriteButton";
 
 type LabSortField =
 	| "name"
@@ -130,13 +131,16 @@ export default function ResultsList({
 			<ul className="results-list">
 				{sortedLabs.map((lab) => (
 					<li key={lab.adventureGuid} className="results-list-item">
-						<Link
-							to={`/labs/${lab.adventureGuid}`}
-							state={{ inAppNavigation: true }}
-						>
-							{lab.title}
-						</Link>
-						<StatusChips lab={lab} />
+						<div className="results-list-title-row">
+							<Link
+								to={`/labs/${lab.adventureGuid}`}
+								state={{ inAppNavigation: true }}
+							>
+								{lab.title}
+							</Link>
+							<FavoriteButton lab={lab} />
+							<StatusChips lab={lab} />
+						</div>
 						<LabMeta lab={lab} searchCentre={searchCentre} />
 					</li>
 				))}

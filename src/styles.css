@@ -58,6 +58,7 @@ body {
 	opacity: 0.75;
 	cursor: pointer;
 	font-size: 0.85rem;
+	white-space: nowrap;
 }
 
 .logout-link:hover {
@@ -326,6 +327,39 @@ body {
 	border: 1px solid rgb(128 128 128 / 30%);
 	border-radius: 8px;
 	padding: 0.75rem 1rem;
+}
+
+.results-list-title-row,
+.lab-detail-title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.favorite-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	min-width: 1.25rem;
+	min-height: 1.5rem;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.favorite-button[aria-pressed="true"] {
+	color: #f5c542;
+}
+
+.lab-detail-title h1 {
+	margin: 0;
 }
 
 .stage-answer-submit {
@@ -604,6 +638,13 @@ body {
 	gap: 1rem;
 }
 
+.favorites-link {
+	align-self: flex-end;
+	color: inherit;
+	font-size: 0.85rem;
+	white-space: nowrap;
+}
+
 .external-lab-link {
 	white-space: nowrap;
 }
@@ -700,6 +741,11 @@ body {
 	gap: 0.4rem;
 	margin-left: 0.6rem;
 	vertical-align: middle;
+}
+
+.results-list-title-row .status-chips,
+.lab-detail-title .status-chips {
+	margin-left: 0;
 }
 
 .status-chip {

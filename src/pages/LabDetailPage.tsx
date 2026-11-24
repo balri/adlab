@@ -22,6 +22,9 @@ import {
 	loadStoredUserLocation,
 	storeUserLocation,
 } from "../utils/storedUserLocation";
+import FavoriteButton from "../components/FavoriteButton";
+import { toLabSummary } from "../utils/toLabSummary";
+import { useFavorites } from "../useFavorites";
 
 type StageSortField = "order" | "name" | "distance" | "status";
 
@@ -35,6 +38,7 @@ const stageSortOptions: SortOption<StageSortField>[] = [
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
 	const { getLab, submitAnswer } = useApi();
+	const { updateFavorite } = useFavorites();
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [submittingAll, setSubmittingAll] = useState(false);
@@ -100,6 +104,7 @@ export default function LabDetailPage() {
 				try {
 					const cachedLab = JSON.parse(cached) as LabDetail;
 					updateStoredSearchResult(cachedLab);
+					updateFavorite(toLabSummary(cachedLab));
 					setLab(cachedLab);
 					return;
 				} catch {
@@ -114,6 +119,7 @@ export default function LabDetailPage() {
 
 				sessionStorage.setItem(cacheKey, JSON.stringify(lab));
 				updateStoredSearchResult(lab);
+				updateFavorite(toLabSummary(lab));
 				setLab(lab);
 				const { latitude, longitude } = loadForm();
 				setSearchCentre({
@@ -132,7 +138,7 @@ export default function LabDetailPage() {
 		}
 
 		loadLab();
-	}, [guid, getLab]);
+	}, [guid, getLab, updateFavorite]);
 
 	if (error) return <p className="error-text">{error}</p>;
 	if (!lab) return <p>Loading…</p>;
@@ -206,6 +212,7 @@ export default function LabDetailPage() {
 				JSON.stringify(refreshedLab),
 			);
 			updateStoredSearchResult(refreshedLab);
+			updateFavorite(toLabSummary(refreshedLab));
 			setLab(refreshedLab);
 		} catch (err) {
 			setError((err as Error).message);
@@ -220,10 +227,11 @@ export default function LabDetailPage() {
 				<BackLink to="/">&larr; Back to search</BackLink>
 			</p>
 			<div className="lab-detail-header">
-				<h1>
-					{lab.title}
+				<div className="lab-detail-title">
+					<h1>{lab.title}</h1>
+					<FavoriteButton lab={toLabSummary(lab)} />
 					<StatusChips lab={lab} />
-				</h1>
+				</div>
 				{lab.smartLink && (
 					<p>
 						<a
