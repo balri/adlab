@@ -12,6 +12,7 @@ type LabSortField =
 	| "date"
 	| "rating"
 	| "ratingsCount"
+	| "stages"
 	| "answers"
 	| "distance"
 	| "status";
@@ -27,6 +28,7 @@ const sortOptions: SortOption<LabSortField>[] = [
 	{ value: "date", label: "Date" },
 	{ value: "rating", label: "Rating" },
 	{ value: "ratingsCount", label: "Number of ratings" },
+	{ value: "stages", label: "Number of stages" },
 	{ value: "answers", label: "Number of answers" },
 	{ value: "distance", label: "Distance" },
 	{ value: "status", label: "Status" },
@@ -92,6 +94,9 @@ export default function ResultsList({
 				break;
 			case "ratingsCount":
 				comparison = a.ratingsTotalCount - b.ratingsTotalCount;
+				break;
+			case "stages":
+				comparison = a.stagesTotalCount - b.stagesTotalCount;
 				break;
 			case "answers":
 				comparison = (a.numAnswers ?? 0) - (b.numAnswers ?? 0);

@@ -259,6 +259,7 @@ export default function LabDetailPage() {
 			{canSubmitAll && (
 				<button
 					type="button"
+					className="submit-all-answers"
 					onClick={handleSubmitAllAnswers}
 					disabled={submittingAll}
 				>
