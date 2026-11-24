@@ -6,14 +6,14 @@ import RequireAuth from "./components/RequireAuth";
 import LoginPage from "./pages/LoginPage";
 import Header from "./components/Header";
 import LabReviews from "./pages/LabReviews";
-import FavoritesPage from "./pages/FavoritesPage";
-import { FavoritesProvider } from "./FavoritesProvider";
+import FavouritesPage from "./pages/FavouritesPage";
+import { FavouritesProvider } from "./FavouritesProvider";
 
 export default function App() {
 	useLocation();
 
 	return (
-		<FavoritesProvider>
+		<FavouritesProvider>
 			<div className="app">
 				<Header />
 				<main>
@@ -22,8 +22,8 @@ export default function App() {
 						<Route element={<RequireAuth />}>
 							<Route path="/" element={<SearchPage />} />
 							<Route
-								path="/favorites"
-								element={<FavoritesPage />}
+								path="/favourites"
+								element={<FavouritesPage />}
 							/>
 							<Route
 								path="/labs/:guid"
@@ -41,6 +41,6 @@ export default function App() {
 					</Routes>
 				</main>
 			</div>
-		</FavoritesProvider>
+		</FavouritesProvider>
 	);
 }

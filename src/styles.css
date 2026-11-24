@@ -337,7 +337,7 @@ body {
 	gap: 0.5rem;
 }
 
-.favorite-button {
+.favourite-button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -354,7 +354,7 @@ body {
 	cursor: pointer;
 }
 
-.favorite-button[aria-pressed="true"] {
+.favourite-button[aria-pressed="true"] {
 	color: #f5c542;
 }
 
@@ -638,7 +638,7 @@ body {
 	gap: 1rem;
 }
 
-.favorites-link {
+.favourites-link {
 	align-self: flex-end;
 	color: inherit;
 	font-size: 0.85rem;

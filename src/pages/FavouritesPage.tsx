@@ -8,7 +8,7 @@ import {
 	loadForm,
 } from "../utils/loadForm";
 import { loadStoredUserLocation } from "../utils/storedUserLocation";
-import { useFavorites } from "../useFavorites";
+import { useFavourites } from "../useFavourites";
 
 function getDistanceCentre(): LatLng {
 	const userLocation = loadStoredUserLocation();
@@ -23,18 +23,18 @@ function getDistanceCentre(): LatLng {
 	};
 }
 
-export default function FavoritesPage() {
-	const { favorites } = useFavorites();
+export default function FavouritesPage() {
+	const { favourites } = useFavourites();
 	const distanceCentre = getDistanceCentre();
 
 	return (
-		<section className="favorites-page">
+		<section className="favourites-page">
 			<p>
 				<BackLink to="/">&larr; Back to search</BackLink>
 			</p>
-			<h1>Favourite labs ({favorites.length})</h1>
-			{favorites.length ? (
-				<ResultsList labs={favorites} searchCentre={distanceCentre} />
+			<h1>Favourite labs ({favourites.length})</h1>
+			{favourites.length ? (
+				<ResultsList labs={favourites} searchCentre={distanceCentre} />
 			) : (
 				<p>
 					No favourite labs yet.{" "}

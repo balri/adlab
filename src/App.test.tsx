@@ -67,7 +67,7 @@ describe("App", () => {
 	});
 
 	it("shows an authenticated link to the saved favourites page", async () => {
-		renderApp(["/favorites"]);
+		renderApp(["/favourites"]);
 
 		expect(
 			await screen.findByRole("heading", {
@@ -76,7 +76,7 @@ describe("App", () => {
 		).toBeInTheDocument();
 		expect(
 			screen.getByRole("link", { name: "Favourite labs (0)" }),
-		).toHaveAttribute("href", "/favorites");
+		).toHaveAttribute("href", "/favourites");
 		expect(screen.getByText("No favourite labs yet.")).toBeInTheDocument();
 	});
 

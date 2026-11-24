@@ -9,7 +9,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LabDetailPage from "./LabDetailPage";
 import type { LabDetail } from "../types";
 import { useApi } from "../useApi";
-import { FavoritesProvider } from "../FavoritesProvider";
+import { FavouritesProvider } from "../FavouritesProvider";
 import { toLabSummary } from "../utils/toLabSummary";
 
 vi.mock("../useApi", () => ({
@@ -69,11 +69,11 @@ const lab: LabDetail = {
 function renderPage(guid = "guid-1") {
 	return render(
 		<MemoryRouter initialEntries={[`/labs/${guid}`]}>
-			<FavoritesProvider>
+			<FavouritesProvider>
 				<Routes>
 					<Route path="/labs/:guid" element={<LabDetailPage />} />
 				</Routes>
-			</FavoritesProvider>
+			</FavouritesProvider>
 		</MemoryRouter>,
 	);
 }
@@ -109,7 +109,7 @@ describe("LabDetailPage", () => {
 			screen.getByRole("link", { name: "Reviews (5)" }),
 		).toHaveAttribute("href", "/labs/guid-1/reviews");
 		const titleRow = document.querySelector(".lab-detail-title");
-		expect(titleRow?.children[1]).toHaveClass("favorite-button");
+		expect(titleRow?.children[1]).toHaveClass("favourite-button");
 		expect(titleRow?.children[2]).toHaveClass("status-chips");
 		expect(
 			screen.getByText(
@@ -140,25 +140,25 @@ describe("LabDetailPage", () => {
 			}),
 		);
 
-		const storedFavorites = JSON.parse(
-			localStorage.getItem("favoriteLabs")!,
+		const storedFavourites = JSON.parse(
+			localStorage.getItem("favouriteLabs")!,
 		);
-		expect(storedFavorites).toHaveLength(1);
-		expect(storedFavorites[0].adventureGuid).toBe("guid-1");
-		expect(storedFavorites[0]).not.toHaveProperty("stageSummaries");
-		expect(storedFavorites[0]).not.toHaveProperty("customAccessCode");
+		expect(storedFavourites).toHaveLength(1);
+		expect(storedFavourites[0].adventureGuid).toBe("guid-1");
+		expect(storedFavourites[0]).not.toHaveProperty("stageSummaries");
+		expect(storedFavourites[0]).not.toHaveProperty("customAccessCode");
 	});
 
 	it.each(["fetched", "cached"])(
 		"updates an existing favourite when the lab detail is loaded from %s data",
 		async (source) => {
-			const savedFavorite = {
+			const savedFavourite = {
 				...toLabSummary(lab),
 				title: "Old title",
 			};
 			localStorage.setItem(
-				"favoriteLabs",
-				JSON.stringify([savedFavorite]),
+				"favouriteLabs",
+				JSON.stringify([savedFavourite]),
 			);
 
 			if (source === "cached") {
@@ -170,7 +170,7 @@ describe("LabDetailPage", () => {
 			renderPage();
 			await screen.findByText("Riverside Ramble");
 
-			expect(JSON.parse(localStorage.getItem("favoriteLabs")!)).toEqual([
+			expect(JSON.parse(localStorage.getItem("favouriteLabs")!)).toEqual([
 				toLabSummary(lab),
 			]);
 		},

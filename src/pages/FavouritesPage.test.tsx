@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { FavoritesProvider } from "../FavoritesProvider";
+import { FavouritesProvider } from "../FavouritesProvider";
 import type { LabSummary } from "../types";
-import FavoritesPage from "./FavoritesPage";
+import FavouritesPage from "./FavouritesPage";
 
-const favoriteLab: LabSummary = {
-	adventureGuid: "favorite-guid",
+const favouriteLab: LabSummary = {
+	adventureGuid: "favourite-guid",
 	title: "Saved Lab",
 	keyImageUrl: "",
 	smartLink: "",
@@ -29,21 +29,21 @@ const favoriteLab: LabSummary = {
 function renderPage() {
 	return render(
 		<MemoryRouter>
-			<FavoritesProvider>
-				<FavoritesPage />
-			</FavoritesProvider>
+			<FavouritesProvider>
+				<FavouritesPage />
+			</FavouritesProvider>
 		</MemoryRouter>,
 	);
 }
 
-describe("FavoritesPage", () => {
+describe("FavouritesPage", () => {
 	beforeEach(() => {
 		localStorage.clear();
 		sessionStorage.clear();
 	});
 
 	it("shows saved labs without requiring a search", () => {
-		localStorage.setItem("favoriteLabs", JSON.stringify([favoriteLab]));
+		localStorage.setItem("favouriteLabs", JSON.stringify([favouriteLab]));
 		renderPage();
 
 		expect(
@@ -51,7 +51,7 @@ describe("FavoritesPage", () => {
 		).toBeInTheDocument();
 		expect(screen.getByRole("link", { name: "Saved Lab" })).toHaveAttribute(
 			"href",
-			"/labs/favorite-guid",
+			"/labs/favourite-guid",
 		);
 		expect(
 			screen.getByRole("link", { name: "← Back to search" }),
@@ -73,8 +73,21 @@ describe("FavoritesPage", () => {
 		).toHaveAttribute("href", "/");
 	});
 
+	it("migrates saved labs from the previous local storage key", () => {
+		localStorage.setItem("favoriteLabs", JSON.stringify([favouriteLab]));
+		renderPage();
+
+		expect(
+			screen.getByRole("heading", { name: "Favourite labs (1)" }),
+		).toBeInTheDocument();
+		expect(localStorage.getItem("favouriteLabs")).toBe(
+			JSON.stringify([favouriteLab]),
+		);
+		expect(localStorage.getItem("favoriteLabs")).toBeNull();
+	});
+
 	it("removes a saved lab from the favourites list", () => {
-		localStorage.setItem("favoriteLabs", JSON.stringify([favoriteLab]));
+		localStorage.setItem("favouriteLabs", JSON.stringify([favouriteLab]));
 		renderPage();
 
 		fireEvent.click(
@@ -89,19 +102,19 @@ describe("FavoritesPage", () => {
 		expect(
 			screen.getByRole("heading", { name: "Favourite labs (0)" }),
 		).toBeInTheDocument();
-		expect(localStorage.getItem("favoriteLabs")).toBe("[]");
+		expect(localStorage.getItem("favouriteLabs")).toBe("[]");
 	});
 
 	it("sorts favourites and displays distances from the saved search location", () => {
 		const fartherLab = {
-			...favoriteLab,
+			...favouriteLab,
 			adventureGuid: "farther-guid",
 			title: "Farther Lab",
 			location: { latitude: -27.5, longitude: 153 },
 		};
 		localStorage.setItem(
-			"favoriteLabs",
-			JSON.stringify([fartherLab, favoriteLab]),
+			"favouriteLabs",
+			JSON.stringify([fartherLab, favouriteLab]),
 		);
 		localStorage.setItem(
 			"searchForm",
@@ -121,14 +134,14 @@ describe("FavoritesPage", () => {
 
 	it("uses the stored user location before the saved search location", () => {
 		const fartherLab = {
-			...favoriteLab,
+			...favouriteLab,
 			adventureGuid: "farther-guid",
 			title: "Farther Lab",
 			location: { latitude: -27.5, longitude: 153 },
 		};
 		localStorage.setItem(
-			"favoriteLabs",
-			JSON.stringify([favoriteLab, fartherLab]),
+			"favouriteLabs",
+			JSON.stringify([favouriteLab, fartherLab]),
 		);
 		localStorage.setItem(
 			"searchForm",

@@ -22,9 +22,9 @@ import {
 	loadStoredUserLocation,
 	storeUserLocation,
 } from "../utils/storedUserLocation";
-import FavoriteButton from "../components/FavoriteButton";
+import FavouriteButton from "../components/FavouriteButton";
 import { toLabSummary } from "../utils/toLabSummary";
-import { useFavorites } from "../useFavorites";
+import { useFavourites } from "../useFavourites";
 
 type StageSortField = "order" | "name" | "distance" | "status";
 
@@ -38,7 +38,7 @@ const stageSortOptions: SortOption<StageSortField>[] = [
 export default function LabDetailPage() {
 	const { guid } = useParams<{ guid: string }>();
 	const { getLab, submitAnswer } = useApi();
-	const { updateFavorite } = useFavorites();
+	const { updateFavourite } = useFavourites();
 	const [lab, setLab] = useState<LabDetail | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [submittingAll, setSubmittingAll] = useState(false);
@@ -104,7 +104,7 @@ export default function LabDetailPage() {
 				try {
 					const cachedLab = JSON.parse(cached) as LabDetail;
 					updateStoredSearchResult(cachedLab);
-					updateFavorite(toLabSummary(cachedLab));
+					updateFavourite(toLabSummary(cachedLab));
 					setLab(cachedLab);
 					return;
 				} catch {
@@ -119,7 +119,7 @@ export default function LabDetailPage() {
 
 				sessionStorage.setItem(cacheKey, JSON.stringify(lab));
 				updateStoredSearchResult(lab);
-				updateFavorite(toLabSummary(lab));
+				updateFavourite(toLabSummary(lab));
 				setLab(lab);
 				const { latitude, longitude } = loadForm();
 				setSearchCentre({
@@ -138,7 +138,7 @@ export default function LabDetailPage() {
 		}
 
 		loadLab();
-	}, [guid, getLab, updateFavorite]);
+	}, [guid, getLab, updateFavourite]);
 
 	if (error) return <p className="error-text">{error}</p>;
 	if (!lab) return <p>Loading…</p>;
@@ -212,7 +212,7 @@ export default function LabDetailPage() {
 				JSON.stringify(refreshedLab),
 			);
 			updateStoredSearchResult(refreshedLab);
-			updateFavorite(toLabSummary(refreshedLab));
+			updateFavourite(toLabSummary(refreshedLab));
 			setLab(refreshedLab);
 		} catch (err) {
 			setError((err as Error).message);
@@ -229,7 +229,7 @@ export default function LabDetailPage() {
 			<div className="lab-detail-header">
 				<div className="lab-detail-title">
 					<h1>{lab.title}</h1>
-					<FavoriteButton lab={toLabSummary(lab)} />
+					<FavouriteButton lab={toLabSummary(lab)} />
 					<StatusChips lab={lab} />
 				</div>
 				{lab.smartLink && (

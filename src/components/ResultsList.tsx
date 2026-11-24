@@ -5,7 +5,7 @@ import { distanceBetween } from "../utils/distanceBetween";
 import StatusChips from "./StatusChips";
 import LabMeta from "./LabMeta";
 import SortControls, { type SortOption } from "./SortControls";
-import FavoriteButton from "./FavoriteButton";
+import FavouriteButton from "./FavouriteButton";
 
 type LabSortField =
 	| "name"
@@ -138,7 +138,7 @@ export default function ResultsList({
 							>
 								{lab.title}
 							</Link>
-							<FavoriteButton lab={lab} />
+							<FavouriteButton lab={lab} />
 							<StatusChips lab={lab} />
 						</div>
 						<LabMeta lab={lab} searchCentre={searchCentre} />

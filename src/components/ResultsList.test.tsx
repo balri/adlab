@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import ResultsList from "./ResultsList";
 import type { LabSummary } from "../types";
-import { FavoritesProvider } from "../FavoritesProvider";
+import { FavouritesProvider } from "../FavouritesProvider";
 
 function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 	return {
@@ -32,12 +32,12 @@ function lab(overrides: Partial<LabSummary> = {}): LabSummary {
 function renderResults(labs: LabSummary[]) {
 	return render(
 		<MemoryRouter>
-			<FavoritesProvider>
+			<FavouritesProvider>
 				<ResultsList
 					labs={labs}
 					searchCentre={{ latitude: -27.5, longitude: 153.0 }}
 				/>
-			</FavoritesProvider>
+			</FavouritesProvider>
 		</MemoryRouter>,
 	);
 }
@@ -65,7 +65,7 @@ describe("ResultsList", () => {
 				name: "Remove Test Lab from favourites",
 			}),
 		).toHaveAttribute("aria-pressed", "true");
-		expect(JSON.parse(localStorage.getItem("favoriteLabs")!)).toEqual([
+		expect(JSON.parse(localStorage.getItem("favouriteLabs")!)).toEqual([
 			lab(),
 		]);
 
@@ -74,7 +74,7 @@ describe("ResultsList", () => {
 				name: "Remove Test Lab from favourites",
 			}),
 		);
-		expect(localStorage.getItem("favoriteLabs")).toBe("[]");
+		expect(localStorage.getItem("favouriteLabs")).toBe("[]");
 	});
 
 	it("renders a link, rating, and stage count for each lab", () => {
