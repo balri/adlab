@@ -43,6 +43,11 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 		(lab !== undefined &&
 			lab.stagesTotalCount > 0 &&
 			(lab.meta?.numAnswers ?? 0) >= lab.stagesTotalCount);
+	const hasCompleteAnswerMeta =
+		typeof lab?.meta?.incompleteStagesWithAnswerCount === "number" &&
+		typeof lab.meta.incompleteStagesCount === "number" &&
+		typeof lab.meta.hasAllAnswers === "boolean";
+	const answerCountSuffix = isLabSummary && !hasCompleteAnswerMeta ? "*" : "";
 	const hasMultipleChoiceStageChip = stage?.challengeType === "MultiChoice";
 	const hasAllMultipleChoiceLabChip =
 		!stage &&
@@ -111,8 +116,8 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			{!stage && !hasMultipleChoiceChip && answerCount > 0 && (
 				<span className="status-chip correct">
 					{hasAllAnswers
-						? `Has All Answers${isLabSummary ? "*" : ""}`
-						: `${answerCount} of ${answerTotalCount} answers${isLabSummary ? "*" : ""}`}
+						? `Has All Answers${answerCountSuffix}`
+						: `${answerCount} of ${answerTotalCount} answers${answerCountSuffix}`}
 				</span>
 			)}
 		</span>

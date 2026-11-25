@@ -154,7 +154,7 @@ describe("StatusChips", () => {
 			"status-chip",
 			"in-progress",
 		);
-		expect(screen.getByText("1 of 3 answers*")).toBeInTheDocument();
+		expect(screen.getByText("1 of 3 answers")).toBeInTheDocument();
 	});
 
 	it("preserves the all-multi-choice chip when converting a detail to a summary", () => {
