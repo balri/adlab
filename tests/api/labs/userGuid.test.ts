@@ -64,8 +64,10 @@ describe("lab handlers use the userGuid cookie", () => {
 		expect(res.json).toHaveBeenCalledWith(
 			expect.objectContaining({
 				adventureGuid: "adventure-1",
-				ownedByUser: true,
-				numAnswers: 4,
+				meta: expect.objectContaining({
+					ownedByUser: true,
+					numAnswers: 4,
+				}),
 				stageSummaries: [],
 			}),
 		);
@@ -100,14 +102,18 @@ describe("lab handlers use the userGuid cookie", () => {
 			{
 				adventureGuid: "adventure-1",
 				ownerPublicGuid: "guid-1",
-				numAnswers: 3,
-				ownedByUser: true,
+				meta: {
+					numAnswers: 3,
+					ownedByUser: true,
+				},
 			},
 			{
 				adventureGuid: "adventure-2",
 				ownerPublicGuid: "guid-2",
-				numAnswers: 0,
-				ownedByUser: false,
+				meta: {
+					numAnswers: 0,
+					ownedByUser: false,
+				},
 			},
 		]);
 	});

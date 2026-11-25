@@ -64,8 +64,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 				return {
 					...lab,
-					numAnswers: Number(count),
-					ownedByUser: lab.ownerPublicGuid === userGuid,
+					meta: {
+						numAnswers: Number(count),
+						ownedByUser: lab.ownerPublicGuid === userGuid,
+					},
 				};
 			}),
 		);

@@ -161,7 +161,7 @@ describe("SearchPage", () => {
 	});
 
 	it("shows the answer-count disclaimer when results have answer counts", async () => {
-		mockSearchLabs.mockResolvedValue([lab({ numAnswers: 2 })]);
+		mockSearchLabs.mockResolvedValue([lab({ meta: { numAnswers: 2 } })]);
 		renderPage();
 
 		fireEvent.click(screen.getByRole("button", { name: "Search" }));
@@ -174,7 +174,7 @@ describe("SearchPage", () => {
 	});
 
 	it("does not show the answer-count disclaimer when all counts are zero", async () => {
-		mockSearchLabs.mockResolvedValue([lab({ numAnswers: 0 })]);
+		mockSearchLabs.mockResolvedValue([lab({ meta: { numAnswers: 0 } })]);
 		renderPage();
 
 		fireEvent.click(screen.getByRole("button", { name: "Search" }));

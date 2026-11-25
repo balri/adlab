@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import type { LabDetail, LabSummary } from "../types";
+import { toLabSummary } from "../utils/toLabSummary";
 import StatusChips from "./StatusChips";
 
 function makeLab(overrides: Partial<LabSummary> = {}): LabSummary {
@@ -50,7 +51,7 @@ describe("StatusChips", () => {
 	beforeEach(() => localStorage.clear());
 
 	it("shows Owned when the API marks the lab as owned", () => {
-		render(<StatusChips lab={makeLab({ ownedByUser: true })} />);
+		render(<StatusChips lab={makeLab({ meta: { ownedByUser: true } })} />);
 
 		expect(screen.getByText("Owned")).toBeInTheDocument();
 	});
@@ -66,7 +67,7 @@ describe("StatusChips", () => {
 
 	it("does not infer ownership from a locally stored user GUID", () => {
 		localStorage.setItem("userGuid", "guid-1");
-		render(<StatusChips lab={makeLab({ ownedByUser: false })} />);
+		render(<StatusChips lab={makeLab({ meta: { ownedByUser: false } })} />);
 
 		expect(screen.queryByText("Owned")).not.toBeInTheDocument();
 	});
@@ -74,7 +75,7 @@ describe("StatusChips", () => {
 	it("shows the number of answers when the lab has answers", () => {
 		render(
 			<StatusChips
-				lab={makeLab({ numAnswers: 3, stagesTotalCount: 5 })}
+				lab={makeLab({ meta: { numAnswers: 3 }, stagesTotalCount: 5 })}
 			/>,
 		);
 
@@ -84,7 +85,7 @@ describe("StatusChips", () => {
 	it("shows Has All Answers when every stage has an answer", () => {
 		render(
 			<StatusChips
-				lab={makeLab({ numAnswers: 5, stagesTotalCount: 5 })}
+				lab={makeLab({ meta: { numAnswers: 5 }, stagesTotalCount: 5 })}
 			/>,
 		);
 
@@ -101,7 +102,7 @@ describe("StatusChips", () => {
 				"SingleChoice",
 				"SingleChoice",
 			],
-			{ numAnswers: 3 },
+			{ meta: { numAnswers: 3 } },
 		);
 		labDetail.stageSummaries[0].isComplete = true;
 		labDetail.stageSummaries[0].correctAnswer = "completed answer";
@@ -119,7 +120,7 @@ describe("StatusChips", () => {
 			["SingleChoice", "SingleChoice", "SingleChoice"],
 			{
 				completionStatus: "InProgress",
-				numAnswers: 1,
+				meta: { numAnswers: 1 },
 			},
 		);
 		lab.stageSummaries[0].isComplete = true;
@@ -136,6 +137,40 @@ describe("StatusChips", () => {
 		expect(screen.getByText("1 of 1 answers")).toBeInTheDocument();
 	});
 
+	it("preserves stage-derived status chip data when converting a detail to a summary", () => {
+		const lab = makeLabDetail(Array(5).fill("SingleChoice"), {
+			completionStatus: "InProgress",
+			meta: { numAnswers: 3 },
+		});
+		lab.stageSummaries[0].isComplete = true;
+		lab.stageSummaries[0].correctAnswer = "completed answer";
+		lab.stageSummaries[1].isComplete = true;
+		lab.stageSummaries[1].correctAnswer = "completed answer";
+		lab.stageSummaries[2].correctAnswer = "incomplete answer";
+
+		render(<StatusChips lab={toLabSummary(lab)} />);
+
+		expect(screen.getByText("2 of 5 completed")).toHaveClass(
+			"status-chip",
+			"in-progress",
+		);
+		expect(screen.getByText("1 of 3 answers*")).toBeInTheDocument();
+	});
+
+	it("preserves the all-multi-choice chip when converting a detail to a summary", () => {
+		const lab = makeLabDetail(["MultiChoice", "MultiChoice"], {
+			meta: { numAnswers: 2 },
+		});
+
+		render(<StatusChips lab={toLabSummary(lab)} />);
+
+		expect(screen.getByText("All Multi Choice")).toHaveClass(
+			"status-chip",
+			"correct",
+		);
+		expect(screen.queryByText("2 of 2 answers*")).not.toBeInTheDocument();
+	});
+
 	it("does not show the lab completion count on a stage", () => {
 		const lab = makeLabDetail(["SingleChoice", "SingleChoice"], {
 			completionStatus: "InProgress",
@@ -149,7 +184,7 @@ describe("StatusChips", () => {
 	});
 
 	it("does not show the answer count when there are no answers", () => {
-		render(<StatusChips lab={makeLab({ numAnswers: 0 })} />);
+		render(<StatusChips lab={makeLab({ meta: { numAnswers: 0 } })} />);
 
 		expect(screen.queryByText(/answers\*/)).not.toBeInTheDocument();
 	});
@@ -157,7 +192,7 @@ describe("StatusChips", () => {
 	it("shows the stage answer chip instead of the lab answer count", () => {
 		render(
 			<StatusChips
-				lab={makeLab({ numAnswers: 3, stagesTotalCount: 5 })}
+				lab={makeLab({ meta: { numAnswers: 3 }, stagesTotalCount: 5 })}
 				stage={{ correctAnswer: "42", isComplete: false } as never}
 			/>,
 		);
@@ -169,7 +204,7 @@ describe("StatusChips", () => {
 	it("shows a multi choice chip for multi choice stages", () => {
 		render(
 			<StatusChips
-				lab={makeLab({ numAnswers: 1 })}
+				lab={makeLab({ meta: { numAnswers: 1 } })}
 				stage={
 					{
 						challengeType: "MultiChoice",
@@ -192,7 +227,7 @@ describe("StatusChips", () => {
 		const { rerender } = render(
 			<StatusChips
 				lab={makeLabDetail(["MultiChoice", "MultiChoice"], {
-					numAnswers: 2,
+					meta: { numAnswers: 2 },
 				})}
 			/>,
 		);
@@ -204,7 +239,7 @@ describe("StatusChips", () => {
 		expect(screen.queryByText("2 of 2 answers")).not.toBeInTheDocument();
 
 		const mixedLab = makeLabDetail(["MultiChoice", "SingleChoice"], {
-			numAnswers: 2,
+			meta: { numAnswers: 2 },
 		});
 		mixedLab.stageSummaries.forEach((stageSummary) => {
 			stageSummary.correctAnswer = "answer";

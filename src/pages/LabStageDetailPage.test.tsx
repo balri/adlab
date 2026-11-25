@@ -283,7 +283,7 @@ describe("LabStageDetailPage", () => {
 		const user = userEvent.setup();
 		const labWithQuestion = {
 			...lab,
-			numAnswers: 2,
+			meta: { numAnswers: 2 },
 			stageSummaries: [
 				{ ...lab.stageSummaries[0], challengeType: "SingleChoice" },
 			],
@@ -292,7 +292,7 @@ describe("LabStageDetailPage", () => {
 		mockCheckAnswer.mockResolvedValue({ success: true });
 		sessionStorage.setItem(
 			"searchResults",
-			JSON.stringify([{ adventureGuid: "guid-1", numAnswers: 2 }]),
+			JSON.stringify([{ ...lab, meta: { numAnswers: 2 } }]),
 		);
 		renderPage();
 
@@ -303,11 +303,12 @@ describe("LabStageDetailPage", () => {
 			const storedLab = JSON.parse(
 				sessionStorage.getItem("lab_guid-1")!,
 			) as LabDetail;
-			expect(storedLab.numAnswers).toBe(1);
+			expect(storedLab.meta?.numAnswers).toBe(1);
 			expect(storedLab.stageSummaries[0].correctAnswer).toBe("1902");
 		});
 		expect(
-			JSON.parse(sessionStorage.getItem("searchResults")!)[0].numAnswers,
+			JSON.parse(sessionStorage.getItem("searchResults")!)[0].meta
+				.numAnswers,
 		).toBe(1);
 	});
 });

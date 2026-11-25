@@ -16,6 +16,7 @@ import {
 	loadStoredUserLocation,
 	storeUserLocation,
 } from "../utils/storedUserLocation";
+import { normalizeLabSummaries } from "../utils/normalizeLabSummaries";
 
 function setCentreAndRadius(
 	labs: LabSummary[],
@@ -35,7 +36,7 @@ export default function SearchPage() {
 	const { searchLabs } = useApi();
 	const [labs, setLabs] = useState<LabSummary[]>(() => {
 		const saved = sessionStorage.getItem("searchResults");
-		return saved ? JSON.parse(saved) : [];
+		return saved ? normalizeLabSummaries(JSON.parse(saved)) : [];
 	});
 	const [hasSearched, setHasSearched] = useState(() => labs.length > 0);
 	const [radius, setRadius] = useState<number>(() => {
@@ -187,7 +188,7 @@ export default function SearchPage() {
 						sortOptionsExpanded={sortOptionsExpanded}
 						onSortOptionsExpandedChange={setSortOptionsExpanded}
 					/>
-					{labs.some((lab) => (lab.numAnswers ?? 0) > 0) && (
+					{labs.some((lab) => (lab.meta?.numAnswers ?? 0) > 0) && (
 						<p className="answer-count-disclaimer">
 							* Answer counts are a guideline only; actual counts
 							may differ.

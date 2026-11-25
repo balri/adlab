@@ -86,6 +86,28 @@ describe("FavouritesPage", () => {
 		expect(localStorage.getItem("favoriteLabs")).toBeNull();
 	});
 
+	it("moves calculated favourite fields into meta when loading older data", () => {
+		localStorage.setItem(
+			"favouriteLabs",
+			JSON.stringify([
+				{ ...favouriteLab, ownedByUser: true, numAnswers: 1 },
+			]),
+		);
+		renderPage();
+
+		expect(screen.getByText("Owned")).toBeInTheDocument();
+		expect(screen.getByText("Has All Answers*")).toBeInTheDocument();
+		const [storedFavourite] = JSON.parse(
+			localStorage.getItem("favouriteLabs")!,
+		);
+		expect(storedFavourite.meta).toMatchObject({
+			ownedByUser: true,
+			numAnswers: 1,
+		});
+		expect(storedFavourite).not.toHaveProperty("ownedByUser");
+		expect(storedFavourite).not.toHaveProperty("numAnswers");
+	});
+
 	it("removes a saved lab from the favourites list", () => {
 		localStorage.setItem("favouriteLabs", JSON.stringify([favouriteLab]));
 		renderPage();

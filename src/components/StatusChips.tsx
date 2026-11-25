@@ -9,12 +9,15 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 	const isLabDetail = (candidate: LabSummary): candidate is LabDetail =>
 		"stageSummaries" in candidate;
 	const isLabSummary = lab !== undefined && !isLabDetail(lab);
-	const isInProgressLabDetail =
+	const labDetail = lab !== undefined && isLabDetail(lab) ? lab : undefined;
+	const hasLabProgressMeta =
+		labDetail !== undefined ||
+		typeof lab?.meta?.completedStagesCount === "number";
+	const isInProgressLab =
 		lab !== undefined &&
 		!stage &&
-		isLabDetail(lab) &&
+		hasLabProgressMeta &&
 		lab.completionStatus === "InProgress";
-	const labDetail = lab !== undefined && isLabDetail(lab) ? lab : undefined;
 	const incompleteStages =
 		labDetail?.stageSummaries.filter(
 			(stageSummary) => !stageSummary.isComplete,
@@ -22,34 +25,42 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 	const answerCount = labDetail
 		? incompleteStages.filter((stageSummary) => stageSummary.correctAnswer)
 				.length
-		: (lab?.numAnswers ?? 0);
+		: (lab?.meta?.incompleteStagesWithAnswerCount ??
+			lab?.meta?.numAnswers ??
+			0);
 	const answerTotalCount = labDetail
 		? incompleteStages.length
-		: (lab?.stagesTotalCount ?? 0);
-	const completedStageCount = isInProgressLabDetail
-		? lab.stageSummaries.filter((stageSummary) => stageSummary.isComplete)
-				.length
-		: 0;
+		: (lab?.meta?.incompleteStagesCount ?? lab?.stagesTotalCount ?? 0);
+	const completedStageCount = labDetail
+		? labDetail.stageSummaries.filter(
+				(stageSummary) => stageSummary.isComplete,
+			).length
+		: (lab?.meta?.completedStagesCount ?? 0);
+	const stageCount =
+		labDetail?.stageSummaries.length ?? lab?.stagesTotalCount ?? 0;
 	const hasAllAnswers =
-		lab !== undefined &&
-		lab.stagesTotalCount > 0 &&
-		(lab.numAnswers ?? 0) >= lab.stagesTotalCount;
+		lab?.meta?.hasAllAnswers ??
+		(lab !== undefined &&
+			lab.stagesTotalCount > 0 &&
+			(lab.meta?.numAnswers ?? 0) >= lab.stagesTotalCount);
 	const hasMultipleChoiceStageChip = stage?.challengeType === "MultiChoice";
 	const hasAllMultipleChoiceLabChip =
 		!stage &&
 		lab !== undefined &&
-		isLabDetail(lab) &&
-		lab.stageSummaries.length > 0 &&
-		lab.stageSummaries.every(
-			(stageSummary) => stageSummary.challengeType === "MultiChoice",
-		);
+		(labDetail !== undefined
+			? labDetail.stageSummaries.length > 0 &&
+				labDetail.stageSummaries.every(
+					(stageSummary) =>
+						stageSummary.challengeType === "MultiChoice",
+				)
+			: lab.meta?.allStagesMultiChoice === true);
 	const hasMultipleChoiceChip =
 		hasMultipleChoiceStageChip || hasAllMultipleChoiceLabChip;
 	if (lab) {
 		if (!stage) {
 			statuses.push(lab.completionStatus);
 		}
-		if (lab.ownedByUser) {
+		if (lab.meta?.ownedByUser) {
 			statuses.push("Owned");
 		}
 		if (!stage && lab.adventureType === "Sequential") {
@@ -71,13 +82,12 @@ export default function StatusChips({ lab, stage }: StatusChipsParams) {
 			{statuses.includes("Completed") && (
 				<span className="status-chip complete">Complete</span>
 			)}
-			{statuses.includes("InProgress") && !isInProgressLabDetail && (
+			{statuses.includes("InProgress") && !isInProgressLab && (
 				<span className="status-chip in-progress">In Progress</span>
 			)}
-			{isInProgressLabDetail && (
+			{isInProgressLab && (
 				<span className="status-chip in-progress">
-					{completedStageCount} of {lab.stageSummaries.length}{" "}
-					completed
+					{completedStageCount} of {stageCount} completed
 				</span>
 			)}
 			{statuses.includes("NotStarted") && (

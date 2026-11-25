@@ -22,6 +22,7 @@ import {
 	loadStoredUserLocation,
 	storeUserLocation,
 } from "../utils/storedUserLocation";
+import { normalizeLabDetail } from "../utils/normalizeLabSummaries";
 import FavouriteButton from "../components/FavouriteButton";
 import { toLabSummary } from "../utils/toLabSummary";
 import { useFavourites } from "../useFavourites";
@@ -102,7 +103,9 @@ export default function LabDetailPage() {
 
 			if (cached) {
 				try {
-					const cachedLab = JSON.parse(cached) as LabDetail;
+					const cachedLab = normalizeLabDetail(JSON.parse(cached));
+					if (!cachedLab)
+						throw new Error("Invalid cached lab details");
 					updateStoredSearchResult(cachedLab);
 					updateFavourite(toLabSummary(cachedLab));
 					setLab(cachedLab);

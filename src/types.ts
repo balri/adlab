@@ -16,6 +16,16 @@ export type CompletionStatus = "NotStarted" | "InProgress" | "Completed";
 
 type AdventureType = "Nonsequential" | "Sequential";
 
+export interface LabStatusMeta {
+	ownedByUser?: boolean;
+	numAnswers?: number;
+	completedStagesCount?: number;
+	incompleteStagesCount?: number;
+	incompleteStagesWithAnswerCount?: number;
+	hasAllAnswers?: boolean;
+	allStagesMultiChoice?: boolean;
+}
+
 export interface LabSummary {
 	adventureGuid: string;
 	title: string;
@@ -40,8 +50,7 @@ export interface LabSummary {
 	completionStatus: CompletionStatus;
 	adventureThemes: Array<string>;
 	// adventureCredit: AdventureCredit;
-	ownedByUser?: boolean | undefined;
-	numAnswers?: number | undefined;
+	meta?: LabStatusMeta | undefined;
 }
 
 interface MultiChoiceOption {

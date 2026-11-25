@@ -11,7 +11,7 @@ export const statusMarker = (props: Props) => {
 	const { lab, stage } = props;
 	let colour = "#fff";
 	if (lab) {
-		colour = lab.ownedByUser
+		colour = lab.meta?.ownedByUser
 			? "#1976d2"
 			: {
 					NotStarted: "#c62828",

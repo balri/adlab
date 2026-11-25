@@ -7,6 +7,7 @@ import {
 } from "../_lib/database.js";
 import { calculateAnswer, checkAnswer } from "../_lib/answer.js";
 import { LabStage } from "../../src/types.js";
+import { createLabStatusMeta } from "../../src/utils/createLabStatusMeta.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "GET") {
@@ -81,10 +82,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		res.setHeader("Cache-Control", "no-store");
 		res.status(200).json({
 			...lab,
-			ownedByUser: lab.ownerPublicGuid === userGuid,
-			numAnswers: Number(count),
 			stageSummaries,
 			stagesTotalCount,
+			meta: createLabStatusMeta({
+				stageSummaries,
+				stagesTotalCount,
+				ownedByUser: lab.ownerPublicGuid === userGuid,
+				numAnswers: Number(count),
+			}),
 		});
 	} catch (err) {
 		res.status(502).json({ error: (err as Error).message });

@@ -668,21 +668,58 @@ describe("LabDetailPage", () => {
 		expect(sessionStorage.getItem("lab_guid-1")).toBe(JSON.stringify(lab));
 	});
 
+	it("migrates calculated fields from a cached lab detail into favourite meta", async () => {
+		localStorage.setItem(
+			"favouriteLabs",
+			JSON.stringify([toLabSummary(lab)]),
+		);
+		sessionStorage.setItem(
+			"lab_guid-1",
+			JSON.stringify({ ...lab, ownedByUser: true, numAnswers: 1 }),
+		);
+		renderPage();
+
+		await screen.findByText("Riverside Ramble");
+
+		const [favourite] = JSON.parse(localStorage.getItem("favouriteLabs")!);
+		expect(favourite.meta).toMatchObject({
+			ownedByUser: true,
+			numAnswers: 1,
+		});
+		expect(favourite).not.toHaveProperty("ownedByUser");
+		expect(favourite).not.toHaveProperty("numAnswers");
+	});
+
 	it("updates a matching stored search result when the lab loads", async () => {
 		const searchResult = {
 			...lab,
 			title: "Old title",
-			ownedByUser: true,
-			numAnswers: 3,
+			meta: { ownedByUser: true, numAnswers: 3 },
 		};
 		sessionStorage.setItem("searchResults", JSON.stringify([searchResult]));
-		mockGetLab.mockResolvedValue({ ...lab, numAnswers: 4 });
+		mockGetLab.mockResolvedValue({
+			...lab,
+			meta: { numAnswers: 4 },
+		});
 		renderPage();
 
 		await waitFor(() =>
 			expect(
 				JSON.parse(sessionStorage.getItem("searchResults")!),
-			).toEqual([{ ...lab, ownedByUser: true, numAnswers: 4 }]),
+			).toEqual([
+				{
+					...lab,
+					meta: {
+						ownedByUser: true,
+						numAnswers: 4,
+						completedStagesCount: 0,
+						incompleteStagesCount: 1,
+						incompleteStagesWithAnswerCount: 0,
+						hasAllAnswers: true,
+						allStagesMultiChoice: false,
+					},
+				},
+			]),
 		);
 	});
 

@@ -1,4 +1,5 @@
 import type { LabDetail, LabSummary } from "../types";
+import { createLabStatusMeta } from "./createLabStatusMeta";
 
 export function toLabSummary(lab: LabDetail): LabSummary {
 	return {
@@ -21,7 +22,10 @@ export function toLabSummary(lab: LabDetail): LabSummary {
 		adventureType: lab.adventureType,
 		completionStatus: lab.completionStatus,
 		adventureThemes: lab.adventureThemes,
-		ownedByUser: lab.ownedByUser,
-		numAnswers: lab.numAnswers,
+		meta: createLabStatusMeta({
+			...lab,
+			ownedByUser: lab.meta?.ownedByUser,
+			numAnswers: lab.meta?.numAnswers,
+		}),
 	};
 }

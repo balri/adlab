@@ -1,21 +1,10 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { LabSummary } from "./types";
 import { FavouritesContext } from "./FavouritesContext";
+import { normalizeLabSummaries } from "./utils/normalizeLabSummaries";
 
 const FAVOURITES_STORAGE_KEY = "favouriteLabs";
 const LEGACY_FAVOURITES_STORAGE_KEY = "favoriteLabs";
-
-function isLabSummary(value: unknown): value is LabSummary {
-	if (!value || typeof value !== "object") return false;
-
-	const lab = value as Partial<LabSummary>;
-	return (
-		typeof lab.adventureGuid === "string" &&
-		typeof lab.title === "string" &&
-		typeof lab.location?.latitude === "number" &&
-		typeof lab.location?.longitude === "number"
-	);
-}
 
 function loadFavourites(): LabSummary[] {
 	const stored = localStorage.getItem(FAVOURITES_STORAGE_KEY);
@@ -38,7 +27,7 @@ function loadFavourites(): LabSummary[] {
 		return [];
 	}
 
-	const favourites = Array.isArray(parsed) ? parsed.filter(isLabSummary) : [];
+	const favourites = normalizeLabSummaries(parsed);
 	if (legacyStored !== null) {
 		localStorage.setItem(
 			FAVOURITES_STORAGE_KEY,

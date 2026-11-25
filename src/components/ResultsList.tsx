@@ -99,7 +99,8 @@ export default function ResultsList({
 				comparison = a.stagesTotalCount - b.stagesTotalCount;
 				break;
 			case "answers":
-				comparison = (a.numAnswers ?? 0) - (b.numAnswers ?? 0);
+				comparison =
+					(a.meta?.numAnswers ?? 0) - (b.meta?.numAnswers ?? 0);
 				break;
 			case "distance":
 				comparison = searchCentre

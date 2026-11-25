@@ -175,7 +175,7 @@ describe("ResultsList", () => {
 			ratingsAverage: 3.3,
 			ratingsTotalCount: 20,
 			stagesTotalCount: 5,
-			numAnswers: 5,
+			meta: { numAnswers: 5 },
 			location: { latitude: -26.5, longitude: 153 },
 		});
 		const closerLab = lab({
@@ -185,7 +185,7 @@ describe("ResultsList", () => {
 			ratingsAverage: 4.7,
 			ratingsTotalCount: 5,
 			stagesTotalCount: 2,
-			numAnswers: 1,
+			meta: { numAnswers: 1 },
 			location: { latitude: -27.5, longitude: 153 },
 		});
 		renderResults([fartherLab, closerLab]);

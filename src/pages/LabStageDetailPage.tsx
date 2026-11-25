@@ -7,6 +7,8 @@ import StatusChips from "../components/StatusChips";
 import CoordinateLink from "../components/CoordinateLink";
 import BackLink from "../components/BackLink";
 import { useApi } from "../useApi";
+import { createLabStatusMeta } from "../utils/createLabStatusMeta";
+import { normalizeLabDetail } from "../utils/normalizeLabSummaries";
 import { updateStoredSearchResult } from "../utils/updateStoredSearchResult";
 
 export default function LabStageDetailPage() {
@@ -27,7 +29,9 @@ export default function LabStageDetailPage() {
 
 			if (cached) {
 				try {
-					const cachedLab = JSON.parse(cached) as LabDetail;
+					const cachedLab = normalizeLabDetail(JSON.parse(cached));
+					if (!cachedLab)
+						throw new Error("Invalid cached lab details");
 					updateStoredSearchResult(cachedLab);
 					setLab(cachedLab);
 					return;
@@ -74,9 +78,14 @@ export default function LabStageDetailPage() {
 
 			const updatedLab: LabDetail = {
 				...currentLab,
-				numAnswers: stageSummaries.filter((s) => s.correctAnswer)
-					.length,
 				stageSummaries,
+				meta: createLabStatusMeta({
+					...currentLab,
+					stageSummaries,
+					ownedByUser: currentLab.meta?.ownedByUser,
+					numAnswers: stageSummaries.filter((s) => s.correctAnswer)
+						.length,
+				}),
 			};
 
 			sessionStorage.setItem(`lab_${guid}`, JSON.stringify(updatedLab));

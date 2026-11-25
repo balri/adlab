@@ -159,12 +159,12 @@ describe("SubmitAnswer", () => {
 		const refreshedLab = {
 			...makeLab(10),
 			title: "Updated Lab",
-			numAnswers: 4,
+			meta: { numAnswers: 4 },
 		};
 		const previousResult = {
 			...makeLab(10),
 			title: "Old Lab",
-			numAnswers: 2,
+			meta: { numAnswers: 2 },
 		};
 		sessionStorage.setItem(
 			"searchResults",
@@ -189,7 +189,19 @@ describe("SubmitAnswer", () => {
 		await waitFor(() =>
 			expect(
 				JSON.parse(sessionStorage.getItem("searchResults")!),
-			).toEqual([{ ...refreshedLab, ownedByUser: undefined }]),
+			).toEqual([
+				{
+					...refreshedLab,
+					meta: {
+						numAnswers: 4,
+						completedStagesCount: 0,
+						incompleteStagesCount: 0,
+						incompleteStagesWithAnswerCount: 0,
+						hasAllAnswers: true,
+						allStagesMultiChoice: false,
+					},
+				},
+			]),
 		);
 	});
 });
